@@ -8,10 +8,11 @@ public class UserRegistersTournamentID implements Serializable {
     private Long userID;
     private Long tournamentID;
 
-    public UserRegistersTournamentID(){
+    public UserRegistersTournamentID() {
 
     }
-    public UserRegistersTournamentID(Long userID, Long tournamentID ) {
+
+    public UserRegistersTournamentID(Long userID, Long tournamentID) {
         this.userID = userID;
         this.tournamentID = tournamentID;
     }

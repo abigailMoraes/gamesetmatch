@@ -49,7 +49,7 @@ public class TournamentController {
             outgoingTournament.setMatchDuration(tournament.getMatchDuration());
             outgoingTournament.setNumberOfMatches(tournament.getNumberOfMatches());
 
-            if(tournament.getRoundDuration() !=null){
+            if (tournament.getRoundDuration() != null) {
                 outgoingTournament.setRoundDuration(tournament.getRoundDuration());
             }
 

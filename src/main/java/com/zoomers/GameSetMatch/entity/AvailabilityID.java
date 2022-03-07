@@ -12,7 +12,7 @@ public class AvailabilityID implements Serializable {
     public AvailabilityID() {
     }
 
-    public AvailabilityID(Long userID, Long tournamentID, Date date ) {
+    public AvailabilityID(Long userID, Long tournamentID, Date date) {
         this.userID = userID;
         this.tournamentID = tournamentID;
         this.date = date;

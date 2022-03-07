@@ -14,10 +14,11 @@ import java.util.List;
 public class AvailabilityService {
     @Autowired
     AvailabilityRepository availability;
+
     public void saveAvailabilities(Long tournamentID, Long userID, List<IncomingAvailability> incomingAvailabilities) {
         List<Availability> availabilities = new ArrayList<>();
 
-        for (IncomingAvailability availability :incomingAvailabilities) {
+        for (IncomingAvailability availability : incomingAvailabilities) {
             int availabilityString = convertToInt(availability.getSlots());
             Date date = availability.getDate();
             Availability newAvailability = new Availability(tournamentID, userID, date, availabilityString);

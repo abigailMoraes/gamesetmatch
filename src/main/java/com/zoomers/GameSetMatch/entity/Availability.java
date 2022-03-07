@@ -5,21 +5,21 @@ import java.util.Date;
 
 @Entity
 @IdClass(AvailabilityID.class)
-@Table(name ="Availability")
+@Table(name = "Availability")
 public class Availability {
     @Id
-    @Column(name="tournamentID")
+    @Column(name = "tournamentID")
     private Long tournamentID;
 
     @Id
-    @Column(name="userID")
+    @Column(name = "userID")
     private Long userID;
 
     @Id
-    @Column(name="date")
+    @Column(name = "date")
     private Date date;
 
-    @Column(name="availability_binary")
+    @Column(name = "availability_binary")
     private int availability;
 
     public Availability() {
