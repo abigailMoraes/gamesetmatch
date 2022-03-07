@@ -23,6 +23,7 @@ public class User {
     private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) int id;
     private String email;
     private String name;
+    @Column(name="phone_num")
     private String phoneNum;
 
     @Override

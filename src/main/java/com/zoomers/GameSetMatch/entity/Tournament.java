@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name ="Tournament")
+@Table(name = "Tournament")
 
 public class Tournament {
     @Id
@@ -17,21 +17,21 @@ public class Tournament {
 
     private String description;
 
-    @Column(name="start_date")
+    @Column(name = "start_date")
     private Date startDate;
 
-    @Column(name="close_registration_date")
+    @Column(name = "close_registration_date")
     private Date closeRegistrationDate;
 
     private String location;
 
-    @Column(name="max_participants")
-    private int maxParticipants;
+    @Column(name = "max_participants")
+    private Integer maxParticipants;
 
-    @Column(name="min_participants")
-    private int minParticipants;
+    @Column(name = "min_participants")
+    private Integer minParticipants;
 
-    @Column(name=" end_date")
+    @Column(name = " end_date")
     private Date endDate;
 
     private String prize;
@@ -40,11 +40,14 @@ public class Tournament {
 
     private String type;
 
-    @Column(name="match_duration")
+    @Column(name = "match_duration")
     private Long matchDuration;
 
-    @Column(name="number_of_matches")
+    @Column(name = "number_of_matches")
     private Integer numberOfMatches;
+
+    @Column(name = "round_duration")
+    private Integer roundDuration;
 
     public Long getTournamentID() {
         return tournamentID;
@@ -94,7 +97,7 @@ public class Tournament {
         this.location = location;
     }
 
-    public int getMaxParticipants() {
+    public Integer getMaxParticipants() {
         return maxParticipants;
     }
 
@@ -102,7 +105,7 @@ public class Tournament {
         this.maxParticipants = maxParticipants;
     }
 
-    public int getMinParticipants() {
+    public Integer getMinParticipants() {
         return minParticipants;
     }
 
@@ -156,5 +159,13 @@ public class Tournament {
 
     public void setNumberOfMatches(Integer numberOfMatches) {
         this.numberOfMatches = numberOfMatches;
+    }
+
+    public Integer getRoundDuration() {
+        return roundDuration;
+    }
+
+    public void setRoundDuration(int roundDuration) {
+        this.roundDuration = roundDuration;
     }
 }
