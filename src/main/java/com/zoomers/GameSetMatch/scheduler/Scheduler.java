@@ -4,6 +4,8 @@ import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.LineGraph;
+import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MaximumCardinalityMatching;
+import com.zoomers.GameSetMatch.scheduler.matching.domain.Matching;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
 
@@ -42,11 +44,20 @@ public class Scheduler {
         // TODO: FIND REGISTRANTS AND INSTANTIATE TIMESLOTS
 
         BipartiteGraph bg = new BipartiteGraph(timeslots, registrants);
+
         LineGraph lg = new LineGraph(bg);
+        System.out.println(lg.toString());
+
+        Matching m = MaximumCardinalityMatching.maxCardinalMatch(lg);
+        int i = 0;
+        for (int n : m.getMatch()) {
+            System.out.println(i + " matched with " + n);
+            i++;
+        }
     }
 
     private void initPlayers() {
-        
+
         JSONParser parser = new JSONParser();
         try {
 

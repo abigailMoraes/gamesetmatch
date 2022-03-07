@@ -3,6 +3,8 @@ package com.zoomers.GameSetMatch.scheduler.graph.domain;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import org.springframework.data.util.Pair;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +19,7 @@ public class LineNode {
     }
 
     public void decreaseID() {
-        this.id--;
+        id--;
     }
 
     public Registrant getPlayer() {
