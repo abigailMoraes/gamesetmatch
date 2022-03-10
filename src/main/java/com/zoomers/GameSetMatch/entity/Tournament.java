@@ -1,7 +1,5 @@
 package com.zoomers.GameSetMatch.entity;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -13,8 +11,10 @@ public class Tournament {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tournamentID;
 
+    @Column(name = "name")
     private String name;
 
+    @Column(name = "description")
     private String description;
 
     @Column(name = "start_date")
@@ -23,6 +23,7 @@ public class Tournament {
     @Column(name = "close_registration_date")
     private Date closeRegistrationDate;
 
+    @Column(name = "location")
     private String location;
 
     @Column(name = "max_participants")
@@ -31,13 +32,16 @@ public class Tournament {
     @Column(name = "min_participants")
     private Integer minParticipants;
 
-    @Column(name = " end_date")
+    @Column(name = "end_date")
     private Date endDate;
 
+    @Column(name = "prize")
     private String prize;
 
+    @Column(name = "format")
     private String format;
 
+    @Column(name = "type")
     private String type;
 
     @Column(name = "match_duration")
@@ -48,6 +52,7 @@ public class Tournament {
 
     @Column(name = "round_duration")
     private Integer roundDuration;
+
 
     public Long getTournamentID() {
         return tournamentID;
@@ -101,7 +106,7 @@ public class Tournament {
         return maxParticipants;
     }
 
-    public void setMaxParticipants(int maxParticipants) {
+    public void setMaxParticipants(Integer maxParticipants) {
         this.maxParticipants = maxParticipants;
     }
 
@@ -109,7 +114,7 @@ public class Tournament {
         return minParticipants;
     }
 
-    public void setMinParticipants(int minParticipants) {
+    public void setMinParticipants(Integer minParticipants) {
         this.minParticipants = minParticipants;
     }
 
@@ -165,7 +170,7 @@ public class Tournament {
         return roundDuration;
     }
 
-    public void setRoundDuration(int roundDuration) {
+    public void setRoundDuration(Integer roundDuration) {
         this.roundDuration = roundDuration;
     }
 }
