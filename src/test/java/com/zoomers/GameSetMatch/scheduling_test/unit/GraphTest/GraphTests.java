@@ -75,7 +75,7 @@ public class GraphTests {
         for (int i = 0; i < 300; i++) {
             JSONObject player =  new JSONObject();
             player.put("id", Integer.toString(i));
-            player.put("availability", "111111111111111111111111");
+            player.put("availability", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
             array.put(player);
         }

@@ -60,16 +60,21 @@ public class GreedyMaximumIndependentSet {
     private void visitMatches(Match match) {
 
         this.matches.remove(match);
-        int p1Edges = match.getPlayers().getFirst();
-        int p2Edges = match.getPlayers().getSecond();
-        this.playerDegrees[p1Edges]--;
-        this.playerDegrees[p2Edges]--;
+        int m1p1Edges = match.getPlayers().getFirst();
+        int m1p2Edges = match.getPlayers().getSecond();
+        this.playerDegrees[m1p1Edges]--;
+        this.playerDegrees[m1p2Edges]--;
 
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
         for (Match m2 : this.matches) {
 
-            if (match.sharePlayers(m2)) {// || match.shareTimeslot(m2)) {
+            if (match.sharePlayers(m2) || match.shareTimeslot(m2)) {
+
+                int m2p1Edges = m2.getPlayers().getFirst();
+                int m2p2Edges = m2.getPlayers().getSecond();
+                this.playerDegrees[m2p1Edges]--;
+                this.playerDegrees[m2p2Edges]--;
 
                 matchesToRemove.add(m2);
             }
