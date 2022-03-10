@@ -88,7 +88,7 @@ public class MaximumCardinalityMatching {
         while (!queue.isEmpty()) {
             int v = queue.poll();
 
-            int d = graph.getDegree(v);
+            int d = 0; //graph.getDegree(v);
 
             for (int j = 0; j < d; j++) {
                 LineEdge le = graph.edgeAt(v, j);

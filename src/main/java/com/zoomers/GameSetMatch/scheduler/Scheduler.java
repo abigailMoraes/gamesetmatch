@@ -1,24 +1,24 @@
 package com.zoomers.GameSetMatch.scheduler;
 
+import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
-import com.zoomers.GameSetMatch.scheduler.graph.LineGraph;
-import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MaximumCardinalityMatching;
-import com.zoomers.GameSetMatch.scheduler.matching.domain.Matching;
+import com.zoomers.GameSetMatch.scheduler.graph.MatchGraph;
+import com.zoomers.GameSetMatch.scheduler.matching.algorithms.GreedyMaximumIndependentSet;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Scheduler {
 
     private final List<Registrant> registrants = new ArrayList<>();
     private final List<Timeslot> timeslots = new ArrayList<>();
-    private String playerFileName;
+    private final List<Match> matches = new ArrayList<>();
+    private Integer[] degrees;
+    private final String playerFileName;
     
     public Scheduler(String filename) {
         this.playerFileName = filename;
@@ -44,16 +44,25 @@ public class Scheduler {
         // TODO: FIND REGISTRANTS AND INSTANTIATE TIMESLOTS
 
         BipartiteGraph bg = new BipartiteGraph(timeslots, registrants);
+        LinkedHashMap<Timeslot, List<Registrant>> bgList = bg.getAdjacencyList();
 
-        LineGraph lg = new LineGraph(bg);
-        System.out.println(lg.toString());
+        createPossibleMatches(bgList);
+        setMatchDegrees();
 
-        Matching m = MaximumCardinalityMatching.maxCardinalMatch(lg);
-        int i = 0;
-        for (int n : m.getMatch()) {
-            System.out.println(i + " matched with " + n);
-            i++;
+        GreedyMaximumIndependentSet greedyMaximumIndependentSet = new GreedyMaximumIndependentSet(new LinkedHashSet<>(this.matches), this.degrees);
+        Set<Match> returnedMatches = greedyMaximumIndependentSet.findGreedyMaximumIndependentSet();
+
+        for (Match m : returnedMatches) {
+            System.out.println(m);
         }
+
+        List<Registrant> registrantsToBeMatched = findRegistrantsToBeMatched(returnedMatches);
+
+        for (Registrant r : registrantsToBeMatched) {
+            System.out.println(r);
+        }
+
+        returnedMatches.addAll(findRemainingMatches(registrantsToBeMatched));
     }
 
     private void initPlayers() {
@@ -84,5 +93,54 @@ public class Scheduler {
             Timeslot t = new Timeslot(Float.parseFloat(scanner.nextLine()));
             this.timeslots.add(t);
         }
+    }
+
+    private void createPossibleMatches(LinkedHashMap<Timeslot, List<Registrant>> bgList) {
+
+        this.degrees = new Integer[this.registrants.size()];
+        Arrays.fill(degrees, -1);
+
+        for (Timeslot t : bgList.keySet()) {
+            List<Registrant> players = bgList.get(t);
+            for (int i = 0; i < players.size(); i++) {
+                for (int j = i+1; j < players.size(); j++) {
+                    Match m = new Match(players.get(i).getID(), players.get(j).getID(), t.getTime());
+                    matches.add(m);
+                    this.degrees[players.get(i).getID()]++;
+                    this.degrees[players.get(j).getID()]++;
+                }
+            }
+        }
+    }
+
+    private void setMatchDegrees() {
+
+        for (Match m : matches) {
+
+            int p1Edges = this.degrees[m.getPlayers().getFirst()];
+            int p2Edges = this.degrees[m.getPlayers().getSecond()];
+            m.setDegrees(p1Edges + p2Edges);
+        }
+    }
+
+    private List<Registrant> findRegistrantsToBeMatched(Set<Match> returnedMatches) {
+
+        List<Registrant> toBeMatched = new ArrayList<>(this.registrants);
+        toBeMatched.removeIf(registrant -> {
+            for (Match m : returnedMatches) {
+                if (registrant.getID() == m.getPlayers().getFirst() ||
+                        registrant.getID() == m.getPlayers().getSecond()) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        return toBeMatched;
+    }
+
+    private Set<Match> findRemainingMatches(List<Registrant> registrantsToBeMatched) {
+        
+        return new LinkedHashSet<>();
     }
 }
