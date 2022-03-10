@@ -17,6 +17,7 @@ public class Scheduler {
     private final List<Registrant> registrants = new ArrayList<>();
     private final List<Timeslot> timeslots = new ArrayList<>();
     private final List<Match> matches = new ArrayList<>();
+    private Integer[] degrees;
     private final String playerFileName;
     
     public Scheduler(String filename) {
@@ -48,7 +49,7 @@ public class Scheduler {
         createPossibleMatches(bgList);
         setMatchDegrees();
 
-        GreedyMaximumIndependentSet greedyMaximumIndependentSet = new GreedyMaximumIndependentSet(new LinkedHashSet<>(this.matches));
+        GreedyMaximumIndependentSet greedyMaximumIndependentSet = new GreedyMaximumIndependentSet(new LinkedHashSet<>(this.matches), this.degrees);
         Set<Match> returnedMatches = greedyMaximumIndependentSet.findGreedyMaximumIndependentSet();
 
         for (Match m : returnedMatches) {
@@ -96,12 +97,17 @@ public class Scheduler {
 
     private void createPossibleMatches(LinkedHashMap<Timeslot, List<Registrant>> bgList) {
 
+        this.degrees = new Integer[this.registrants.size()];
+        Arrays.fill(degrees, -1);
+
         for (Timeslot t : bgList.keySet()) {
             List<Registrant> players = bgList.get(t);
             for (int i = 0; i < players.size(); i++) {
                 for (int j = i+1; j < players.size(); j++) {
                     Match m = new Match(players.get(i).getID(), players.get(j).getID(), t.getTime());
                     matches.add(m);
+                    this.degrees[players.get(i).getID()]++;
+                    this.degrees[players.get(j).getID()]++;
                 }
             }
         }
@@ -109,17 +115,11 @@ public class Scheduler {
 
     private void setMatchDegrees() {
 
-        for (int i = 0; i < matches.size(); i++) {
+        for (Match m : matches) {
 
-            Match m1 = matches.get(i);
-            for (int j = i + 1; j < matches.size(); j++) {
-
-                Match m2 = matches.get(j);
-                if (m1.sharePlayers(m2) || m1.shareTimeslot(m2)) {
-                    m1.addDegrees();
-                    m2.addDegrees();
-                }
-            }
+            int p1Edges = this.degrees[m.getPlayers().getFirst()];
+            int p2Edges = this.degrees[m.getPlayers().getSecond()];
+            m.setDegrees(p1Edges + p2Edges);
         }
     }
 

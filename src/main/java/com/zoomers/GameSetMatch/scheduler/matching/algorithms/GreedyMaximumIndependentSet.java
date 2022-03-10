@@ -9,10 +9,12 @@ public class GreedyMaximumIndependentSet {
 
     private final Set<Match> matches;
     private PriorityQueue<Match> priorityQueue;
+    private final Integer[] playerDegrees;
 
-    public GreedyMaximumIndependentSet(Set<Match> matches) {
+    public GreedyMaximumIndependentSet(Set<Match> matches, Integer[] playerDegrees) {
 
         this.matches = matches;
+        this.playerDegrees = playerDegrees;
         buildPriorityQueue();
     }
 
@@ -45,30 +47,29 @@ public class GreedyMaximumIndependentSet {
             }
         });
 
+        for (Match m : this.matches) {
+
+            int p1Edges = this.playerDegrees[m.getPlayers().getFirst()];
+            int p2Edges = this.playerDegrees[m.getPlayers().getSecond()];
+            m.setDegrees(p1Edges + p2Edges);
+        }
+
         priorityQueue.addAll(matches);
     }
 
     private void visitMatches(Match match) {
 
         this.matches.remove(match);
+        int p1Edges = match.getPlayers().getFirst();
+        int p2Edges = match.getPlayers().getSecond();
+        this.playerDegrees[p1Edges]--;
+        this.playerDegrees[p2Edges]--;
 
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
         for (Match m2 : this.matches) {
 
             if (match.sharePlayers(m2)) {// || match.shareTimeslot(m2)) {
-
-                /*for (Match m3 : this.matches) {
-
-                    if (m2.getMatch_id() == m3.getMatch_id()) {
-                        continue;
-                    }
-
-                    if (m2.sharePlayers(m3)) {// || m2.shareTimeslot(m3)) {
-
-                        m3.decreaseDegrees();
-                    }
-                }*/
 
                 matchesToRemove.add(m2);
             }

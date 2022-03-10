@@ -56,6 +56,8 @@ public class Match {
 
     public void decreaseDegrees() { this.degrees--; }
 
+    public void setDegrees(int degrees) { this.degrees = degrees; }
+
     @Override
     public String toString() {
         return "Match{ Player " +
