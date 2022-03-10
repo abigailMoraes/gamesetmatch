@@ -23,7 +23,7 @@ public class LineGraph {
         this.bg = bg;
         this.matrixSize = bg.getEdgeCount();
         this.lineNodes = new LineNode[matrixSize];
-        this.edges = new LineEdge[matrixSize][matrixSize];
+        this.edges = new LineEdge[matrixSize][0];
         this.degrees = new int[matrixSize];
 
         buildGraph();
@@ -31,12 +31,12 @@ public class LineGraph {
 
     private void buildGraph() {
 
-        addNodes();
+        // addNodes();
         addEdges();
     }
 
     private void addNodes() {
-
+/*
         HashMap<Registrant, List<Timeslot>> adjList = bg.getAdjacencyList();
 
         for (Registrant r : adjList.keySet()) {
@@ -51,7 +51,7 @@ public class LineGraph {
                     ln.decreaseID();
                 }
             }
-        }
+        }*/
     }
 
     private void addEdges() {
@@ -154,15 +154,7 @@ public class LineGraph {
     public String toString() {
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < matrixSize; i++) {
-            s.append(i + ": ");
-            for (LineEdge j : edges[i]) {
-                if (j != null) {
-                    s.append(1 + " ");
-                }
-                else {
-                    s.append(0 + " ");
-                }
-            }
+            s.append(i + ": " + getDegree(i));
             s.append("\n");
         }
         return s.toString();

@@ -14,7 +14,7 @@ public class BipartiteGraph {
     private final List<Timeslot> timeslots;
     private final List<Registrant> players;
     private int edgeCount;
-    private final LinkedHashMap<Registrant, List<Timeslot>> adjacencyList;
+    private final LinkedHashMap<Timeslot, List<Registrant>> adjacencyList;
 
     public BipartiteGraph(List<Timeslot> timeslots, List<Registrant> players) {
 
@@ -29,26 +29,23 @@ public class BipartiteGraph {
 
     private void buildGraph() {
 
-        for (Registrant p : players) {
-            for (Timeslot t : timeslots) {
-                createAdjacencyList(p, t);
+        for (Timeslot t : timeslots) {
+            for (Registrant r : players) {
+                createAdjacencyList(r, t);
             }
         }
     }
 
-    private void createAdjacencyList(Registrant p, Timeslot t) {
+    private void createAdjacencyList(Registrant r, Timeslot t) {
 
-        if (p.getAvailability().charAt(t.getID()) == '1') {
+        if (r.getAvailability().charAt(t.getID()) == '1') {
 
-            System.out.print(p.getID() + ", " + t.getTime());
-
-            if (!adjacencyList.containsKey(p)) {
-                adjacencyList.put(p, new ArrayList<>());
+            if (!adjacencyList.containsKey(t)) {
+                adjacencyList.put(t, new ArrayList<>());
             }
 
-            if (!adjacencyList.get(p).contains(t)) {
-                System.out.println(": Added: " + t.getTime() + " to " + p.getID());
-                adjacencyList.get(p).add(t);
+            if (!adjacencyList.get(t).contains(r)) {
+                adjacencyList.get(t).add(r);
                 edgeCount++;
             }
         }
@@ -58,15 +55,15 @@ public class BipartiteGraph {
         return edgeCount;
     }
 
-    public LinkedHashMap<Registrant, List<Timeslot>> getAdjacencyList() {
+    public LinkedHashMap<Timeslot, List<Registrant>> getAdjacencyList() {
         return adjacencyList;
     }
 
     public void printGraph() {
-        for (Registrant r : adjacencyList.keySet()) {
-            System.out.println("\nVertex " + r.getID() + ":");
-            for (Timeslot t : adjacencyList.get(r)) {
-                System.out.print(" -> " + t.getTime());
+        for (Timeslot t : adjacencyList.keySet()) {
+            System.out.println("\nVertex " + t.getTime() + ":");
+            for (Registrant r : adjacencyList.get(t)) {
+                System.out.print(" -> " + r.getID());
             }
         }
         System.out.println("");
