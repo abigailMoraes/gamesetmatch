@@ -1,6 +1,6 @@
 package com.zoomers.GameSetMatch.entity;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,41 +13,55 @@ public class Tournament {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tournamentID;
 
+    @Column(name = "name")
     private String name;
 
+    @Column(name = "description")
     private String description;
 
     @Column(name = "start_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
     @Column(name = "close_registration_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date closeRegistrationDate;
 
+    @Column(name = "location")
     private String location;
 
     @Column(name = "max_participants")
-    private Integer maxParticipants;
+    private int maxParticipants;
 
     @Column(name = "min_participants")
-    private Integer minParticipants;
+    private int minParticipants;
 
-    @Column(name = " end_date")
+    @Column(name = "end_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
+    @Column(name = "prize")
     private String prize;
 
+    @Column(name = "format")
     private String format;
 
+    @Column(name = "type")
     private String type;
 
     @Column(name = "match_duration")
     private Long matchDuration;
 
     @Column(name = "number_of_matches")
-    private Integer numberOfMatches;
+    private int numberOfMatches;
 
     @Column(name = "round_duration")
-    private Integer roundDuration;
+    private int roundDuration;
+
+    // The latest admin ID who creates/modifies the tournament
+    @Column(name = "admin_hosts_tournament")
+    private int adminHostsTournament;
+
 
     public Long getTournamentID() {
         return tournamentID;
@@ -97,7 +111,7 @@ public class Tournament {
         this.location = location;
     }
 
-    public Integer getMaxParticipants() {
+    public int getMaxParticipants() {
         return maxParticipants;
     }
 
@@ -105,7 +119,7 @@ public class Tournament {
         this.maxParticipants = maxParticipants;
     }
 
-    public Integer getMinParticipants() {
+    public int getMinParticipants() {
         return minParticipants;
     }
 
@@ -153,11 +167,11 @@ public class Tournament {
         this.matchDuration = matchDuration;
     }
 
-    public Integer getNumberOfMatches() {
+    public int getNumberOfMatches() {
         return numberOfMatches;
     }
 
-    public void setNumberOfMatches(Integer numberOfMatches) {
+    public void setNumberOfMatches(int numberOfMatches) {
         this.numberOfMatches = numberOfMatches;
     }
 
@@ -165,7 +179,11 @@ public class Tournament {
         return roundDuration;
     }
 
-    public void setRoundDuration(int roundDuration) {
+    public void setRoundDuration(Integer roundDuration) {
         this.roundDuration = roundDuration;
     }
+
+    public void setAdminHostsTournament(int id) {this.adminHostsTournament= id;}
+
+    public int getAdminHostsTournament() {return this.adminHostsTournament;}
 }

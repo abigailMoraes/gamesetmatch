@@ -12,4 +12,8 @@ import javax.persistence.GeneratedValue;
 
 public class Administrator extends User{
     private @GeneratedValue int adminId;
+
+    public int getAdminID() {
+        return this.adminId;
+    }
 }
