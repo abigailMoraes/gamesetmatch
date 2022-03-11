@@ -2,7 +2,7 @@ package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.graph.MatchGraph;
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.*;
@@ -77,6 +77,7 @@ public class GreedyMaximumIndependentSet {
     private void visitMatches(Match match) {
 
         this.matches.remove(match);
+        match.setMatchStatus(MatchStatus.VALID);
 
         System.out.println("Adding " + match + " to Independent Set with degree " + match.getDegrees());
 

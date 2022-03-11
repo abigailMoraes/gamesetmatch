@@ -1,12 +1,13 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 public class Match {
 
     private static int id = 0;
     private final int match_id = id++;
-    private boolean needsAdminAttention = false;
+    private MatchStatus matchStatus;
     private int degrees = 0;
     private final Tuple players;
     private final Timeslot timeslot;
@@ -48,8 +49,8 @@ public class Match {
 
     public int getDegrees() { return degrees; }
 
-    public void setNeedsAdminAttention(boolean needsAdminAttention) {
-        this.needsAdminAttention = needsAdminAttention;
+    public void setMatchStatus(MatchStatus matchStatus) {
+        this.matchStatus = matchStatus;
     }
 
     public void addDegrees() { this.degrees++; }
@@ -64,7 +65,7 @@ public class Match {
     public String toString() {
         return "Match{ Player " +
                 players.getFirst() + " vs Player " + players.getSecond() + " at " + timeslot +
-                ". Needs admin attention: " + needsAdminAttention + " " +
+                ". Match Status: " + matchStatus + " " +
                 '}';
     }
 }
