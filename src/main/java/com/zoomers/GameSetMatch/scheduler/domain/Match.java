@@ -1,24 +1,25 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 public class Match {
 
     private static int id = 0;
     private final int match_id = id++;
-    private boolean needsAdminAttention = false;
+    private MatchStatus matchStatus;
     private int degrees = 0;
     private final Tuple players;
-    private final float timeslot;
+    private final Timeslot timeslot;
     private int skillWeight = 1;
 
-    public Match(int p1, int p2, float timeslot, int skillWeight) {
+    public Match(int p1, int p2, Timeslot timeslot, int skillWeight) {
         this.players = Tuple.of(p1, p2);
         this.skillWeight = skillWeight;
         this.timeslot = timeslot;
     }
 
-    public Match(int p1, int p2, float timeslot) {
+    public Match(int p1, int p2, Timeslot timeslot) {
         this.players = Tuple.of(p1, p2);
         this.timeslot = timeslot;
     }
@@ -44,25 +45,27 @@ public class Match {
         return players;
     }
 
-    public float getTimeslot() { return timeslot; }
+    public Timeslot getTimeslot() { return timeslot; }
 
     public int getDegrees() { return degrees; }
 
-    public void setNeedsAdminAttention(boolean needsAdminAttention) {
-        this.needsAdminAttention = needsAdminAttention;
+    public void setMatchStatus(MatchStatus matchStatus) {
+        this.matchStatus = matchStatus;
     }
 
     public void addDegrees() { this.degrees++; }
 
     public void decreaseDegrees() { this.degrees--; }
 
-    public void setDegrees(int degrees) { this.degrees = degrees; }
+    public void setDegrees(int degrees) {
+        this.degrees = degrees;
+    }
 
     @Override
     public String toString() {
         return "Match{ Player " +
                 players.getFirst() + " vs Player " + players.getSecond() + " at " + timeslot +
-                ". Needs admin attention: " + needsAdminAttention + " " +
+                ". Match Status: " + matchStatus + " " +
                 '}';
     }
 }

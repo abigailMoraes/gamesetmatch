@@ -49,12 +49,12 @@ public class GraphTests {
         for (int i = 0; i < 2; i++) {
             JSONObject player =  new JSONObject();
             player.put("id", Integer.toString(i));
-            player.put("availability", "100000000000000000000000");
+            player.put("availability", "101000000000000000000000");
 
             array.put(player);
         }
 
-        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet3.json";
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet2.json";
 
         try {
             FileWriter file = new FileWriter(filename);
@@ -63,6 +63,24 @@ public class GraphTests {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        Scheduler s = new Scheduler(filename);
+        s.schedule();
+    }
+
+    @Test
+    void GraphFour() {
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet3.json";
+
+        Scheduler s = new Scheduler(filename);
+        s.schedule();
+    }
+
+    @Test
+    void GraphFive() {
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet4.json";
 
         Scheduler s = new Scheduler(filename);
         s.schedule();

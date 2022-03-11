@@ -26,10 +26,15 @@ public class Tuple {
         if (o == null || getClass() != o.getClass()) return false;
 
         Tuple tuple = (Tuple) o;
+
         if (this.first != tuple.getFirst()) return false;
         if (this.second != tuple.getSecond()) return false;
-
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(first, second);
     }
 
     @Override

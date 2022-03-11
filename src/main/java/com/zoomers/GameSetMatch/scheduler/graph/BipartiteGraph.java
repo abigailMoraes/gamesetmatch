@@ -2,8 +2,6 @@ package com.zoomers.GameSetMatch.scheduler.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
-import com.zoomers.GameSetMatch.scheduler.graph.domain.BipartiteEdge;
-import com.zoomers.GameSetMatch.scheduler.graph.domain.BipartiteNode;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
