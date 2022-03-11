@@ -1,7 +1,9 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
+import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.graph.MatchGraph;
+import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.*;
 
@@ -10,11 +12,23 @@ public class GreedyMaximumIndependentSet {
     private final Set<Match> matches;
     private PriorityQueue<Match> priorityQueue;
     private final Integer[] playerDegrees;
+    private final Integer[] timeDegrees;
+    private final HashMap<Tuple, Integer> playerRepeats;
+    private final HashMap<Integer, Integer[]> timeRepeats;
 
-    public GreedyMaximumIndependentSet(Set<Match> matches, Integer[] playerDegrees) {
+    public GreedyMaximumIndependentSet(
+            Set<Match> matches,
+            Integer[] playerDegrees,
+            Integer[] timeDegrees,
+            HashMap<Tuple, Integer> playerRepeats,
+            HashMap<Integer, Integer[]> timeRepeats
+    ) {
 
         this.matches = matches;
         this.playerDegrees = playerDegrees;
+        this.timeDegrees = timeDegrees;
+        this.playerRepeats = playerRepeats;
+        this.timeRepeats = timeRepeats;
         buildPriorityQueue();
     }
 
@@ -49,9 +63,12 @@ public class GreedyMaximumIndependentSet {
 
         for (Match m : this.matches) {
 
-            int p1Edges = this.playerDegrees[m.getPlayers().getFirst()];
-            int p2Edges = this.playerDegrees[m.getPlayers().getSecond()];
-            m.setDegrees(p1Edges + p2Edges);
+            m.setDegrees(Scheduler.calculateDegrees(m,
+                    this.playerDegrees,
+                    this.timeDegrees,
+                    this.timeRepeats,
+                    this.playerRepeats)
+            );
         }
 
         priorityQueue.addAll(matches);
@@ -60,10 +77,8 @@ public class GreedyMaximumIndependentSet {
     private void visitMatches(Match match) {
 
         this.matches.remove(match);
-        int m1p1Edges = match.getPlayers().getFirst();
-        int m1p2Edges = match.getPlayers().getSecond();
-        this.playerDegrees[m1p1Edges]--;
-        this.playerDegrees[m1p2Edges]--;
+
+        System.out.println("Adding " + match + " to Independent Set with degree " + match.getDegrees());
 
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
@@ -71,15 +86,26 @@ public class GreedyMaximumIndependentSet {
 
             if (match.sharePlayers(m2) || match.shareTimeslot(m2)) {
 
-                int m2p1Edges = m2.getPlayers().getFirst();
-                int m2p2Edges = m2.getPlayers().getSecond();
-                this.playerDegrees[m2p1Edges]--;
-                this.playerDegrees[m2p2Edges]--;
-
+                decrementDegree(m2);
                 matchesToRemove.add(m2);
+                System.out.println("  Removing " + m2 + " from matches to check");
             }
         }
-
         this.matches.removeAll(matchesToRemove);
+
+        System.out.println("    Matches left to check " + this.matches);
+    }
+
+    private void decrementDegree(Match match) {
+
+        int m1First = match.getPlayers().getFirst();
+        int m1Second = match.getPlayers().getSecond();
+        int m1Time = match.getTimeslot().getID();
+        this.playerDegrees[m1First]--;
+        this.playerDegrees[m1Second]--;
+        this.timeDegrees[m1Time]--;
+        this.timeRepeats.get(m1First)[m1Time]--;
+        this.timeRepeats.get(m1Second)[m1Time]--;
+        this.playerRepeats.put(Tuple.of(m1First, m1Second), this.playerRepeats.get(Tuple.of(m1First, m1Second)) - 1);
     }
 }

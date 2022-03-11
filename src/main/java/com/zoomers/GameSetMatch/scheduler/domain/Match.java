@@ -9,16 +9,16 @@ public class Match {
     private boolean needsAdminAttention = false;
     private int degrees = 0;
     private final Tuple players;
-    private final float timeslot;
+    private final Timeslot timeslot;
     private int skillWeight = 1;
 
-    public Match(int p1, int p2, float timeslot, int skillWeight) {
+    public Match(int p1, int p2, Timeslot timeslot, int skillWeight) {
         this.players = Tuple.of(p1, p2);
         this.skillWeight = skillWeight;
         this.timeslot = timeslot;
     }
 
-    public Match(int p1, int p2, float timeslot) {
+    public Match(int p1, int p2, Timeslot timeslot) {
         this.players = Tuple.of(p1, p2);
         this.timeslot = timeslot;
     }
@@ -44,7 +44,7 @@ public class Match {
         return players;
     }
 
-    public float getTimeslot() { return timeslot; }
+    public Timeslot getTimeslot() { return timeslot; }
 
     public int getDegrees() { return degrees; }
 
@@ -56,7 +56,9 @@ public class Match {
 
     public void decreaseDegrees() { this.degrees--; }
 
-    public void setDegrees(int degrees) { this.degrees = degrees; }
+    public void setDegrees(int degrees) {
+        this.degrees = degrees;
+    }
 
     @Override
     public String toString() {

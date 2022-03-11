@@ -15,7 +15,7 @@ public class Registrant {
         this.id = id;
         this.availability = availability;
 
-        assert(this.availability.length() == 24 * 5);
+        assert(this.availability.length() == 24);
     }
 
     public int getID() {

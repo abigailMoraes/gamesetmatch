@@ -1,5 +1,7 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
+import java.util.Objects;
+
 public class Timeslot {
 
     private float time;
@@ -22,5 +24,18 @@ public class Timeslot {
 
     public int getID() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Timeslot timeslot = (Timeslot) o;
+        return id == timeslot.id;
+    }
+
+    @Override
+    public String toString() {
+        return " " + time;
     }
 }
