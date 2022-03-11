@@ -11,26 +11,26 @@ import java.util.Objects;
 @ToString
 
 @Entity
-@Table(name = "User")
+@Table(name = "user")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(
-        name="discriminator",
-        discriminatorType=DiscriminatorType.STRING
-)
 
-@DiscriminatorValue(value="U")
+
 public class User {
-    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) int id;
-    private String email;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int userId;
+    @Column(name="firebase_id")
+    private String companyId;
     private String name;
-    private String phoneNum;
+    private String email;
+    @Column(name="is_admin")
+    private int isAdmin ;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id);
+        return Objects.equals(user.getUserId(), user.userId);
     }
 
     @Override
