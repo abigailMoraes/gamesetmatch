@@ -4,6 +4,7 @@ import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegist
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
 
+import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
@@ -30,7 +31,7 @@ public class TournamentController {
 
     @GetMapping()
     public List<OutgoingTournament> getAllTournaments() {
-        List<Long> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs((long) 1);
+        List<Integer> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs(1);
         List<Tournament> tournaments = tournament.getAllTournaments();
 
         List<OutgoingTournament> responseTournaments = new ArrayList<>();
@@ -61,9 +62,14 @@ public class TournamentController {
         return responseTournaments;
     }
 
+    @GetMapping(value = "/{tournamentID}/registrants")
+    public List<UserRegistersTournamentRepository.IRegistrant> getRegistrants(@PathVariable int tournamentID) {
+        return userRegistersTournament.getRegistrants(tournamentID);
+    }
+
     @PostMapping(value = "/{tournamentID}/register")
-    public void registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Long tournamentID) {
-        Long userID = newRegistrtation.getUserID();
+    public void registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Integer tournamentID) {
+        Integer userID = newRegistrtation.getUserID();
 
         userRegistersTournament.saveRegistration(tournamentID, userID);
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
