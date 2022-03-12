@@ -11,20 +11,13 @@ public class Match {
     private int degrees = 0;
     private final Tuple players;
     private final Timeslot timeslot;
-    private int skillWeight = 1;
-
-    public Match(int p1, int p2, Timeslot timeslot, int skillWeight) {
-        this.players = Tuple.of(p1, p2);
-        this.skillWeight = skillWeight;
-        this.timeslot = timeslot;
-    }
+    private int skillWeight = 0;
+    private int matchScore = 0;
 
     public Match(int p1, int p2, Timeslot timeslot) {
         this.players = Tuple.of(p1, p2);
         this.timeslot = timeslot;
     }
-
-
 
     public boolean sharePlayers(Match m2) {
         return this.players.getFirst() == m2.getPlayers().getFirst() ||
@@ -47,19 +40,29 @@ public class Match {
 
     public Timeslot getTimeslot() { return timeslot; }
 
+    public int getSkillWeight() { return skillWeight; }
+
+    public int getMatchScore() { return matchScore; }
+
+    public MatchStatus getMatchStatus() { return matchStatus; }
+
     public int getDegrees() { return degrees; }
 
-    public void setMatchStatus(MatchStatus matchStatus) {
-        this.matchStatus = matchStatus;
+    public void setDegrees(int degrees) {
+        this.degrees = degrees;
     }
 
     public void addDegrees() { this.degrees++; }
 
     public void decreaseDegrees() { this.degrees--; }
 
-    public void setDegrees(int degrees) {
-        this.degrees = degrees;
+    public void setMatchStatus(MatchStatus matchStatus) {
+        this.matchStatus = matchStatus;
     }
+
+    public void setMatchScore(int matchScore) { this.matchScore = matchScore; }
+
+    public void setSkillWeight(int skillWeight) { this.skillWeight = skillWeight; }
 
     @Override
     public String toString() {

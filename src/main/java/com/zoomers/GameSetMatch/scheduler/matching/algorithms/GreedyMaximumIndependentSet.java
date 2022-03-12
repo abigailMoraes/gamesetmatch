@@ -7,7 +7,7 @@ import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.*;
 
-public class GreedyMaximumIndependentSet {
+public class GreedyMaximumIndependentSet extends MatchingAlgorithm {
 
     private final Set<Match> matches;
     private PriorityQueue<Match> priorityQueue;
@@ -32,11 +32,11 @@ public class GreedyMaximumIndependentSet {
         buildPriorityQueue();
     }
 
-    public HashSet<Match> findGreedyMaximumIndependentSet() {
+    public Set<Match> findGreedyMaximumIndependentSet() {
 
-        HashSet<Match> s = new LinkedHashSet<>();
+        Set<Match> s = new LinkedHashSet<>();
 
-        while (this.matches.size() != 0) {
+        while (!this.matches.isEmpty()) {
 
             Match match = this.priorityQueue.poll();
             s.add(match);

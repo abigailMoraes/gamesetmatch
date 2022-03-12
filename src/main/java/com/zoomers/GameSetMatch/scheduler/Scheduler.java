@@ -5,6 +5,7 @@ import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.GreedyMaximumIndependentSet;
+import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MaximumMatchScoreMatcher;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
@@ -16,7 +17,7 @@ public class Scheduler {
 
     private final List<Registrant> registrants = new ArrayList<>();
     private final List<Timeslot> timeslots = new ArrayList<>();
-    private final List<Match> matches = new ArrayList<>();
+    private List<Match> matches = new ArrayList<>();
     private Integer[] playerDegrees;
     private Integer[] timeDegrees;
     private final HashMap<Integer, Integer[]> timeRepeats = new HashMap<>();
@@ -62,17 +63,13 @@ public class Scheduler {
                 );
         Set<Match> returnedMatches = greedyMaximumIndependentSet.findGreedyMaximumIndependentSet();
 
-        for (Match m : returnedMatches) {
-            // System.out.println(m);
-        }
-
         List<Registrant> registrantsToBeMatched = findRegistrantsToBeMatched(returnedMatches);
+        List<Timeslot> availableTimeslots = findAvailableTimeslots(returnedMatches);
 
-        for (Registrant r : registrantsToBeMatched) {
-            // System.out.println(r);
-        }
+        createSecondaryMatches(registrantsToBeMatched, availableTimeslots);
 
-        returnedMatches.addAll(findRemainingMatches(registrantsToBeMatched));
+        MaximumMatchScoreMatcher maximumMatchScoreMatcher = new MaximumMatchScoreMatcher(new LinkedHashSet<>(this.matches));
+        returnedMatches.addAll(maximumMatchScoreMatcher.findRemainingMatches());
     }
 
     private void initPlayers() {
@@ -125,6 +122,30 @@ public class Scheduler {
                     initializeTimeRepeat(j_id);
                     initializePlayerRepeat(i_id, j_id);
                     incrementDegrees(t, i_id, j_id);
+                }
+            }
+        }
+    }
+
+    private void createSecondaryMatches(
+            List<Registrant> registrantsToBeMatched,
+            List<Timeslot> availableTimeslots)
+    {
+        this.matches = new ArrayList<>();
+
+        for (Timeslot t : availableTimeslots) {
+
+            for (int i = 0; i < registrantsToBeMatched.size(); i++) {
+
+                Registrant r1 = registrantsToBeMatched.get(i);
+
+                for (int j = i+1; j < registrantsToBeMatched.size(); j++) {
+
+                    Registrant r2 = registrantsToBeMatched.get(j);
+                    Match m = new Match(r1.getID(), r2.getID(), t);
+                    m.setMatchScore(calculateMatchScore(r1, r2, t));
+
+                    this.matches.add(m);
                 }
             }
         }
@@ -186,6 +207,27 @@ public class Scheduler {
         return p1Edges + p2Edges + tEdges - (d1Edges + d2Edges + prEdges);
     }
 
+    private int calculateMatchScore(Registrant r1, Registrant r2, Timeslot t) {
+
+        int matchScore = 0;
+        if (r1.checkAvailability(t.getID()) &&
+                r2.checkAvailability(t.getID())) {
+            matchScore += 2;
+        }
+        else if (r1.checkAvailability(t.getID()) ||
+                r2.checkAvailability(t.getID())) {
+            matchScore++;
+        }
+
+        if (r1.hasNotPlayed(r2)) {
+            matchScore += 2;
+        }
+
+        matchScore -= Math.abs(r1.getSkill() - r2.getSkill());
+
+        return matchScore;
+    }
+
     private List<Registrant> findRegistrantsToBeMatched(Set<Match> returnedMatches) {
 
         List<Registrant> toBeMatched = new ArrayList<>(this.registrants);
@@ -200,6 +242,21 @@ public class Scheduler {
         });
 
         return toBeMatched;
+    }
+
+    private List<Timeslot> findAvailableTimeslots(Set<Match> returnedMatches) {
+
+        List<Timeslot> availableTimeslots = new ArrayList<>(this.timeslots);
+        availableTimeslots.removeIf(timeslot -> {
+            for (Match m : returnedMatches) {
+                if (timeslot.getID() == m.getTimeslot().getID()) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+        return availableTimeslots;
     }
 
     private Set<Match> findRemainingMatches(List<Registrant> registrantsToBeMatched) {
