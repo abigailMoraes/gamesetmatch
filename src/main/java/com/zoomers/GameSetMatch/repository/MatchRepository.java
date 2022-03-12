@@ -1,6 +1,7 @@
 package com.zoomers.GameSetMatch.repository;
 
 import com.zoomers.GameSetMatch.entity.Match;
+import com.zoomers.GameSetMatch.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -26,12 +27,12 @@ public interface MatchRepository extends JpaRepository<Match, Integer> {
             nativeQuery = true)
     List<Match> findPastMatchesByUserID(int id);
 
-    @Query(  value ="SELECT m.matchID,m.result, m.start_time, m.end_time,\n" +
-            "m.duration,round_has.type,tournament.name,tournament.location,tournament.description \n" +
-            "JOIN (SELECT * FROM match_has WHERE matchID = :id) m ON m.matchID = u.matchID LEFT JOIN \n" +
-            " round_has ON m.roundID = round_has.roundID LEFT JOIN tournament \n" +
-            " ON round_has.tournamentID = tournament.tournamentID;",
+    @Query(  value ="SELECT m.matchID, m.result, m.start_time, m.end_time, m.duration, round_has.type, \n" +
+            " tournament.name, tournament.location, tournament.description \n" +
+            "FROM (SELECT * FROM match_has WHERE matchID = :id) m JOIN round_has ON m.roundID = round_has.roundID \n" +
+            "LEFT JOIN tournament ON round_has.tournamentID = tournament.tournamentID;",
             nativeQuery = true)
     Match findMatchInfoByMatchID(int id);
+
 
 }

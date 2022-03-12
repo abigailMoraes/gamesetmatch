@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/api")
+@RequestMapping("/match")
 public class MatchController {
     private final MatchRepository matchRepository;
 
@@ -16,17 +16,17 @@ public class MatchController {
         this.matchRepository = matchRepository;
     }
 
-    @GetMapping("/match")
+    @GetMapping("/all")
     List<Match> getAllMatches() {
         return matchRepository.findAll();
     }
 
-    @GetMapping("/match/involves/user/{id}")
+    @GetMapping("/involves/user/{id}")
     List<Match> getMatchesForUser(@PathVariable int id){
         return matchRepository.findMatchesByUserID(id);
     }
 
-    @GetMapping("/match/history/involves/user/{id}")
+    @GetMapping("/history/involves/user/{id}")
     List<Match> getPastMatchesForUser(@PathVariable int id){
         return matchRepository.findPastMatchesByUserID(id);}
 
