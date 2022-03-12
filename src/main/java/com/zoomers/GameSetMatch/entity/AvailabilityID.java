@@ -5,14 +5,14 @@ import java.util.Date;
 import java.util.Objects;
 
 public class AvailabilityID implements Serializable {
-    private Long userID;
-    private Long tournamentID;
+    private Integer userID;
+    private Integer tournamentID;
     private Date date;
 
     public AvailabilityID() {
     }
 
-    public AvailabilityID(Long userID, Long tournamentID, Date date) {
+    public AvailabilityID(Integer userID, Integer tournamentID, Date date) {
         this.userID = userID;
         this.tournamentID = tournamentID;
         this.date = date;

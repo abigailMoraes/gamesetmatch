@@ -14,8 +14,8 @@ public class UserRegistersTournamentService {
     @Autowired
     private UserRegistersTournamentRepository userRegistersTournament;
 
-    public List<Long> getUserRegisteredInTournamentIDs(Long userID) {
-        List<Long> registeredTournaments = new ArrayList<>();
+    public List<Integer> getUserRegisteredInTournamentIDs(Integer userID) {
+        List<Integer> registeredTournaments = new ArrayList<>();
 
         List<UserRegistersTournament> registrations = userRegistersTournament.findByUserID(userID);
 

@@ -11,7 +11,7 @@ import java.util.Date;
 public class Tournament {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long tournamentID;
+    private Integer tournamentID;
 
     private String name;
 
@@ -49,11 +49,11 @@ public class Tournament {
     @Column(name = "round_duration")
     private Integer roundDuration;
 
-    public Long getTournamentID() {
+    public Integer getTournamentID() {
         return tournamentID;
     }
 
-    public void setTournamentID(Long tournamentID) {
+    public void setTournamentID(Integer tournamentID) {
         this.tournamentID = tournamentID;
     }
 

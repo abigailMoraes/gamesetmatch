@@ -20,7 +20,7 @@ import java.util.Objects;
 
 @DiscriminatorValue(value="U")
 public class User {
-    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) int id;
+    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) Integer id;
     private String email;
     private String name;
     @Column(name="phone_num")

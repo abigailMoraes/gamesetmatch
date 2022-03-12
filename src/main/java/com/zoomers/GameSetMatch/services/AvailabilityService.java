@@ -15,7 +15,7 @@ public class AvailabilityService {
     @Autowired
     AvailabilityRepository availability;
 
-    public void saveAvailabilities(Long tournamentID, Long userID, List<IncomingAvailability> incomingAvailabilities) {
+    public void saveAvailabilities(Integer tournamentID, Integer userID, List<IncomingAvailability> incomingAvailabilities) {
         List<Availability> availabilities = new ArrayList<>();
 
         for (IncomingAvailability availability : incomingAvailabilities) {

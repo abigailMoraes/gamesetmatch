@@ -5,14 +5,14 @@ import java.util.Objects;
 
 
 public class UserRegistersTournamentID implements Serializable {
-    private Long userID;
-    private Long tournamentID;
+    private Integer userID;
+    private Integer tournamentID;
 
     public UserRegistersTournamentID() {
 
     }
 
-    public UserRegistersTournamentID(Long userID, Long tournamentID) {
+    public UserRegistersTournamentID(Integer userID, Integer tournamentID) {
         this.userID = userID;
         this.tournamentID = tournamentID;
     }
