@@ -1,6 +1,5 @@
 package com.zoomers.GameSetMatch.controller;
 
-import com.zoomers.GameSetMatch.entity.Employee;
 import com.zoomers.GameSetMatch.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +17,4 @@ public class UserController {
         return "Hello World!";
     }
 
-    @PostMapping("/employee")
-    Employee newEmployee(@RequestBody Employee newEmployee) {
-        return repository.save(newEmployee);
-    }
 }
