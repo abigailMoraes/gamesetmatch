@@ -24,6 +24,7 @@ public class User {
     private String email;
     @Column (name = "name")
     private String name;
+    // 0 is employee, 1 is admin, 2 is root admin
     @Column (name = "is_admin")
     private int isAdmin;
 
@@ -32,7 +33,7 @@ public class User {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id);
+        return Objects.equals(userID, user.userID);
     }
 
     @Override
