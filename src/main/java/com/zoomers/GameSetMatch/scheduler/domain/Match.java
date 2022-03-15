@@ -13,10 +13,20 @@ public class Match {
     private final Timeslot timeslot;
     private int skillWeight = 0;
     private int matchScore = 0;
+    private float matchDuration = 0;
 
-    public Match(int p1, int p2, Timeslot timeslot) {
+    public Match(int p1, int p2, Timeslot timeslot, int matchDuration, int skillWeight) {
         this.players = Tuple.of(p1, p2);
         this.timeslot = timeslot;
+        this.skillWeight = skillWeight;
+
+        setMatchDuration(matchDuration);
+    }
+
+    private void setMatchDuration(int matchDuration) {
+
+        float matchInterval = matchDuration / 30f;
+        this.matchDuration = (float) Math.ceil(matchInterval * 2) / 2;
     }
 
     public boolean sharePlayers(Match m2) {
@@ -27,7 +37,16 @@ public class Match {
     }
 
     public boolean shareTimeslot(Match m2) {
-        return this.timeslot == m2.getTimeslot();
+
+        if (this.timeslot == m2.getTimeslot()) {
+            return true;
+        }
+        else if (this.timeslot.getTime() <= m2.getTimeslot().getTime() &&
+                this.timeslot.getTime() + matchDuration > m2.getTimeslot().getTime()) {
+            return true;
+        }
+        else return m2.getTimeslot().getTime() <= this.timeslot.getTime() &&
+                    m2.getTimeslot().getTime() + matchDuration > this.timeslot.getTime();
     }
 
     public int getMatch_id() {
