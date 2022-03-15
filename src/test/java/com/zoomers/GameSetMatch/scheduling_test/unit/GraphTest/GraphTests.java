@@ -1,6 +1,9 @@
 package com.zoomers.GameSetMatch.scheduling_test.unit.GraphTest;
 
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
+import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.junit.jupiter.api.Test;
@@ -10,9 +13,17 @@ import java.io.IOException;
 
 public class GraphTests {
 
+    private MockTournament tournament = new MockTournament(
+            0,
+            TournamentType.SINGLE_KNOCKOUT,
+            TournamentFormat.BEST_OF_1,
+            false,
+            75
+    );
+
     @Test
     void GraphOne() {
-        Scheduler s = new Scheduler("./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet1.json");
+        Scheduler s = new Scheduler(tournament, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet1.json");
         s.schedule();
     }
 
@@ -38,7 +49,7 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(filename);
+        Scheduler s = new Scheduler(tournament, filename);
         s.schedule();
     }
 
@@ -64,7 +75,7 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(filename);
+        Scheduler s = new Scheduler(tournament, filename);
         s.schedule();
     }
 
@@ -73,7 +84,7 @@ public class GraphTests {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet3.json";
 
-        Scheduler s = new Scheduler(filename);
+        Scheduler s = new Scheduler(tournament, filename);
         s.schedule();
     }
 
@@ -82,7 +93,7 @@ public class GraphTests {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet4.json";
 
-        Scheduler s = new Scheduler(filename);
+        Scheduler s = new Scheduler(tournament, filename);
         s.schedule();
     }
 
@@ -108,7 +119,7 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(filename);
+        Scheduler s = new Scheduler(tournament, filename);
         s.schedule();
     }
 }

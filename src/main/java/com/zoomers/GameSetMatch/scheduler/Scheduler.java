@@ -1,10 +1,14 @@
 package com.zoomers.GameSetMatch.scheduler;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
+import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
 import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.GreedyMaximumIndependentSet;
+import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MatchingAlgorithm;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MaximumMatchScoreMatcher;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 import org.json.simple.*;
@@ -17,20 +21,33 @@ public class Scheduler {
 
     private final List<Registrant> registrants = new ArrayList<>();
     private final List<Timeslot> timeslots = new ArrayList<>();
-    private List<Match> matches = new ArrayList<>();
+    private Set<Match> matches = new LinkedHashSet<>();
     private Integer[] playerDegrees;
     private Integer[] timeDegrees;
     private final HashMap<Integer, Integer[]> timeRepeats = new HashMap<>();
     private final HashMap<Tuple, Integer> playerRepeats = new HashMap<>();
-    private final String playerFileName;
+    private String playerFileName;
+    private MockTournament tournament;
+    private MatchingAlgorithm matchingAlgorithm;
 
-    public Scheduler(String filename) {
+    public Scheduler(MockTournament tournament, String filename) {
+
+        this.tournament = tournament;
         this.playerFileName = filename;
     }
 
     public static void main(String[] args) {
 
-        Scheduler s = new Scheduler("./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet1.json");
+        Scheduler s = new Scheduler(
+                new MockTournament(
+                        0,
+                        TournamentType.SINGLE_KNOCKOUT,
+                        TournamentFormat.BEST_OF_1,
+                        false,
+                        2
+                ),
+                "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet1.json");
+
         s.schedule();
     }
 
@@ -47,29 +64,39 @@ public class Scheduler {
 
         // TODO: FIND REGISTRANTS AND INSTANTIATE TIMESLOTS FROM DATABASE
 
-        BipartiteGraph bg = new BipartiteGraph(timeslots, registrants);
+        BipartiteGraph bg = new BipartiteGraph(timeslots, registrants, tournament.getMatchDuration());
         LinkedHashMap<Timeslot, List<Registrant>> bgList = bg.getAdjacencyList();
 
         createPossibleMatches(bgList);
+
+        for (Match m : this.matches) {
+            System.out.println("Possible Match: " + m);
+        }
+
         setMatchDegrees();
 
-        GreedyMaximumIndependentSet greedyMaximumIndependentSet =
+        MatchingAlgorithm greedyMaximumIndependentSet =
                 new GreedyMaximumIndependentSet(
-                        new LinkedHashSet<>(this.matches),
+                        this.matches,
                         this.playerDegrees,
                         this.timeDegrees,
                         this.playerRepeats,
                         this.timeRepeats
                 );
-        Set<Match> returnedMatches = greedyMaximumIndependentSet.findGreedyMaximumIndependentSet();
+
+        Set<Match> returnedMatches = greedyMaximumIndependentSet.findMatches();
+
+        for (Match m : returnedMatches) {
+            System.out.println("Valid Match: " + m);
+        }
 
         List<Registrant> registrantsToBeMatched = findRegistrantsToBeMatched(returnedMatches);
         List<Timeslot> availableTimeslots = findAvailableTimeslots(returnedMatches);
 
         createSecondaryMatches(registrantsToBeMatched, availableTimeslots);
 
-        MaximumMatchScoreMatcher maximumMatchScoreMatcher = new MaximumMatchScoreMatcher(new LinkedHashSet<>(this.matches));
-        returnedMatches.addAll(maximumMatchScoreMatcher.findRemainingMatches());
+        MatchingAlgorithm maximumMatchScoreMatcher = new MaximumMatchScoreMatcher(this.matches);
+        returnedMatches.addAll(maximumMatchScoreMatcher.findMatches());
     }
 
     private void initPlayers() {
@@ -111,12 +138,11 @@ public class Scheduler {
             for (int i = 0; i < registrants.size(); i++) {
 
                 int i_id = registrants.get(i).getID();
-
                 initializeTimeRepeat(i_id);
 
-                for (int j = i+1; j < registrants .size(); j++) {
+                for (int j = i+1; j < registrants.size(); j++) {
                     int j_id = registrants.get(j).getID();
-                    Match m = new Match(i_id, j_id, t);
+                    Match m = new Match(i_id, j_id, t, tournament.getMatchDuration());
                     matches.add(m);
 
                     initializeTimeRepeat(j_id);
@@ -129,9 +155,9 @@ public class Scheduler {
 
     private void createSecondaryMatches(
             List<Registrant> registrantsToBeMatched,
-            List<Timeslot> availableTimeslots)
-    {
-        this.matches = new ArrayList<>();
+            List<Timeslot> availableTimeslots
+    ){
+        this.matches = new LinkedHashSet<>();
 
         for (Timeslot t : availableTimeslots) {
 
@@ -142,7 +168,7 @@ public class Scheduler {
                 for (int j = i+1; j < registrantsToBeMatched.size(); j++) {
 
                     Registrant r2 = registrantsToBeMatched.get(j);
-                    Match m = new Match(r1.getID(), r2.getID(), t);
+                    Match m = new Match(r1.getID(), r2.getID(), t, tournament.getMatchDuration());
                     m.setMatchScore(calculateMatchScore(r1, r2, t));
 
                     this.matches.add(m);
@@ -219,9 +245,9 @@ public class Scheduler {
             matchScore++;
         }
 
-        if (r1.hasNotPlayed(r2)) {
+        /*if (r1.hasNotPlayed(r2)) {
             matchScore += 2;
-        }
+        }*/
 
         matchScore -= Math.abs(r1.getSkill() - r2.getSkill());
 
@@ -257,10 +283,5 @@ public class Scheduler {
         });
 
         return availableTimeslots;
-    }
-
-    private Set<Match> findRemainingMatches(List<Registrant> registrantsToBeMatched) {
-
-        return new LinkedHashSet<>();
     }
 }

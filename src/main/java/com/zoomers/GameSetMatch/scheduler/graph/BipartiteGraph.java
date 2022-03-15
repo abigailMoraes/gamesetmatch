@@ -13,8 +13,9 @@ public class BipartiteGraph {
     private final List<Registrant> players;
     private int edgeCount;
     private final LinkedHashMap<Timeslot, List<Registrant>> adjacencyList;
+    private float matchDuration;
 
-    public BipartiteGraph(List<Timeslot> timeslots, List<Registrant> players) {
+    public BipartiteGraph(List<Timeslot> timeslots, List<Registrant> players, int matchDuration) {
 
         this.timeslots = timeslots;
         this.players = players;
@@ -22,7 +23,15 @@ public class BipartiteGraph {
 
         this.adjacencyList = new LinkedHashMap<>();
 
+        setMatchDuration(matchDuration);
+
         this.buildGraph();
+    }
+
+    private void setMatchDuration(int matchDuration) {
+
+        float matchInterval = matchDuration / 30f;
+        this.matchDuration = (float) Math.ceil(matchInterval * 2) / 2;
     }
 
     private void buildGraph() {
@@ -36,16 +45,21 @@ public class BipartiteGraph {
 
     private void createAdjacencyList(Registrant r, Timeslot t) {
 
-        if (r.getAvailability().charAt(t.getID()) == '1') {
+        for (int i = t.getID(); i < t.getID() + matchDuration; i++) {
 
-            if (!adjacencyList.containsKey(t)) {
-                adjacencyList.put(t, new ArrayList<>());
-            }
+            if (r.getAvailability().charAt(i) != '1') {
 
-            if (!adjacencyList.get(t).contains(r)) {
-                adjacencyList.get(t).add(r);
-                edgeCount++;
+                return;
             }
+        }
+
+        if (!adjacencyList.containsKey(t)) {
+            adjacencyList.put(t, new ArrayList<>());
+        }
+
+        if (!adjacencyList.get(t).contains(r)) {
+            adjacencyList.get(t).add(r);
+            edgeCount++;
         }
     }
 
@@ -64,6 +78,6 @@ public class BipartiteGraph {
                 System.out.print(" -> " + r.getID());
             }
         }
-        System.out.println("");
+        System.out.println();
     }
 }
