@@ -1,7 +1,5 @@
 package com.zoomers.GameSetMatch.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import javax.persistence.*;
 import java.util.Date;
 
@@ -20,11 +18,9 @@ public class Tournament {
     private String description;
 
     @Column(name = "start_date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
     @Column(name = "close_registration_date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date closeRegistrationDate;
 
     @Column(name = "location")
@@ -37,7 +33,6 @@ public class Tournament {
     private int minParticipants;
 
     @Column(name = "end_date")
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date endDate;
 
     @Column(name = "prize")
