@@ -13,7 +13,7 @@ public class BipartiteGraph {
     private final List<Registrant> players;
     private int edgeCount;
     private final LinkedHashMap<Timeslot, List<Registrant>> adjacencyList;
-    private float matchDuration;
+    private int matchIndex;
 
     public BipartiteGraph(List<Timeslot> timeslots, List<Registrant> players, int matchDuration) {
 
@@ -23,15 +23,14 @@ public class BipartiteGraph {
 
         this.adjacencyList = new LinkedHashMap<>();
 
-        setMatchDuration(matchDuration);
+        setMatchIndex(matchDuration);
 
         this.buildGraph();
     }
 
-    private void setMatchDuration(int matchDuration) {
+    private void setMatchIndex(int matchDuration) {
 
-        float matchInterval = matchDuration / 30f;
-        this.matchDuration = (float) Math.ceil(matchInterval * 2) / 2;
+        this.matchIndex = (int) Math.ceil(matchDuration / 30.0);
     }
 
     private void buildGraph() {
@@ -45,7 +44,11 @@ public class BipartiteGraph {
 
     private void createAdjacencyList(Registrant r, Timeslot t) {
 
-        for (int i = t.getID(); i < t.getID() + matchDuration; i++) {
+        if (t.getID() + matchIndex > timeslots.size()) {
+            return;
+        }
+
+        for (int i = t.getID(); i < t.getID() + matchIndex; i++) {
 
             if (r.getAvailability().charAt(i) != '1') {
 
