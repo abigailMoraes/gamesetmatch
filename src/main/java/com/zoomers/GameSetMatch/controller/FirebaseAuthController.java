@@ -29,12 +29,10 @@ public class FirebaseAuthController {
             String uid = decodedToken.getUid();
             String name = decodedToken.getName();
             String email = decodedToken.getEmail();
-            System.out.println(decodedToken);
-            System.out.println(uid);
 
             // check DB if user exist
             User database_user = repository.findByFirebaseId(uid);
-            System.out.println(database_user);
+
             if(database_user == null)  {
                 user.setName(name);
                 user.setEmail(email);
