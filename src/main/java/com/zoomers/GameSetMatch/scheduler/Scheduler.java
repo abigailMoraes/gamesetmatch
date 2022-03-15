@@ -86,10 +86,6 @@ public class Scheduler {
 
         Set<Match> returnedMatches = greedyMaximumIndependentSet.findMatches();
 
-        for (Match m : returnedMatches) {
-            System.out.println("Valid Match: " + m);
-        }
-
         List<Registrant> registrantsToBeMatched = findRegistrantsToBeMatched(returnedMatches);
         List<Timeslot> availableTimeslots = findAvailableTimeslots(returnedMatches);
 
