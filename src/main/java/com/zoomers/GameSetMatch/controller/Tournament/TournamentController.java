@@ -28,6 +28,9 @@ public class TournamentController {
     @Autowired
     UserRegistersTournamentService userRegistersTournament;
 
+    @Autowired
+    private TournamentService tournamentService;
+
     @GetMapping()
     public List<OutgoingTournament> getAllTournaments() {
         List<Long> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs((long) 1);
@@ -61,6 +64,12 @@ public class TournamentController {
         return responseTournaments;
     }
 
+    @PostMapping()
+    public Tournament createTournament(@RequestBody Tournament tournament)  {
+        tournamentService.saveTournament(tournament);
+        return tournament;
+    }
+
     @PostMapping(value = "/{tournamentID}/register")
     public void registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Long tournamentID) {
         Long userID = newRegistrtation.getUserID();
@@ -69,5 +78,6 @@ public class TournamentController {
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
 
     }
+
 
 }
