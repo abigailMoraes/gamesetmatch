@@ -12,25 +12,21 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "User")
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(
-        name="discriminator",
-        discriminatorType=DiscriminatorType.STRING
-)
 
-@DiscriminatorValue(value="U")
 public class User {
-    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) int id;
+    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) int userID;
     private String email;
     private String name;
-    private String phoneNum;
+    private String firebase_id;
+    // 0 is employee, 1 is admin, 2 is root admin
+    private int is_admin;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id);
+        return Objects.equals(userID, user.userID);
     }
 
     @Override
