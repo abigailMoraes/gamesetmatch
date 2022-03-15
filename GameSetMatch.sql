@@ -14,10 +14,11 @@ INSERT INTO user(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu
 /*Create table statement for Tournament*/
 CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128), format varchar(60), location varchar(60), description varchar(150), max_participants int, min_participants int, prize varchar(60), start_date  DATE, end_date DATE,  close_registration_date DATE, PRIMARY KEY(tournamentID));
 
+ALTER TABLE Tournament ADD round_duration int;
 ALTER TABLE Tournament ADD match_duration int;
 ALTER TABLE Tournament ADD number_of_matches int;
 ALTER TABLE Tournament ADD type varchar(60);
-ALTER TABLE Tournament ADD round_duration int;
+ALTER TABLE Tournament ADD admin_hosts_tournament int;
 
 INSERT INTO Tournament(name, format, location, description, max_participants, min_participants, prize, start_date, close_registration_date, round_duration) values ('Mariokart Madness', 'single knockout elimination','West Atrium room 203', 'Come join us for some krazy karting! (Individual)', 32, 4,'250$ Steam Gift Card', '2022-02-20', '2022-04-01', 7200);
 INSERT INTO Tournament(name, format, location, description, max_participants, min_participants, prize, start_date, close_registration_date, round_duration) values ('Amongus Royale', 'single knockout elimination', 'Auditorium 6, North Wing', 'Come join us for some space murder! (individual)', 10, 6, '50$ Steam Gift Card', '2022-03-04', '2022-04-15', 3600);

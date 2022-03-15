@@ -14,12 +14,19 @@ import java.util.Objects;
 @Table(name = "User")
 
 public class User {
-    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) int userID;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column (name = "userID")
+    private int id;
+    @Column (name = "firebase_id")
+    private String firebaseId;
+    @Column (name = "email")
     private String email;
+    @Column (name = "name")
     private String name;
-    private String firebase_id;
     // 0 is employee, 1 is admin, 2 is root admin
-    private int is_admin;
+    @Column (name = "is_admin")
+    private int isAdmin;
 
     @Override
     public boolean equals(Object o) {
