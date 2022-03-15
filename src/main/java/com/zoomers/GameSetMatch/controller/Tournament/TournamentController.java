@@ -29,6 +29,9 @@ public class TournamentController {
     @Autowired
     UserRegistersTournamentService userRegistersTournament;
 
+    @Autowired
+    private TournamentService tournamentService;
+
     @GetMapping()
     public List<OutgoingTournament> getAllTournaments() {
         List<Integer> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs(1);
@@ -65,6 +68,11 @@ public class TournamentController {
     @GetMapping(value = "/{tournamentID}/registrants")
     public List<UserRegistersTournamentRepository.IRegistrant> getRegistrants(@PathVariable int tournamentID) {
         return userRegistersTournament.getRegistrants(tournamentID);
+
+    @PostMapping()
+    public Tournament createTournament(@RequestBody Tournament tournament)  {
+        tournamentService.saveTournament(tournament);
+        return tournament;
     }
 
     @PostMapping(value = "/{tournamentID}/register")
@@ -75,5 +83,6 @@ public class TournamentController {
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
 
     }
+
 
 }

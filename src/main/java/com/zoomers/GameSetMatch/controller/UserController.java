@@ -1,11 +1,14 @@
 package com.zoomers.GameSetMatch.controller;
 
-import com.zoomers.GameSetMatch.entity.Employee;
+import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
     private final UserRepository repository;
 
@@ -19,7 +22,28 @@ public class UserController {
     }
 
     @PostMapping("/employee")
-    Employee newEmployee(@RequestBody Employee newEmployee) {
+    User newEmployee(@RequestBody User newEmployee) {
         return repository.save(newEmployee);
+    }
+
+    @GetMapping("/user/{email}")
+    public User getEmployeeByEmail(@PathVariable String email) {
+        return repository.findByEmail(email);
+    }
+
+    @PutMapping("/user/{email}")
+    @ResponseBody
+    ResponseEntity<Object> toAdmin(@PathVariable String email) {
+        User e = repository.findByEmail(email);
+        if (e == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find user with this email!");
+        }
+        if (e.getIs_admin() == 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(email + " is already an admin!");
+        } else if (e.getIs_admin() == 2) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You don't have permission to touch this user!");
+        }
+        e.setIs_admin(1);
+        return ResponseEntity.status(HttpStatus.OK).body(repository.save(e));
     }
 }
