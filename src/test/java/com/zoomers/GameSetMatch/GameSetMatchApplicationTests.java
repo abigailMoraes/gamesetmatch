@@ -9,5 +9,4 @@ class GameSetMatchApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
