@@ -18,8 +18,8 @@ public class GraphTests {
             0,
             TournamentType.SINGLE_KNOCKOUT,
             TournamentFormat.BEST_OF_1,
-            false,
-            75
+            true,
+            30
     );
 
     @Test

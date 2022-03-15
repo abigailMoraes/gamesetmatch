@@ -26,7 +26,7 @@ public class GreedyMaximumWeightIndependentSet extends GreedyMatchingAlgorithm {
             @Override
             public int compare(Match m1, Match m2) {
 
-                return m1.getSkillWeight() - m2.getSkillWeight();
+                return m2.getSkillWeight() - m1.getSkillWeight();
             }
         });
 

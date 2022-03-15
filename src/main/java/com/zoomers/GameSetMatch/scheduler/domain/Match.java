@@ -15,9 +15,10 @@ public class Match {
     private int matchScore = 0;
     private float matchDuration = 0;
 
-    public Match(int p1, int p2, Timeslot timeslot, int matchDuration) {
+    public Match(int p1, int p2, Timeslot timeslot, int matchDuration, int skillWeight) {
         this.players = Tuple.of(p1, p2);
         this.timeslot = timeslot;
+        this.skillWeight = skillWeight;
 
         setMatchDuration(matchDuration);
     }
@@ -40,11 +41,11 @@ public class Match {
         if (this.timeslot == m2.getTimeslot()) {
             return true;
         }
-        else if (this.timeslot.getTime() < m2.getTimeslot().getTime() &&
+        else if (this.timeslot.getTime() <= m2.getTimeslot().getTime() &&
                 this.timeslot.getTime() + matchDuration > m2.getTimeslot().getTime()) {
             return true;
         }
-        else return m2.getTimeslot().getTime() < this.timeslot.getTime() &&
+        else return m2.getTimeslot().getTime() <= this.timeslot.getTime() &&
                     m2.getTimeslot().getTime() + matchDuration > this.timeslot.getTime();
     }
 
