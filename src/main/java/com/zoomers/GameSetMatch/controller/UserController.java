@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
     private final UserRepository repository;
 
@@ -26,13 +26,12 @@ public class UserController {
         return repository.save(newEmployee);
     }
 
-    @GetMapping("/employee/{email}")
-    public User getEmployeesByEmail(@PathVariable String email) {
-        User e = repository.findByEmail(email);
-        return e;
+    @GetMapping("/user/{email}")
+    public User getEmployeeByEmail(@PathVariable String email) {
+        return repository.findByEmail(email);
     }
 
-    @PostMapping("/employeeToAdmin/{email}")
+    @PutMapping("/user/{email}")
     @ResponseBody
     ResponseEntity<Object> toAdmin(@PathVariable String email) {
         User e = repository.findByEmail(email);
