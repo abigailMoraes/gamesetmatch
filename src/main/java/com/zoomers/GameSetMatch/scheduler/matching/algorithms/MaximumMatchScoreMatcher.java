@@ -2,14 +2,15 @@ package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
+import com.zoomers.GameSetMatch.scheduler.graph.SecondaryMatchGraph;
 
 import java.util.*;
 
 public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
 
-    public MaximumMatchScoreMatcher(Set<Match> matches) {
+    public MaximumMatchScoreMatcher(SecondaryMatchGraph matchGraph) {
 
-        super(matches);
+        super(matchGraph);
         buildPriorityQueue();
     }
 
@@ -17,29 +18,26 @@ public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
     protected void buildPriorityQueue() {
         this.priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Match::getMatchScore));
 
-        priorityQueue.addAll(matches);
+        priorityQueue.addAll(this.matchGraph.getMatches());
     }
 
     @Override
     protected void visitMatches(Match match) {
 
-        this.matches.remove(match);
-        match.setMatchStatus(MatchStatus.VALID);
+        this.matchGraph.removeMatch(match);
 
-        // System.out.println("Adding " + match + " to Scheduled Matches");
+        match.setMatchStatus(MatchStatus.VALID);
 
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
-        for (Match m2 : this.matches) {
+        for (Match m2 : this.matchGraph.getMatches()) {
 
             if (match.sharePlayers(m2) || match.shareTimeslot(m2)) {
 
                 matchesToRemove.add(m2);
-                // System.out.println("  Removing " + m2 + " from matches to check");
             }
         }
-        this.matches.removeAll(matchesToRemove);
 
-        // System.out.println("    Matches left to check " + this.matches);
+        this.matchGraph.removeAll(matchesToRemove);
     }
 }

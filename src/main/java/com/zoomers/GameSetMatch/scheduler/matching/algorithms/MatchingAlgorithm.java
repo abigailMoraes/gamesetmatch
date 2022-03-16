@@ -1,6 +1,8 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
+import com.zoomers.GameSetMatch.scheduler.graph.MatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
 
 import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
@@ -8,18 +10,16 @@ import java.util.Set;
 
 public abstract class MatchingAlgorithm {
 
-    protected Set<Match> matches;
+    protected MatchGraph matchGraph;
     protected PriorityQueue<Match> priorityQueue;
 
-    public MatchingAlgorithm(Set<Match> matches) {
-        this.matches = matches;
-    }
+    public MatchingAlgorithm(MatchGraph matchGraph) { this.matchGraph = matchGraph; }
 
     public Set<Match> findMatches() {
 
         Set<Match> s = new LinkedHashSet<>();
 
-        while (!this.matches.isEmpty()) {
+        while (!this.matchGraph.getMatches().isEmpty()) {
 
             Match match = this.priorityQueue.poll();
             s.add(match);
