@@ -71,6 +71,18 @@ INSERT INTO User_involves_match(userID, matchID, results, attendance) values (6,
 
 /*Create table User_registers_tournament*/
 CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES tournament(tournamentID));
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,1,3);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,1,3);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,1,2);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (4,1,2);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (5,1,1);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,1,1);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,2,1);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,2,1);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,2,3);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,2,3);
+
+
 
 /*Create table statement for Invitation Code*/
 CREATE TABLE Invitation_Code ( invitationCode varchar(10) NOT NULL, isValid tinyint(1) NOT NULL, createdOn varchar(30) NOT NULL, UNIQUE KEY invitationCode (invitationCode));
