@@ -11,28 +11,29 @@ import java.util.Objects;
 @ToString
 
 @Entity
-@Table(name = "user")
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-
+@Table(name = "User")
 
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="userID")
-    private Long userId;
-    @Column(name="firebase_id")
-    private String companyId;
-    private String name;
+    @Column (name = "userID")
+    private int id;
+    @Column (name = "firebase_id")
+    private String firebaseId;
+    @Column (name = "email")
     private String email;
-    @Column(name="is_admin")
-    private int isAdmin ;
+    @Column (name = "name")
+    private String name;
+    // 0 is employee, 1 is admin, 2 is root admin
+    @Column (name = "is_admin")
+    private int isAdmin;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         User user = (User) o;
-        return Objects.equals(user.getUserId(), user.userId);
+        return Objects.equals(userID, user.userID);
     }
 
     @Override

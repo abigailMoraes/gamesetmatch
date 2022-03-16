@@ -6,7 +6,7 @@ import javax.persistence.*;
 @IdClass(UserRegistersTournamentID.class)
 @Table(name = "User_registers_tournament")
 public class UserRegistersTournament {
-    public UserRegistersTournament(Long tournamentID, Long userID) {
+    public UserRegistersTournament(Integer tournamentID, Integer userID) {
         this.tournamentID = tournamentID;
         this.userID = userID;
     }
@@ -16,36 +16,36 @@ public class UserRegistersTournament {
 
     @Id
     @Column(name = "tournamentID")
-    private Long tournamentID;
+    private Integer tournamentID;
 
     @Id
     @Column(name = "userID")
-    private Long userID;
+    private Integer userID;
 
     @Column(name = "skill_level")
-    private int skillLevel;
+    private Integer skillLevel;
 
-    public Long getTournamentID() {
+    public Integer getTournamentID() {
         return tournamentID;
     }
 
-    public void setTournamentID(Long tournamentID) {
+    public void setTournamentID(Integer tournamentID) {
         this.tournamentID = tournamentID;
     }
 
-    public Long getUserID() {
+    public Integer getUserID() {
         return userID;
     }
 
-    public void setUserID(Long userID) {
+    public void setUserID(Integer userID) {
         this.userID = userID;
     }
 
-    public int getSkillLevel() {
+    public Integer getSkillLevel() {
         return skillLevel;
     }
 
-    public void setSkillLevel(int skillLevel) {
+    public void setSkillLevel(Integer skillLevel) {
         this.skillLevel = skillLevel;
     }
 }

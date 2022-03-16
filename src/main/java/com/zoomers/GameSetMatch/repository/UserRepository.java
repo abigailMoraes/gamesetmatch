@@ -13,4 +13,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             nativeQuery = true)
     List<User> findMatchParticipantInfo(int id);
 
+    User findByEmail(String email);
+
+    User findByFirebaseId(String uid);
+
 }

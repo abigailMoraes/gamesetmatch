@@ -9,11 +9,11 @@ import java.util.Date;
 public class Availability {
     @Id
     @Column(name = "tournamentID")
-    private Long tournamentID;
+    private Integer tournamentID;
 
     @Id
     @Column(name = "userID")
-    private Long userID;
+    private Integer userID;
 
     @Id
     @Column(name = "date")
@@ -26,26 +26,26 @@ public class Availability {
 
     }
 
-    public Availability(Long tournamentID, Long userID, Date date, int availability) {
+    public Availability(Integer tournamentID, Integer userID, Date date, int availability) {
         this.tournamentID = tournamentID;
         this.userID = userID;
         this.date = date;
         this.availability = availability;
     }
 
-    public Long getTournamentID() {
+    public Integer getTournamentID() {
         return tournamentID;
     }
 
-    public void setTournamentID(Long tournamentID) {
+    public void setTournamentID(Integer tournamentID) {
         this.tournamentID = tournamentID;
     }
 
-    public Long getUserID() {
+    public Integer getUserID() {
         return userID;
     }
 
-    public void setUserID(Long userID) {
+    public void setUserID(Integer userID) {
         this.userID = userID;
     }
 

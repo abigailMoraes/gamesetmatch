@@ -3,11 +3,11 @@ package com.zoomers.GameSetMatch.controller.Tournament.RequestBody;
 import java.util.List;
 
 public class IncomingRegistration {
-    private Long userID;
+    private Integer userID;
     private List<IncomingAvailability> availabilities;
     private String skillLevel;
 
-    public Long getUserID() {
+    public Integer getUserID() {
         return userID;
     }
 
