@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/api/tournament")
+@RequestMapping("/api/tournaments")
 public class TournamentController {
 
     @Autowired
@@ -33,8 +33,8 @@ public class TournamentController {
     private TournamentService tournamentService;
 
     @GetMapping()
-    public List<OutgoingTournament> getAllTournaments() {
-        List<Integer> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs(1);
+    public List<OutgoingTournament> getAllTournaments(@RequestParam int registeredUser) {
+        List<Integer> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs(registeredUser);
         List<Tournament> tournaments = tournament.getAllTournaments();
 
         List<OutgoingTournament> responseTournaments = new ArrayList<>();
@@ -68,6 +68,7 @@ public class TournamentController {
     @GetMapping(value = "/{tournamentID}/registrants")
     public List<UserRegistersTournamentRepository.IRegistrant> getRegistrants(@PathVariable int tournamentID) {
         return userRegistersTournament.getRegistrants(tournamentID);
+    }
 
     @PostMapping()
     public Tournament createTournament(@RequestBody Tournament tournament)  {
@@ -83,6 +84,4 @@ public class TournamentController {
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
 
     }
-
-
 }
