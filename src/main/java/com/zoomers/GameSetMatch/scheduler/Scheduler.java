@@ -5,11 +5,9 @@ import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
 import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.GreedyMaximumIndependentSet;
-import com.zoomers.GameSetMatch.scheduler.matching.algorithms.GreedyMaximumWeightIndependentSet;
+import com.zoomers.GameSetMatch.scheduler.matching.algorithms.GreedyMinimumWeightIndependentSet;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MatchingAlgorithm;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MaximumMatchScoreMatcher;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
@@ -30,7 +28,6 @@ public class Scheduler {
     private final HashMap<Tuple, Integer> playerRepeats = new HashMap<>();
     private String playerFileName;
     private MockTournament tournament;
-    private MatchingAlgorithm primaryMatchingAlgorithm;
 
     public Scheduler(MockTournament tournament, String filename) {
 
@@ -40,8 +37,7 @@ public class Scheduler {
 
     public void schedule() {
 
-        Set<Match> returnedMatches = new LinkedHashSet<>();
-        returnedMatches.addAll(schedulePrimaryMatches());
+        Set<Match> returnedMatches = new LinkedHashSet<>(schedulePrimaryMatches());
 
         for (Match m : returnedMatches) {
             System.out.println("Selected Match: " + m);
@@ -81,7 +77,7 @@ public class Scheduler {
 
         if (isMatchBySkill)
         {
-            return new GreedyMaximumWeightIndependentSet(
+            return new GreedyMinimumWeightIndependentSet(
                     this.matches,
                     this.playerDegrees,
                     this.timeDegrees,
@@ -162,7 +158,7 @@ public class Scheduler {
                             j_id,
                             t,
                             tournament.getMatchDuration(),
-                            registrants.get(i).getSkill() + registrants.get(j).getSkill()
+                            Math.abs(registrants.get(i).getSkill() - registrants.get(j).getSkill())
                     );
                     matches.add(m);
 

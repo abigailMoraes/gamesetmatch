@@ -2,14 +2,13 @@ package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.*;
 
-public class GreedyMaximumWeightIndependentSet extends GreedyMatchingAlgorithm {
+public class GreedyMinimumWeightIndependentSet extends GreedyMatchingAlgorithm {
 
-    public GreedyMaximumWeightIndependentSet(
+    public GreedyMinimumWeightIndependentSet(
             Set<Match> matches,
             Integer[] playerDegrees,
             Integer[] timeDegrees,
@@ -22,13 +21,7 @@ public class GreedyMaximumWeightIndependentSet extends GreedyMatchingAlgorithm {
 
     @Override
     protected void buildPriorityQueue() {
-        this.priorityQueue = new PriorityQueue<>(new Comparator<Match>() {
-            @Override
-            public int compare(Match m1, Match m2) {
-
-                return m2.getSkillWeight() - m1.getSkillWeight();
-            }
-        });
+        this.priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Match::getSkillWeight));
 
         for (Match m : this.matches) {
 

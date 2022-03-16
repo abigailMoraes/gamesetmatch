@@ -22,16 +22,12 @@ public class GreedyMaximumIndependentSet extends GreedyMatchingAlgorithm {
 
     @Override
     protected void buildPriorityQueue() {
-        this.priorityQueue = new PriorityQueue<Match>(new Comparator<Match>() {
-            @Override
-            public int compare(Match m1, Match m2) {
+        this.priorityQueue = new PriorityQueue<>((m1, m2) -> {
 
-                if (m1.getDegrees() != m2.getDegrees()) {
-                    return m1.getDegrees() - m2.getDegrees();
-                }
-                else {
-                    return m1.getMatch_id() - m2.getMatch_id();
-                }
+            if (m1.getDegrees() != m2.getDegrees()) {
+                return m1.getDegrees() - m2.getDegrees();
+            } else {
+                return m1.getMatch_id() - m2.getMatch_id();
             }
         });
 
