@@ -103,9 +103,9 @@ public abstract class TypeMatcher {
             matchScore++;
         }
 
-        /*if (r1.hasNotPlayed(r2)) {
+        if (r1.hasNotPlayed(r2)) {
             matchScore += 2;
-        }*/
+        }
 
         matchScore -= Math.abs(r1.getSkill() - r2.getSkill());
 

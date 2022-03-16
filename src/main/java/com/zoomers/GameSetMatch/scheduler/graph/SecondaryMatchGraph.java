@@ -26,10 +26,6 @@ public class SecondaryMatchGraph extends MatchGraph {
     public void addMatch(Match m) {
 
         matches.add(m);
-
-        int i_id = m.getPlayers().getFirst();
-        int j_id = m.getPlayers().getSecond();
-        Timeslot t = m.getTimeslot();
     }
 
     @Override

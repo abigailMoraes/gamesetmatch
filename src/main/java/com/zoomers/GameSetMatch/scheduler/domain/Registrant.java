@@ -40,7 +40,7 @@ public class Registrant {
     }
 
     public boolean hasNotPlayed(Registrant r2) {
-        return this.playersToPlay.contains(r2);
+        return true;// this.playersToPlay.contains(r2);
     }
 
     public int getSkill() {
