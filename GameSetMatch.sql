@@ -37,13 +37,37 @@ INSERT INTO Round_Has(duration, type, tournamentID) values (7,'Semifinal',1);
 INSERT INTO Round_Has(duration, type, tournamentID) values (7,'Final',1);
 
 /*Create table statement for Match_Has*/
-CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, result int, start_time DATETIME, end_time DATETIME, duration int, roundID int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID));
+CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID));
+/*sample data for Match_Has, Note: duration is in minutes */
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('20220220 11:00:00 AM','20220220 11:30:00 AM',30,1)
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('20220220 12:00:00 PM','20220220 12:30:00 PM',30,1)
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('20220222 12:00:00 PM','20220220 12:30:00 PM',30,1)
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('20220305 12:00:00 PM','20220305 12:30:00 PM',30,2)
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('20220305 12:30:00 PM','20220305 1:00:00 PM',30,2)
 
 /*Create table statement for Admin_hosts_tournament*/
 CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES user(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
 
+
+
 /*Create table statement for user_involves_match*/
-CREATE TABLE User_involves_match(userID int, matchID int, PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
+CREATE TABLE User_involves_match(userID int, matchID int, results varchar(40), attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User_info(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
+/*sample data for User_involves_match*/
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (1, 1, 'win', 'No');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (1, 4, 'loss', 'No');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (1, 6, 'TBD', 'No');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (1, 7, 'TBD', 'Yes');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 1, 'loss', 'Yes');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 4, 'win', 'Yes');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 6, 'TBD', 'Yes');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (3, 2, 'win', 'Yes');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (3, 5, 'loss', 'No');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (3, 7, 'TBD', 'No');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (4, 2, 'TBD', 'Yes');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (5, 3, 'TBD', 'No');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (6, 3, 'TBD', 'No');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (6, 5, 'TBD', 'Yes');
+
 
 /*Create table User_registers_tournament*/
 CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES tournament(tournamentID));
