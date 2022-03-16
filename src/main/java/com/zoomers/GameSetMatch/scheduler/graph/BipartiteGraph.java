@@ -14,13 +14,14 @@ public class BipartiteGraph {
     private int edgeCount;
     private final LinkedHashMap<Timeslot, List<Registrant>> adjacencyList;
     private int matchIndex;
+    private int matchDuration;
 
     public BipartiteGraph(List<Timeslot> timeslots, List<Registrant> players, int matchDuration) {
 
         this.timeslots = timeslots;
         this.players = players;
         this.edgeCount = 0;
-
+        this.matchDuration = matchDuration;
         this.adjacencyList = new LinkedHashMap<>();
 
         setMatchIndex(matchDuration);
@@ -68,6 +69,18 @@ public class BipartiteGraph {
 
     public int getEdgeCount() {
         return edgeCount;
+    }
+
+    public int getMatchDuration() {
+        return matchDuration;
+    }
+
+    public List<Registrant> getPlayers() {
+        return players;
+    }
+
+    public List<Timeslot> getTimeslots() {
+        return timeslots;
     }
 
     public LinkedHashMap<Timeslot, List<Registrant>> getAdjacencyList() {

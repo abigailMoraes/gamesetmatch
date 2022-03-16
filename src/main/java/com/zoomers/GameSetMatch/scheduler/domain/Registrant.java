@@ -2,14 +2,15 @@ package com.zoomers.GameSetMatch.scheduler.domain;
 
 import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
 
-import java.util.List;
+import java.util.Set;
 
 public class Registrant {
 
-    private int id;
-    private String availability; // 24 character string
+    private final int id;
+    private final String availability; // 24 character string
     private Skill skillLevel = Skill.BEGINNER;
-    private List<Registrant> playersToPlay;
+    private Set<Registrant> playersToPlay;
+    private int losses = 0;
 
     public Registrant(int id, String availability, Skill skillLevel) {
         this.id = id;
@@ -30,6 +31,14 @@ public class Registrant {
         return this.availability.charAt(timeID) == '1';
     }
 
+    public void setLosses(int losses) {
+        this.losses = losses;
+    }
+
+    public void setPlayersToPlay(Set<Registrant> playersToPlay) {
+        this.playersToPlay = playersToPlay;
+    }
+
     public boolean hasNotPlayed(Registrant r2) {
         return this.playersToPlay.contains(r2);
     }
@@ -44,6 +53,10 @@ public class Registrant {
 
     public String getAvailability() {
         return availability;
+    }
+
+    public int getLosses() {
+        return losses;
     }
 
     @Override

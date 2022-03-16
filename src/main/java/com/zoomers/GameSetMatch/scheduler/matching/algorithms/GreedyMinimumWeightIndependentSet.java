@@ -1,38 +1,22 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
-import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
+import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
 
 import java.util.*;
 
 public class GreedyMinimumWeightIndependentSet extends GreedyMatchingAlgorithm {
 
-    public GreedyMinimumWeightIndependentSet(
-            Set<Match> matches,
-            Integer[] playerDegrees,
-            Integer[] timeDegrees,
-            HashMap<Tuple, Integer> playerRepeats,
-            HashMap<Integer, Integer[]> timeRepeats
-    ) {
-
-        super(matches, playerDegrees, timeDegrees, playerRepeats, timeRepeats);
+    public GreedyMinimumWeightIndependentSet(PrimaryMatchGraph matchGraph) {
+        super(matchGraph);
     }
 
     @Override
     protected void buildPriorityQueue() {
         this.priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Match::getSkillWeight));
 
-        for (Match m : this.matches) {
+        this.matchGraph.setMatchDegrees();
 
-            m.setDegrees(Scheduler.calculateDegrees(m,
-                    this.playerDegrees,
-                    this.timeDegrees,
-                    this.timeRepeats,
-                    this.playerRepeats)
-            );
-        }
-
-        priorityQueue.addAll(matches);
+        priorityQueue.addAll(this.matchGraph.getMatches());
     }
 }
