@@ -38,12 +38,12 @@ public class UserController {
         if (e == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find user with this email!");
         }
-        if (e.getIs_admin() == 1) {
+        if (e.getIsAdmin() == 1) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(email + " is already an admin!");
-        } else if (e.getIs_admin() == 2) {
+        } else if (e.getIsAdmin() == 2) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You don't have permission to touch this user!");
         }
-        e.setIs_admin(1);
+        e.setIsAdmin(1);
         return ResponseEntity.status(HttpStatus.OK).body(repository.save(e));
     }
 }
