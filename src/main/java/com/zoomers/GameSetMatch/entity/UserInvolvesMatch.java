@@ -5,7 +5,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Entity
 @Getter
@@ -15,12 +14,15 @@ import java.io.Serializable;
 
 
 @IdClass(UserMatchPairingId.class)
-public class UserMatchPairing {
+public class UserInvolvesMatch {
     @Id
     @Column(name="userID")
-    private int userID;
+    private Long userID;
 
     @Id
     @Column(name="matchID")
-    private int matchID;
+    private Long matchID;
+
+    String results;
+    String attendance;
 }

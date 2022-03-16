@@ -11,10 +11,10 @@ import java.io.Serializable;
 
 
 public class UserMatchPairingId implements Serializable {
-    private int userID;
-    private int matchID;
+    private Long userID;
+    private Long matchID;
 
-    public UserMatchPairingId(int userID, int matchID){
+    public UserMatchPairingId(Long userID, Long matchID){
         this.userID = userID;
         this.matchID = matchID;
     }

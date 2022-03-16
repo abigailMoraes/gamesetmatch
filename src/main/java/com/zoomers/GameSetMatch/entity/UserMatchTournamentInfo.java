@@ -2,17 +2,23 @@ package com.zoomers.GameSetMatch.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-@Entity
-@Table(name = "match_has")
+import java.util.List;
+
+
 @Getter
 @Setter
 @ToString
-public class Match {
+@Entity
+
+public class UserMatchTournamentInfo {
+    private String results;
+    private String attendance;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long matchID;
@@ -23,4 +29,8 @@ public class Match {
     @Column(name="end_time")
     private String endTime;
     private int duration;
+    private String type;
+    private String name;
+    private String location;
+    private String description;
 }

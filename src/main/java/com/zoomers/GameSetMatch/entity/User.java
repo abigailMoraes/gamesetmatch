@@ -16,8 +16,10 @@ import java.util.Objects;
 
 
 public class User {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name="userID")
+    private Long userId;
     @Column(name="firebase_id")
     private String companyId;
     private String name;
