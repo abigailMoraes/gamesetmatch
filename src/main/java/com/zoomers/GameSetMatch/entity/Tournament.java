@@ -27,10 +27,10 @@ public class Tournament {
     private String location;
 
     @Column(name = "max_participants")
-    private int maxParticipants;
+    private Integer maxParticipants;
 
     @Column(name = "min_participants")
-    private int minParticipants;
+    private Integer minParticipants;
 
     @Column(name = "end_date")
     private Date endDate;
@@ -48,15 +48,28 @@ public class Tournament {
     private Long matchDuration;
 
     @Column(name = "number_of_matches")
-    private int numberOfMatches;
+    private Integer numberOfMatches;
 
     @Column(name = "round_duration")
-    private int roundDuration;
+    private Integer roundDuration;
 
     // The latest admin ID who creates/modifies the tournament
     @Column(name = "admin_hosts_tournament")
     private int adminHostsTournament;
 
+    //     -1 = default value in constructor
+    //     0 = open for registration,
+    //     1 = ready to schedule,
+    //     2 = ongoing tournament,
+    //     3 = ready to schedule next round,
+    //     4 = tournament over
+    @Column(name = "status")
+    private int status;
+
+
+    public Tournament() {
+        this.status = -1;
+    }
 
     public Long getTournamentID() {
         return tournamentID;
@@ -106,19 +119,19 @@ public class Tournament {
         this.location = location;
     }
 
-    public int getMaxParticipants() {
+    public Integer getMaxParticipants() {
         return maxParticipants;
     }
 
-    public void setMaxParticipants(int maxParticipants) {
+    public void setMaxParticipants(Integer maxParticipants) {
         this.maxParticipants = maxParticipants;
     }
 
-    public int getMinParticipants() {
+    public Integer getMinParticipants() {
         return minParticipants;
     }
 
-    public void setMinParticipants(int minParticipants) {
+    public void setMinParticipants(Integer minParticipants) {
         this.minParticipants = minParticipants;
     }
 
@@ -162,11 +175,11 @@ public class Tournament {
         this.matchDuration = matchDuration;
     }
 
-    public int getNumberOfMatches() {
+    public Integer getNumberOfMatches() {
         return numberOfMatches;
     }
 
-    public void setNumberOfMatches(int numberOfMatches) {
+    public void setNumberOfMatches(Integer numberOfMatches) {
         this.numberOfMatches = numberOfMatches;
     }
 
@@ -181,4 +194,8 @@ public class Tournament {
     public void setAdminHostsTournament(int id) {this.adminHostsTournament= id;}
 
     public int getAdminHostsTournament() {return this.adminHostsTournament;}
+
+    public void setStatus(int status) {this.status = status;}
+
+    public int getStatus() {return this.status;}
 }
