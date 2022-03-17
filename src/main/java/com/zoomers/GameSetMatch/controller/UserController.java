@@ -38,9 +38,12 @@ public class UserController {
         return repository.findMatchParticipantInfo(id);
     }
 
-    @PostMapping("/new")
-    User newUser (@RequestBody User newUser){
-        return repository.save(newUser);
+        if (e.getIsAdmin() == 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(email + " is already an admin!");
+        } else if (e.getIsAdmin() == 2) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You don't have permission to touch this user!");
+        }
+        e.setIsAdmin(1);
+        return ResponseEntity.status(HttpStatus.OK).body(repository.save(e));
     }
-
 }
