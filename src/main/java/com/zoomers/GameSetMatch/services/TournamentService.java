@@ -24,6 +24,10 @@ public class TournamentService {
     public Optional<Tournament> findTournamentByID(Long id) {
         return tournament.findById(id);
     }
+
+    public List<Tournament> getTournamentByStatus(int status) {
+        return tournament.findByStatus(status);
+    }
 }
 
 

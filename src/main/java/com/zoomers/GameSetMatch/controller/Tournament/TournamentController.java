@@ -144,5 +144,8 @@ public class TournamentController {
         return tour;
     }
 
-
+    @GetMapping(value = "/status")
+    public List<Tournament> getCertainTournament(@RequestParam int status) {
+        return tournamentService.getTournamentByStatus(status);
+    }
 }
