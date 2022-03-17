@@ -37,14 +37,20 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
 
     @Transactional
     @Modifying
-    @Query( value = "UPDATE user_involves_match SET user_involves_match.attendance = 'Yes' \n"+
+    @Query( value = "UPDATE user_involves_match SET user_involves_match.attendance = :attendance \n"+
             "WHERE user_involves_match.matchID = :mid AND user_involves_match.userID = :uid", nativeQuery = true)
-    void confirmMatchAttendanceForUser(int mid, int uid);
+    void confirmMatchAttendanceForUser(int mid, int uid, String attendance);
 
 
     @Transactional
     @Modifying
-    @Query( value = "UPDATE user_involves_match SET user_involves_match.attendance = 'No' \n"+
+    @Query( value = "UPDATE user_involves_match SET user_involves_match.attendance = :attendance \n"+
             "WHERE user_involves_match.matchID = :mid AND user_involves_match.userID = :uid", nativeQuery = true)
-    void dropOutForUser(int mid, int uid);
+    void dropOutForUser(int mid, int uid, String attendance);
+
+    @Transactional
+    @Modifying
+    @Query( value = "UPDATE user_involves_match SET user_involves_match.results = :results \n"+
+            "WHERE user_involves_match.matchID = :mid AND user_involves_match.userID = :uid", nativeQuery = true)
+    void updateMatchResults(int mid, int uid, String results);
 }

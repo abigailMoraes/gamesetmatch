@@ -1,5 +1,7 @@
 package com.zoomers.GameSetMatch.controller;
 
+import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingAttendance;
+import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
 import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
@@ -41,12 +43,16 @@ public class MatchController {
             }
 
     @PutMapping("/match/confirm/{uid}/{mid}")
-    public void confirmAttendance(@PathVariable int uid, @PathVariable int mid){
-        userMatchTournamentRepository.confirmMatchAttendanceForUser(mid,uid);
+    public void confirmAttendance(@RequestBody IncomingAttendance attendance, @PathVariable int uid, @PathVariable int mid){
+        userMatchTournamentRepository.confirmMatchAttendanceForUser(mid,uid, attendance.getAttendance());
     }
 
     @PutMapping("/match/dropOut/{uid}/{mid}")
-    public void dropOut( @PathVariable int uid, @PathVariable int mid){
-        userMatchTournamentRepository.dropOutForUser(mid,uid);
+    public void dropOut(@RequestBody IncomingAttendance attendance, @PathVariable int uid, @PathVariable int mid){
+        userMatchTournamentRepository.dropOutForUser(mid,uid, attendance.getAttendance());
+    }
+    @PutMapping("match/update/results/{uid}/{mid}")
+    public void updateMatchResults(@RequestBody IncomingResults results, @PathVariable int uid, @PathVariable int mid){
+        userMatchTournamentRepository.updateMatchResults(mid,uid, results.getResults());
     }
 }

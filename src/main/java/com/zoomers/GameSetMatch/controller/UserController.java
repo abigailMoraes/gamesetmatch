@@ -28,19 +28,19 @@ public class UserController {
         return repository.save(newEmployee);
     }
 
-        @GetMapping("/all")
-        public List<User> getAll () {
+    @GetMapping("/all")
+    public List<User> getAll () {
             return repository.findAll();
         }
 
-        @GetMapping("/match/{id}")
-        public List<User> getMatchParticipants ( @PathVariable int id){
-            return repository.findMatchParticipantInfo(id);
-        }
+    @GetMapping("/participants/match/{id}")
+    public List<User> getMatchParticipants ( @PathVariable int id){
+        return repository.findMatchParticipantInfo(id);
+    }
 
-        @PostMapping("/new")
-        User newUser (@RequestBody User newUser){
-            return repository.save(newUser);
-        }
+    @PostMapping("/new")
+    User newUser (@RequestBody User newUser){
+        return repository.save(newUser);
+    }
 
 }
