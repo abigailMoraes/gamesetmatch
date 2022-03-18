@@ -29,7 +29,7 @@ public class UserController {
         return repository.findByEmail(email);
  
 
-    @GetMapping("/participants/match/{id}")
+    @GetMapping("/match/{matchID}/participants")
     public List<User> getMatchParticipants ( @PathVariable int id){
         return repository.findMatchParticipantInfo(id);
     }
