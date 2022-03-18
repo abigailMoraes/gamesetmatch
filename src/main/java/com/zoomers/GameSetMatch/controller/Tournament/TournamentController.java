@@ -9,11 +9,14 @@ import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -72,6 +75,7 @@ public class TournamentController {
 
     @PostMapping()
     public Tournament createTournament(@RequestBody Tournament tournament)  {
+        tournament.setStatus(0);
         tournamentService.saveTournament(tournament);
         return tournament;
     }
@@ -83,5 +87,75 @@ public class TournamentController {
         userRegistersTournament.saveRegistration(tournamentID, userID);
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
 
+    }
+
+
+    @PutMapping(value = "/{tournamentID}")
+    public Tournament changeTournamentInfo(@PathVariable Long tournamentID, @RequestBody Tournament incoming) {
+        Optional<Tournament> tournament = tournamentService.findTournamentByID(tournamentID);
+        Tournament tour = new Tournament();
+        if (tournament.isPresent()) {
+            tour = tournament.get();
+
+            if (incoming.getName() != null) {
+                tour.setName(incoming.getName());
+            }
+            if (incoming.getDescription() != null) {
+                tour.setDescription(incoming.getDescription());
+            }
+            if (incoming.getStartDate() != null) {
+                tour.setStartDate(incoming.getStartDate());
+            }
+            if (incoming.getCloseRegistrationDate() != null) {
+                tour.setCloseRegistrationDate(incoming.getCloseRegistrationDate());
+            }
+            if (incoming.getLocation() != null) {
+                tour.setLocation(incoming.getLocation());
+            }
+            if (incoming.getMaxParticipants() != null) {
+                tour.setMaxParticipants(incoming.getMaxParticipants());
+            }
+            if (incoming.getMinParticipants() != null) {
+                tour.setMinParticipants(incoming.getMinParticipants());
+            }
+            if (incoming.getEndDate() != null) {
+                tour.setEndDate(incoming.getEndDate());
+            }
+            if (incoming.getPrize() != null) {
+                tour.setPrize(incoming.getPrize());
+            }
+            if (incoming.getFormat() != null) {
+                tour.setFormat(incoming.getFormat());
+            }
+            if (incoming.getType() != null) {
+                tour.setType(incoming.getType());
+            }
+            if (incoming.getMatchDuration() != null) {
+                tour.setMatchDuration(incoming.getMatchDuration());
+            }
+            if (incoming.getNumberOfMatches() != null) {
+                tour.setNumberOfMatches(incoming.getNumberOfMatches());
+            }
+            if (incoming.getRoundDuration() != null) {
+                tour.setRoundDuration(incoming.getRoundDuration());
+            }
+            if (incoming.getAdminHostsTournament() != 0) {
+                tour.setAdminHostsTournament(incoming.getAdminHostsTournament());
+            }
+            if (incoming.getStatus() != -1) {
+                tour.setStatus(incoming.getStatus());
+            }
+
+            tournamentService.saveTournament(tour);
+        } else {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
+        }
+        return tour;
+    }
+
+    @GetMapping(value = "", params = {"status", "createdBy"})
+    public List<Tournament> getTournament(@RequestParam(name = "status") int status,
+                                                 @RequestParam(name = "createdBy") int user) {
+        return tournamentService.getTournaments(status, user);
     }
 }

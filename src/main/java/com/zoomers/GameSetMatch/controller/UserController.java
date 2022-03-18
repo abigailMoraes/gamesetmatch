@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -16,10 +18,6 @@ public class UserController {
         this.repository = repository;
     }
 
-    @GetMapping("/hello")
-    public String home() {
-        return "Hello World!";
-    }
 
     @PostMapping("/employee")
     User newEmployee(@RequestBody User newEmployee) {
@@ -31,6 +29,11 @@ public class UserController {
         return repository.findByEmail(email);
     }
 
+    @GetMapping("/match/{matchID}/participants")
+    public List<User> getMatchParticipants ( @PathVariable int id){
+        return repository.findMatchParticipantInfo(id);
+    }
+    
     @PutMapping("/user/{email}")
     @ResponseBody
     ResponseEntity<Object> toAdmin(@PathVariable String email) {
@@ -46,4 +49,5 @@ public class UserController {
         e.setIsAdmin(1);
         return ResponseEntity.status(HttpStatus.OK).body(repository.save(e));
     }
+        
 }

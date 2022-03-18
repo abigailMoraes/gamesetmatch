@@ -20,6 +20,8 @@ ALTER TABLE Tournament ADD number_of_matches int;
 ALTER TABLE Tournament ADD type varchar(60);
 ALTER TABLE Tournament ADD admin_hosts_tournament int;
 ALTER TABLE Tournament ADD FOREIGN KEY (admin_hosts_tournament) REFERENCES User(userID)
+ALTER TABLE Tournament ADD status int;
+
 
 INSERT INTO Tournament(name, format, location, description, max_participants, min_participants, prize, start_date, close_registration_date, round_duration, admin_hosts_tournament) values ('Mariokart Madness', 'single knockout elimination','West Atrium room 203', 'Come join us for some krazy karting! (Individual)', 32, 4,'250$ Steam Gift Card', '2022-02-20', '2022-04-01', 7200, 1);
 INSERT INTO Tournament(name, format, location, description, max_participants, min_participants, prize, start_date, close_registration_date, round_duration, admin_hosts_tournament) values ('Amongus Royale', 'single knockout elimination', 'Auditorium 6, North Wing', 'Come join us for some space murder! (individual)', 10, 6, '50$ Steam Gift Card', '2022-03-04', '2022-04-15', 3600, 1);
