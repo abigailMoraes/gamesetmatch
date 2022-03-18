@@ -17,11 +17,11 @@ import javax.persistence.*;
 public class UserInvolvesMatch {
     @Id
     @Column(name="userID")
-    private Long userID;
+    private Integer userID;
 
     @Id
     @Column(name="matchID")
-    private Long matchID;
+    private Integer matchID;
 
     String results;
     String attendance;
