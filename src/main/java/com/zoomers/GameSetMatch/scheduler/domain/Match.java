@@ -1,7 +1,10 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
+import com.google.type.DateTime;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
+
+import java.util.Date;
 
 public class Match {
 
@@ -71,10 +74,6 @@ public class Match {
     public void setDegrees(int degrees) {
         this.degrees = degrees;
     }
-
-    public void addDegrees() { this.degrees++; }
-
-    public void decreaseDegrees() { this.degrees--; }
 
     public void setMatchStatus(MatchStatus matchStatus) {
         this.matchStatus = matchStatus;

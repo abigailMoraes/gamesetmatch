@@ -2,12 +2,13 @@ package com.zoomers.GameSetMatch.scheduler.domain;
 
 import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class Registrant {
 
     private final int id;
-    private final String availability; // 24 character string
+    private String availability; // 24 * 7 character string
     private Skill skillLevel = Skill.BEGINNER;
     private Set<Registrant> playersToPlay;
     private int losses = 0;
@@ -29,6 +30,17 @@ public class Registrant {
 
     public boolean checkAvailability(int timeID) {
         return this.availability.charAt(timeID) == '1';
+    }
+
+    public void setAvailabilityString(int day) {
+
+        if (day == 1) {
+            return;
+        }
+
+        int availabilityIndex = 24 * (day - 1);
+
+        availability = availability.substring(availabilityIndex) + availability.substring(0, availabilityIndex - 1);
     }
 
     public void setLosses(int losses) {

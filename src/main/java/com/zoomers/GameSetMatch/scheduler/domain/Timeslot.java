@@ -1,21 +1,24 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
+import java.util.Date;
 import java.util.Objects;
 
 public class Timeslot {
 
-    private float time;
-    private int id;
+    private final float time;
+    private final int id;
+    private final Date date;
 
-    public Timeslot(float time) {
+    public Timeslot(float time, Date date) {
 
         this.time = time;
         this.id = convertToID(time);
+        this.date = date;
     }
 
     private int convertToID(float time) {
 
-        return (int)((time - 7)* 2);
+        return (int)((time - 9)* 2);
     }
 
     public float getTime() {
@@ -24,6 +27,10 @@ public class Timeslot {
 
     public int getID() {
         return id;
+    }
+
+    public Date getDate() {
+        return date;
     }
 
     @Override

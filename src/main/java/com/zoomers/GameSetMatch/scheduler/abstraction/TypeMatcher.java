@@ -3,6 +3,7 @@ package com.zoomers.GameSetMatch.scheduler.abstraction;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
+import com.zoomers.GameSetMatch.scheduler.graph.BestOfMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.SecondaryMatchGraph;
@@ -28,7 +29,7 @@ public abstract class TypeMatcher {
 
                     Registrant r_j = registrants.get(j);
 
-                    if (!areMatchConditionsSatisfied(r_i, r_j, t)) {
+                    if (areMatchConditionsSatisfied(r_i, r_j, t)) {
                         continue;
                     }
 
@@ -70,7 +71,7 @@ public abstract class TypeMatcher {
 
                     Registrant r_j = registrantsToBeMatched.get(j);
 
-                    if (!areMatchConditionsSatisfied(r_i, r_j, t)) {
+                    if (areMatchConditionsSatisfied(r_i, r_j, t)) {
                         continue;
                     }
 
@@ -89,6 +90,44 @@ public abstract class TypeMatcher {
         }
 
         return secondaryMatchGraph;
+    }
+
+    public BestOfMatchGraph createPossibleBestOfMatches(
+            List<Registrant> registrantsToBeMatched,
+            List<Timeslot> availableTimeslots,
+            Set<Match> existingMatches,
+            int bestOfSeries,
+            int matchDuration
+    ) {
+
+        BestOfMatchGraph bestOfMatchGraph = new BestOfMatchGraph(
+                registrantsToBeMatched,
+                availableTimeslots,
+                bestOfSeries,
+                matchDuration
+        );
+
+        for (Match m : existingMatches) {
+
+            for (Timeslot t : availableTimeslots) {
+
+                if (t.getDate() == m.getTimeslot().getDate()) {
+                    continue;
+                }
+
+                Match seriesMatch = new Match(
+                        m.getPlayers().getFirst(),
+                        m.getPlayers().getSecond(),
+                        t,
+                        matchDuration,
+                        1
+                );
+                // m.setMatchScore(calculateMatchScore(m.getPlayers().getFirst(), m.getPlayers().getSecond(), t));
+                bestOfMatchGraph.addMatch(m);
+            }
+        }
+
+        return bestOfMatchGraph;
     }
 
     private int calculateMatchScore(Registrant r1, Registrant r2, Timeslot t) {

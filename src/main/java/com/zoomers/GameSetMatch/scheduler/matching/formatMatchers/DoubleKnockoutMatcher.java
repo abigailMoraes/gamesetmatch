@@ -8,6 +8,6 @@ public class DoubleKnockoutMatcher extends TypeMatcher {
 
     @Override
     protected boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t) {
-        return r1.getLosses() == r2.getLosses();
+        return r1.getLosses() != r2.getLosses();
     }
 }

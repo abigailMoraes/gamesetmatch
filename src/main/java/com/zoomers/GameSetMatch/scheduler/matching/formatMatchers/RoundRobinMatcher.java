@@ -8,6 +8,6 @@ public class RoundRobinMatcher extends TypeMatcher {
 
     @Override
     protected boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t) {
-        return r1.hasNotPlayed(r2);
+        return !r1.hasNotPlayed(r2);
     }
 }

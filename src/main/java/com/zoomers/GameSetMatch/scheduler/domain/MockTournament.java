@@ -3,26 +3,31 @@ package com.zoomers.GameSetMatch.scheduler.domain;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
 
+import java.util.Date;
+
 public class MockTournament {
 
     private final int tournamentID;
     private final TournamentType tournamentType;
-    private final TournamentSeries tournamentFormat;
+    private final TournamentSeries tournamentSeries;
     private final boolean matchBySkill;
     private final int matchDuration;
+    private final Date startDate;
 
     public MockTournament(
             int tournamentID,
             TournamentType tournamentType,
             TournamentSeries tournamentFormat,
             boolean matchBySkill,
-            int matchDuration
+            int matchDuration,
+            Date startDate
     ) {
         this.tournamentID = tournamentID;
         this.tournamentType = tournamentType;
-        this.tournamentFormat = tournamentFormat;
+        this.tournamentSeries = tournamentFormat;
         this.matchBySkill = matchBySkill;
         this.matchDuration = matchDuration;
+        this.startDate = startDate;
     }
 
     public int getTournamentID() {
@@ -33,12 +38,17 @@ public class MockTournament {
         return tournamentType;
     }
 
-    public TournamentSeries getTournamentFormat() {
-        return tournamentFormat;
+    public TournamentSeries getTournamentSeries() {
+        return tournamentSeries;
     }
 
     public boolean isMatchBySkill() {
         return matchBySkill;
+    }
+
+    public Date getStartDate() {
+
+        return startDate;
     }
 
     public int getMatchDuration() {

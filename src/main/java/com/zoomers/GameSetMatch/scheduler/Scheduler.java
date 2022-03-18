@@ -8,19 +8,16 @@ import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
+import com.zoomers.GameSetMatch.scheduler.graph.BestOfMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.SecondaryMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.matching.algorithms.GreedyMaximumIndependentSet;
-import com.zoomers.GameSetMatch.scheduler.matching.algorithms.GreedyMinimumWeightIndependentSet;
-import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MatchingAlgorithm;
-import com.zoomers.GameSetMatch.scheduler.matching.algorithms.MaximumMatchScoreMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.algorithms.*;
 import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.DoubleKnockoutMatcher;
 import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.RoundRobinMatcher;
 import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.SingleKnockoutMatcher;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
-import org.springframework.data.jpa.repository.Query;
 
 import java.io.*;
 import java.util.*;
@@ -32,6 +29,7 @@ public class Scheduler {
     private String playerFileName;
     private MockTournament tournament;
     private TypeMatcher typeMatcher;
+    private final Calendar calendar = Calendar.getInstance();
 
     public Scheduler(MockTournament tournament, String filename) {
 
@@ -39,6 +37,7 @@ public class Scheduler {
         this.playerFileName = filename;
 
         setTypeMatcher(tournament.getTournamentType());
+        setDate();
     }
 
     public Scheduler(int tournamentID) {
@@ -59,11 +58,15 @@ public class Scheduler {
         }
     }
 
+    private void setDate() {
+        this.calendar.setTime(this.tournament.getStartDate());
+    }
+
     public void schedule() {
 
         Set<Match> returnedMatches = new LinkedHashSet<>(schedulePrimaryMatches());
-
         returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
+        returnedMatches.addAll(scheduleBestOfMatches(returnedMatches));
     }
 
     private Set<Match> schedulePrimaryMatches() {
@@ -133,6 +136,26 @@ public class Scheduler {
         return newMatches;
     }
 
+    private Set<Match> scheduleBestOfMatches(Set<Match> matches) {
+
+        if (this.tournament.getTournamentSeries().getNumberOfGames() == 1) {
+            return Set.of();
+        }
+
+        BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
+                registrants,
+                findAvailableTimeslots(matches),
+                matches,
+                this.tournament.getTournamentSeries().getNumberOfGames(),
+                this.tournament.getMatchDuration()
+        );
+
+        MatchingAlgorithm bestOfMatching = new BestOfMatchingAlgorithm(bestOfMatchGraph);
+        Set<Match> bestOfMatches = bestOfMatching.findMatches();
+
+        return Set.of();
+    }
+
     private List<Registrant> findRegistrantsToBeMatched(Set<Match> returnedMatches) {
 
         List<Registrant> toBeMatched = new ArrayList<>(this.registrants);
@@ -185,6 +208,7 @@ public class Scheduler {
                 }
 
                 Registrant r = new Registrant(id, availability, skill);
+                r.setAvailabilityString(calendar.get(Calendar.DAY_OF_WEEK));
                 registrants.add(r);
             }
         }
@@ -198,10 +222,16 @@ public class Scheduler {
         File slots = new File("./data/Timeslots");
         Scanner scanner = new Scanner(slots);
 
-        while (scanner.hasNext()) {
-            Timeslot t = new Timeslot(Float.parseFloat(scanner.nextLine()));
-            this.timeslots.add(t);
+        for (int i = 1; i <=7; i++) {
+            while (scanner.hasNext()) {
+                float time = Float.parseFloat(scanner.nextLine());
+                Date date = calendar.getTime();
+                Timeslot t = new Timeslot(time, date);
+                this.timeslots.add(t);
+            }
+            calendar.add(Calendar.DATE, 1);
         }
+        calendar.setTime(tournament.getStartDate());
     }
 
 }
