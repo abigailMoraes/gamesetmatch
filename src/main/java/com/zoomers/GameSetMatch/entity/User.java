@@ -24,6 +24,7 @@ public class User {
     private String email;
     @Column (name = "name")
     private String name;
+    // 0 is employee, 1 is admin, 2 is root admin
     @Column (name = "is_admin")
     private int isAdmin;
 
