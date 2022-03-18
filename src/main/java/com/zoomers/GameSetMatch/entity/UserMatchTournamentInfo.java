@@ -21,7 +21,7 @@ public class UserMatchTournamentInfo {
     private String attendance;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long matchID;
+    private Integer matchID;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name="start_time")
     private String startTime;
