@@ -25,8 +25,8 @@ public class TournamentService {
         return tournament.findById(Math.toIntExact(id));
     }
 
-    public List<Tournament> getTournamentByStatus(int status) {
-        return tournament.findByStatus(status);
+    public List<Tournament> getTournaments(int status, int id) {
+        return tournament.findTournaments(status, id);
     }
 }
 

@@ -146,9 +146,9 @@ public class TournamentController {
         return tour;
     }
 
-    @GetMapping(value = "/tournaments")
-    public List<Tournament> getCertainTournament(@RequestParam(name = "status") int status,
+    @GetMapping(value = "", params = {"status", "createdBy"})
+    public List<Tournament> getTournament(@RequestParam(name = "status") int status,
                                                  @RequestParam(name = "createdBy") int user) {
-        return tournamentService.getTournamentByStatus(status);
+        return tournamentService.getTournaments(status, user);
     }
 }
