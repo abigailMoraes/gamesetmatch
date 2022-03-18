@@ -1,20 +1,20 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
 
 public class MockTournament {
 
     private final int tournamentID;
     private final TournamentType tournamentType;
-    private final TournamentFormat tournamentFormat;
+    private final TournamentSeries tournamentFormat;
     private final boolean matchBySkill;
     private final int matchDuration;
 
     public MockTournament(
             int tournamentID,
             TournamentType tournamentType,
-            TournamentFormat tournamentFormat,
+            TournamentSeries tournamentFormat,
             boolean matchBySkill,
             int matchDuration
     ) {
@@ -33,7 +33,7 @@ public class MockTournament {
         return tournamentType;
     }
 
-    public TournamentFormat getTournamentFormat() {
+    public TournamentSeries getTournamentFormat() {
         return tournamentFormat;
     }
 

@@ -1,6 +1,6 @@
 package com.zoomers.GameSetMatch.scheduler.enumerations;
 
-public enum TournamentFormat {
+public enum TournamentSeries {
     BEST_OF_1,
     BEST_OF_3,
     BEST_OF_5,

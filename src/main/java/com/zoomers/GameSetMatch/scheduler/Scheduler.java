@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.scheduler;
 
+import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.scheduler.abstraction.TypeMatcher;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
@@ -19,6 +20,7 @@ import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.RoundRobinMatc
 import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.SingleKnockoutMatcher;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
+import org.springframework.data.jpa.repository.Query;
 
 import java.io.*;
 import java.util.*;
@@ -37,6 +39,9 @@ public class Scheduler {
         this.playerFileName = filename;
 
         setTypeMatcher(tournament.getTournamentType());
+    }
+
+    public Scheduler(int tournamentID) {
     }
 
     private void setTypeMatcher(TournamentType type) {

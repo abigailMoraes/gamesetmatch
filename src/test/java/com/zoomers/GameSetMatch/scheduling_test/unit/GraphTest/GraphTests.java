@@ -2,7 +2,7 @@ package com.zoomers.GameSetMatch.scheduling_test.unit.GraphTest;
 
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -17,9 +17,9 @@ public class GraphTests {
     private MockTournament tournament = new MockTournament(
             0,
             TournamentType.SINGLE_KNOCKOUT,
-            TournamentFormat.BEST_OF_1,
-            true,
-            30
+            TournamentSeries.BEST_OF_1,
+            false,
+            70
     );
 
     @Test
@@ -111,14 +111,24 @@ public class GraphTests {
     }
 
     @Test
-    void StressTest() {
+    void GraphSix() {
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet5.json";
+
+        Scheduler s = new Scheduler(tournament, filename);
+        s.schedule();
+    }
+
+    @Test
+    void StressTestNoAvailability() {
         JSONArray array = new JSONArray();
 
         try {
             for (int i = 0; i < 300; i++) {
                 JSONObject player =  new JSONObject();
                 player.put("id", Integer.toString(i));
-                player.put("availability", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+                player.put("availability", "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+                player.put("skill", "1");
 
                 array.put(player);
             }
@@ -129,6 +139,39 @@ public class GraphTests {
         }
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/stress1.json";
+
+        try {
+            FileWriter file = new FileWriter(filename);
+            file.write(array.toString());
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Scheduler s = new Scheduler(tournament, filename);
+        s.schedule();
+    }
+
+    @Test
+    void StressTestFullAvailability() {
+        JSONArray array = new JSONArray();
+
+        try {
+            for (int i = 0; i < 300; i++) {
+                JSONObject player =  new JSONObject();
+                player.put("id", Integer.toString(i));
+                player.put("availability", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+                player.put("skill", "1");
+
+                array.put(player);
+            }
+        }
+        catch (JSONException e) {
+
+            System.out.println(e);
+        }
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/stress2.json";
 
         try {
             FileWriter file = new FileWriter(filename);

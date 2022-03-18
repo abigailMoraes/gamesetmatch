@@ -26,7 +26,7 @@ public class Match {
     private void setMatchDuration(int matchDuration) {
 
         float matchInterval = matchDuration / 30f;
-        this.matchDuration = (float) Math.ceil(matchInterval * 2) / 2;
+        this.matchDuration = (float) Math.ceil(matchInterval) / 2;
     }
 
     public boolean sharePlayers(Match m2) {
@@ -43,6 +43,7 @@ public class Match {
         }
         else if (this.timeslot.getTime() <= m2.getTimeslot().getTime() &&
                 this.timeslot.getTime() + matchDuration > m2.getTimeslot().getTime()) {
+
             return true;
         }
         else return m2.getTimeslot().getTime() <= this.timeslot.getTime() &&
