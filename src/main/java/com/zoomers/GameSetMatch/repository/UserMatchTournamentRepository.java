@@ -26,7 +26,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             " round_has ON m.roundID = round_has.roundID LEFT JOIN tournament \n" +
             " ON round_has.tournamentID = tournament.tournamentID;",
             nativeQuery = true)
-    List<UserMatchTournamentInfo> findPastMatchesByUserID(int id);
+    List<IUserMatchTournamentInfo> findPastMatchesByUserID(int id);
 
     @Query(  value ="SELECT m.matchID, m.start_time, m.end_time, m.duration, round_has.type, \n" +
             " tournament.name, tournament.location, tournament.description \n" +
