@@ -27,7 +27,7 @@ public class UserController {
     @GetMapping("/user/{email}")
     public User getEmployeeByEmail(@PathVariable String email) {
         return repository.findByEmail(email);
- 
+    }
 
     @GetMapping("/match/{matchID}/participants")
     public List<User> getMatchParticipants ( @PathVariable int id){
