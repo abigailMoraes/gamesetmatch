@@ -12,6 +12,7 @@ ALTER TABLE Tournament ADD number_of_matches int;
 ALTER TABLE Tournament ADD type varchar(60);
 ALTER TABLE Tournament ADD round_duration int;
 ALTER TABLE Tournament ADD admin_hosts_tournament int;
+ALTER TABLE Tournament ADD status int;
 
 
 
