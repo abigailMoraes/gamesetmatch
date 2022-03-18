@@ -31,12 +31,13 @@ public class MatchController {
 
     @GetMapping("/match/history/involves/user/{id}")
     List<UserMatchTournamentInfo> getPastMatchesForUser(@PathVariable int id){
-        return userMatchTournamentRepository.findPastMatchesByUserID(id);}
+        return userMatchTournamentRepository.findPastMatchesByUserID(id);
+    }
 
     @GetMapping("/match/{id}")
     UserMatchTournamentInfo getMatchInfoById(@PathVariable int id){
         return userMatchTournamentRepository.findMatchInfoByMatchID(id);
-            }
+    }
 
     @PutMapping("/match/confirm/{uid}/{mid}")
     public void confirmAttendance(@RequestBody IncomingAttendance attendance, @PathVariable int uid, @PathVariable int mid){
