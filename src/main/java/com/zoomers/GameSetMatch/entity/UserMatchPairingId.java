@@ -11,8 +11,8 @@ import java.io.Serializable;
 
 
 public class UserMatchPairingId implements Serializable {
-    private Long userID;
-    private Long matchID;
+    private Integer userID;
+    private Integer matchID;
 
     public UserMatchPairingId(Long userID, Long matchID){
         this.userID = userID;
