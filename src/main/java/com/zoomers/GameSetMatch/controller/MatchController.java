@@ -39,17 +39,12 @@ public class MatchController {
         return userMatchTournamentRepository.findMatchInfoByMatchID(id);
     }
 
-    @PutMapping("/match/confirm/{uid}/{mid}")
-    public void confirmAttendance(@RequestBody IncomingAttendance attendance, @PathVariable int uid, @PathVariable int mid){
-        userMatchTournamentRepository.confirmMatchAttendanceForUser(mid,uid, attendance.getAttendance());
+    @PutMapping("/match/userAttendance")
+    public void updateAttendance(@RequestBody IncomingAttendance attendance){
+        userMatchTournamentRepository.dropOutForUser(attendance.getMatchID(), attendance.getUserID(), attendance.getAttendance());
     }
-
-    @PutMapping("/match/dropOut/{uid}/{mid}")
-    public void dropOut(@RequestBody IncomingAttendance attendance, @PathVariable int uid, @PathVariable int mid){
-        userMatchTournamentRepository.dropOutForUser(mid,uid, attendance.getAttendance());
-    }
-    @PutMapping("match/update/results/{uid}/{mid}")
-    public void updateMatchResults(@RequestBody IncomingResults results, @PathVariable int uid, @PathVariable int mid){
-        userMatchTournamentRepository.updateMatchResults(mid,uid, results.getResults());
+    @PutMapping("/match/userResults")
+    public void updateMatchResults(@RequestBody IncomingResults results){
+        userMatchTournamentRepository.updateMatchResults(results.getMatchID(),results.getUserID(), results.getResults());
     }
 }
