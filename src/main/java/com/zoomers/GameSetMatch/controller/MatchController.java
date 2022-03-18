@@ -23,10 +23,6 @@ public class MatchController {
         this.matchRepository = matchRepository;
     }
 
-    @GetMapping("/match/all")
-    List<Match> getAllMatches() {
-        return matchRepository.findAll();
-    }
 
     @GetMapping("/match/involves/user/{id}")
     List<UserMatchTournamentInfo> getMatchesForUser(@PathVariable int id){
