@@ -18,26 +18,29 @@ public class UserController {
         this.repository = repository;
     }
 
-    @GetMapping("/hello")
-    public String home() {
-        return "Hello World!";
-    }
 
     @PostMapping("/employee")
     User newEmployee(@RequestBody User newEmployee) {
         return repository.save(newEmployee);
     }
 
-    @GetMapping("/all")
-    public List<User> getAll () {
-            return repository.findAll();
-        }
+    @GetMapping("/user/{email}")
+    public User getEmployeeByEmail(@PathVariable String email) {
+        return repository.findByEmail(email);
+ 
 
     @GetMapping("/participants/match/{id}")
     public List<User> getMatchParticipants ( @PathVariable int id){
         return repository.findMatchParticipantInfo(id);
     }
-
+    
+    @PutMapping("/user/{email}")
+    @ResponseBody
+    ResponseEntity<Object> toAdmin(@PathVariable String email) {
+        User e = repository.findByEmail(email);
+        if (e == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find user with this email!");
+        }
         if (e.getIsAdmin() == 1) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(email + " is already an admin!");
         } else if (e.getIsAdmin() == 2) {
@@ -46,4 +49,5 @@ public class UserController {
         e.setIsAdmin(1);
         return ResponseEntity.status(HttpStatus.OK).body(repository.save(e));
     }
+        
 }
