@@ -8,6 +8,8 @@ import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -139,13 +141,14 @@ public class TournamentController {
 
             tournamentService.saveTournament(tour);
         } else {
-            tour.setName("WARNING: This Tournament ID is not valid");
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
         }
         return tour;
     }
 
-    @GetMapping(value = "/status")
-    public List<Tournament> getCertainTournament(@RequestParam int status) {
+    @GetMapping(value = "/tournaments")
+    public List<Tournament> getCertainTournament(@RequestParam(name = "status") int status,
+                                                 @RequestParam(name = "createdBy") int user) {
         return tournamentService.getTournamentByStatus(status);
     }
 }

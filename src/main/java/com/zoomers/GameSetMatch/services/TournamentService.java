@@ -22,7 +22,7 @@ public class TournamentService {
     }
 
     public Optional<Tournament> findTournamentByID(Long id) {
-        return tournament.findById(id);
+        return tournament.findById(Math.toIntExact(id));
     }
 
     public List<Tournament> getTournamentByStatus(int status) {
