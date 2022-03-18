@@ -8,4 +8,12 @@ public class IncomingResults {
     public String getResults(){
         return this.results;
     }
+    
+    public int getMatchID(){
+        return this.matchID;
+    }
+    
+    public int getUserID(){
+        return this.userID;
+    }
 }
