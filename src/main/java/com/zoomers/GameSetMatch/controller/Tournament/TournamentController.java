@@ -4,6 +4,7 @@ import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegist
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
 
+import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/api/tournament")
+@RequestMapping("/api/tournaments")
 public class TournamentController {
 
     @Autowired
@@ -32,8 +33,8 @@ public class TournamentController {
     private TournamentService tournamentService;
 
     @GetMapping()
-    public List<OutgoingTournament> getAllTournaments() {
-        List<Long> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs((long) 1);
+    public List<OutgoingTournament> getAllTournaments(@RequestParam int registeredUser) {
+        List<Integer> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs(registeredUser);
         List<Tournament> tournaments = tournament.getAllTournaments();
 
         List<OutgoingTournament> responseTournaments = new ArrayList<>();
@@ -64,6 +65,11 @@ public class TournamentController {
         return responseTournaments;
     }
 
+    @GetMapping(value = "/{tournamentID}/registrants")
+    public List<UserRegistersTournamentRepository.IRegistrant> getRegistrants(@PathVariable int tournamentID) {
+        return userRegistersTournament.getRegistrants(tournamentID);
+    }
+
     @PostMapping()
     public Tournament createTournament(@RequestBody Tournament tournament)  {
         tournamentService.saveTournament(tournament);
@@ -71,13 +77,11 @@ public class TournamentController {
     }
 
     @PostMapping(value = "/{tournamentID}/register")
-    public void registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Long tournamentID) {
-        Long userID = newRegistrtation.getUserID();
+    public void registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Integer tournamentID) {
+        Integer userID = newRegistrtation.getUserID();
 
         userRegistersTournament.saveRegistration(tournamentID, userID);
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
 
     }
-
-
 }
