@@ -13,11 +13,8 @@ public class BestOfMatchGraph extends MatchGraph {
     private final int numberOfGames;
     private final int matchDuration;
 
-    public BestOfMatchGraph(List<Registrant> registrants, List<Timeslot> timeslots, int numberOfGames, int matchDuration) {
-        super(new LinkedHashSet<>(registrants),
-                new LinkedHashSet<>(timeslots),
-                new LinkedHashSet<>()
-        );
+    public BestOfMatchGraph(Set<Registrant> registrants, Set<Timeslot> timeslots, int numberOfGames, int matchDuration) {
+        super(registrants, timeslots, new LinkedHashSet<>());
 
         this.numberOfGames = numberOfGames;
         this.matchDuration = matchDuration;

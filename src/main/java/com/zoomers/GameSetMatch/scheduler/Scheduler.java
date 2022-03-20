@@ -35,9 +35,9 @@ public class Scheduler {
 
         this.tournament = tournament;
         this.playerFileName = filename;
+        this.calendar.setTime(this.tournament.getStartDate());
 
         setTypeMatcher(tournament.getTournamentType());
-        setDate();
     }
 
     public Scheduler(int tournamentID) {
@@ -58,15 +58,16 @@ public class Scheduler {
         }
     }
 
-    private void setDate() {
-        this.calendar.setTime(this.tournament.getStartDate());
-    }
-
     public void schedule() {
 
         Set<Match> returnedMatches = new LinkedHashSet<>(schedulePrimaryMatches());
         returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
         returnedMatches.addAll(scheduleBestOfMatches(returnedMatches));
+
+        /*for (Match m : returnedMatches) {
+            System.out.println(m);
+        }*/
+        System.out.println(returnedMatches.size());
     }
 
     private Set<Match> schedulePrimaryMatches() {
@@ -86,18 +87,20 @@ public class Scheduler {
 
         PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
 
-        for (Match m : matchGraph.getMatches()) {
+        /*for (Match m : matchGraph.getMatches()) {
             System.out.println("Possible Match: " + m);
         }
+
+        System.out.println(matchGraph.getMatches().size());*/
 
         matchGraph.setMatchDegrees();
         MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(tournament.isMatchBySkill(), matchGraph);
 
         Set<Match> matches = greedyMaximumIndependentSet.findMatches();
 
-        for (Match m : matches) {
+        /*for (Match m : matches) {
             System.out.println("Primary Match: " + m);
-        }
+        }*/
 
         return matches;
     }
@@ -129,9 +132,9 @@ public class Scheduler {
 
         Set<Match> newMatches = maximumMatchScoreMatcher.findMatches();
 
-        for (Match m : newMatches) {
+        /*for (Match m : newMatches) {
             System.out.println("Secondary Match: " + m);
-        }
+        }*/
 
         return newMatches;
     }
@@ -143,8 +146,8 @@ public class Scheduler {
         }
 
         BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
-                registrants,
-                findAvailableTimeslots(matches),
+                new LinkedHashSet<>(registrants),
+                new LinkedHashSet<>(findAvailableTimeslots(matches)),
                 matches,
                 this.tournament.getTournamentSeries().getNumberOfGames(),
                 this.tournament.getMatchDuration()
@@ -153,7 +156,11 @@ public class Scheduler {
         MatchingAlgorithm bestOfMatching = new BestOfMatchingAlgorithm(bestOfMatchGraph);
         Set<Match> bestOfMatches = bestOfMatching.findMatches();
 
-        return Set.of();
+        /*for (Match m : bestOfMatches) {
+            System.out.println("Best of Match: " + m);
+        }*/
+
+        return bestOfMatches;
     }
 
     private List<Registrant> findRegistrantsToBeMatched(Set<Match> returnedMatches) {
@@ -208,7 +215,7 @@ public class Scheduler {
                 }
 
                 Registrant r = new Registrant(id, availability, skill);
-                r.setAvailabilityString(calendar.get(Calendar.DAY_OF_WEEK));
+                // r.setAvailabilityString(calendar.get(Calendar.DAY_OF_WEEK));
                 registrants.add(r);
             }
         }
@@ -222,16 +229,16 @@ public class Scheduler {
         File slots = new File("./data/Timeslots");
         Scanner scanner = new Scanner(slots);
 
-        for (int i = 1; i <=7; i++) {
+        for (int i = 0; i < 7; i++) {
             while (scanner.hasNext()) {
                 float time = Float.parseFloat(scanner.nextLine());
-                Date date = calendar.getTime();
-                Timeslot t = new Timeslot(time, date);
+                Timeslot t = new Timeslot(time, calendar.getTime());
                 this.timeslots.add(t);
             }
             calendar.add(Calendar.DATE, 1);
+            scanner = new Scanner(slots);
+
         }
         calendar.setTime(tournament.getStartDate());
     }
-
 }

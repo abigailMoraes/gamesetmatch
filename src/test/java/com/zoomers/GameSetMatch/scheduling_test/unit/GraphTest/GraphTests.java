@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 
 public class GraphTests {
@@ -18,45 +19,22 @@ public class GraphTests {
     private MockTournament tournament = new MockTournament(
             0,
             TournamentType.SINGLE_KNOCKOUT,
-            TournamentSeries.BEST_OF_1,
+            TournamentSeries.BEST_OF_7,
             false,
-            70,
-            new Date()
+            30,
+            Calendar.getInstance().getTime()
     );
 
     @Test
-    void GraphOne() {
-        Scheduler s = new Scheduler(tournament, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet1.json");
+    void BaseMatchingTest() {
+        Scheduler s = new Scheduler(tournament, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
         s.schedule();
     }
 
     @Test
-    void GraphTwo() {
-        JSONArray array = new JSONArray();
+    void BaseSecondaryMatching() {
 
-        try {
-            for (int i = 0; i < 50; i++) {
-                JSONObject player = new JSONObject();
-                player.put("id", Integer.toString(i));
-                player.put("availability", "111111111111111111111111");
-
-                array.put(player);
-            }
-        }
-        catch (JSONException e) {
-
-            System.out.println(e);
-        }
-
-        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet2.json";
-
-        try {
-            FileWriter file = new FileWriter(filename);
-            file.write(array.toString());
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseSecondaryMatching.json";
 
         Scheduler s = new Scheduler(tournament, filename);
         s.schedule();
@@ -80,7 +58,7 @@ public class GraphTests {
             System.out.println(e);
         }
 
-        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet2.json";
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseSecondaryMatching.json";
 
         try {
             FileWriter file = new FileWriter(filename);
@@ -116,6 +94,15 @@ public class GraphTests {
     void GraphSix() {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet5.json";
+
+        Scheduler s = new Scheduler(tournament, filename);
+        s.schedule();
+    }
+
+    @Test
+    void BestOfMatching() {
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BestOfMatching.json";
 
         Scheduler s = new Scheduler(tournament, filename);
         s.schedule();

@@ -29,7 +29,7 @@ public abstract class TypeMatcher {
 
                     Registrant r_j = registrants.get(j);
 
-                    if (areMatchConditionsSatisfied(r_i, r_j, t)) {
+                    if (!areMatchConditionsSatisfied(r_i, r_j, t)) {
                         continue;
                     }
 
@@ -71,7 +71,7 @@ public abstract class TypeMatcher {
 
                     Registrant r_j = registrantsToBeMatched.get(j);
 
-                    if (areMatchConditionsSatisfied(r_i, r_j, t)) {
+                    if (!areMatchConditionsSatisfied(r_i, r_j, t)) {
                         continue;
                     }
 
@@ -93,25 +93,27 @@ public abstract class TypeMatcher {
     }
 
     public BestOfMatchGraph createPossibleBestOfMatches(
-            List<Registrant> registrantsToBeMatched,
-            List<Timeslot> availableTimeslots,
+            Set<Registrant> registrants,
+            Set<Timeslot> availableTimeslots,
             Set<Match> existingMatches,
             int bestOfSeries,
             int matchDuration
     ) {
 
         BestOfMatchGraph bestOfMatchGraph = new BestOfMatchGraph(
-                registrantsToBeMatched,
+                registrants,
                 availableTimeslots,
                 bestOfSeries,
                 matchDuration
         );
 
+        List<Registrant> registrantsList = new ArrayList<>(registrants);
+
         for (Match m : existingMatches) {
 
             for (Timeslot t : availableTimeslots) {
 
-                if (t.getDate() == m.getTimeslot().getDate()) {
+                if (Objects.equals(t.getDate(), m.getTimeslot().getDate())) {
                     continue;
                 }
 
@@ -122,10 +124,20 @@ public abstract class TypeMatcher {
                         matchDuration,
                         1
                 );
-                // m.setMatchScore(calculateMatchScore(m.getPlayers().getFirst(), m.getPlayers().getSecond(), t));
-                bestOfMatchGraph.addMatch(m);
+
+                Registrant r1 = registrantsList.stream().filter(r -> r.getID() == m.getPlayers().getFirst()).findFirst().get();
+                Registrant r2 = registrantsList.stream().filter(r -> r.getID() == m.getPlayers().getSecond()).findFirst().get();
+
+                seriesMatch.setMatchScore(calculateMatchScore(r1, r2, t));
+                bestOfMatchGraph.addMatch(seriesMatch);
             }
         }
+
+        /*System.out.println(bestOfMatchGraph.getMatches().size());
+
+        for (Match m : bestOfMatchGraph.getMatches()) {
+            System.out.println("Possible Best of Matches: " + m);
+        }*/
 
         return bestOfMatchGraph;
     }

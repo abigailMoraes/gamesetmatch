@@ -45,14 +45,16 @@ public class BipartiteGraph {
 
     private void createAdjacencyList(Registrant r, Timeslot t) {
 
+        /*System.out.println(matchIndex + timeslots.size());
+        System.out.println(t.getID());*/
+
         if (t.getID() + matchIndex > timeslots.size()) {
+
             return;
         }
 
         for (int i = t.getID(); i < t.getID() + matchIndex; i++) {
-
             if (r.getAvailability().charAt(i) != '1') {
-
                 return;
             }
         }
@@ -89,7 +91,7 @@ public class BipartiteGraph {
 
     public void printGraph() {
         for (Timeslot t : adjacencyList.keySet()) {
-            System.out.println("\nVertex " + t.getTime() + ":");
+            System.out.println("\nVertex " + t.toString() + ":");
             for (Registrant r : adjacencyList.get(t)) {
                 System.out.print(" -> " + r.getID());
             }

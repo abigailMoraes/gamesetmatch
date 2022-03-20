@@ -18,14 +18,14 @@ public class Registrant {
         this.availability = availability;
         this.skillLevel = skillLevel;
 
-        assert(this.availability.length() == 24);// * 7);
+        // assert(this.availability.length() == 24);// * 7);
     }
 
     public Registrant(int id, String availability) {
         this.id = id;
         this.availability = availability;
 
-        assert(this.availability.length() == 24);// * 7);
+        // assert(this.availability.length() == 24);// * 7);
     }
 
     public boolean checkAvailability(int timeID) {
@@ -40,7 +40,7 @@ public class Registrant {
 
         int availabilityIndex = 24 * (day - 1);
 
-        availability = availability.substring(availabilityIndex) + availability.substring(0, availabilityIndex - 1);
+        availability = availability.substring(availabilityIndex) + availability.substring(0, availabilityIndex);
     }
 
     public void setLosses(int losses) {

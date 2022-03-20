@@ -27,7 +27,7 @@ public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
 
         for (Match m2 : this.matchGraph.getMatches()) {
 
-            if (match.sharePlayers(m2) || match.shareTimeslot(m2)) {
+            if (match.sharePlayers(m2) || (match.shareTimeslot(m2) && match.shareDate(m2))) {// && match.shareDate(m2))) {
 
                 matchGraph.decrementDegree(m2);
                 matchesToRemove.add(m2);
