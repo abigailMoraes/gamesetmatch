@@ -139,8 +139,6 @@ public abstract class TypeMatcher {
                 bestOfMatchGraph.addMatch(seriesMatch);
 
                 /*if (calculateMatchScore(r1, r2, t) > 0) {
-
-
                 }*/
             }
         }

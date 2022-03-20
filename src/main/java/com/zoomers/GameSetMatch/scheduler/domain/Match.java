@@ -1,11 +1,9 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
-import com.google.type.DateTime;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Objects;
 
 public class Match {
@@ -15,7 +13,7 @@ public class Match {
     private MatchStatus matchStatus;
     private int degrees = 0;
     private final Tuple players;
-    private final Timeslot timeslot;
+    private Timeslot timeslot;
     private int skillWeight = 0;
     private int matchScore = 0;
     private int matchDuration = 0;
@@ -64,6 +62,10 @@ public class Match {
         return sdf.format(this.timeslot.getDate()).equals(sdf.format(m2.getTimeslot().getDate()));
     }
 
+    public void moveToNextWeek() {
+        this.timeslot.addWeek();
+    }
+
     public int getMatch_id() {
         return match_id;
     }
@@ -85,6 +87,8 @@ public class Match {
     public MatchStatus getMatchStatus() { return matchStatus; }
 
     public int getDegrees() { return degrees; }
+
+    public void setTimeslot(Timeslot timeslot) { this.timeslot = timeslot; }
 
     public void setDegrees(int degrees) {
         this.degrees = degrees;

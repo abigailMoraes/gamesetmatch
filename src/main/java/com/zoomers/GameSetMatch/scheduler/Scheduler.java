@@ -21,6 +21,7 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Scheduler {
 
@@ -70,24 +71,19 @@ public class Scheduler {
 
         int expectedMatches = (this.registrants.size() / 2) * tournament.getTournamentSeries().getNumberOfGames();
 
+        System.out.println(expectedMatches);
+
         Set<Match> returnedMatches = new LinkedHashSet<>();
 
         returnedMatches.addAll(schedulePrimaryMatches());
         returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
+        returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
 
-        while (returnedMatches.size() < expectedMatches) {
+        /*while (returnedMatches.size() < expectedMatches) {
+        //for (int i = 0; i < 1; i++) {
 
-            try {
-                initTimeslots();
-            }
-            catch (IOException e) {
-                System.out.println("IOError: " + e.getMessage());
-            }
-
-            returnedMatches.addAll(scheduleBestOfMatches(returnedMatches));
-
-            calendar.add(Calendar.WEEK_OF_YEAR, 1);
-        }
+            System.out.println(calendar.getTime());
+        }*/
 
         for (Match m : returnedMatches) {
             System.out.println(m);
@@ -100,24 +96,49 @@ public class Scheduler {
 
         // TODO: FIND REGISTRANTS USING TOURNAMENT_ID AND INSTANTIATE TIMESLOTS FROM DATABASE
 
-        BipartiteGraph bg = new BipartiteGraph(timeslots, registrants, tournament.getMatchDuration());
+        Set<Match> matches = new LinkedHashSet<>();
+        List<Registrant> registrantsToMatch = new ArrayList<>(registrants);
 
-        PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
+        while (registrantsToMatch.size() != 0) {
+
+            BipartiteGraph bg = new BipartiteGraph(timeslots, registrantsToMatch, tournament.getMatchDuration());
+            PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
 
         /*for (Match m : matchGraph.getMatches()) {
             System.out.println("Possible Match: " + m);
+        }*/
+
+            // System.out.println(matchGraph.getMatches().size());
+
+            matchGraph.setMatchDegrees();
+            MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(tournament.isMatchBySkill(), matchGraph);
+
+            matches.addAll(greedyMaximumIndependentSet.findMatches());
+
+            for (Match m : matches) {
+                registrantsToMatch.removeIf(registrant ->
+                        m.getPlayers().getFirst() == registrant.getID() ||
+                                m.getPlayers().getSecond() == registrant.getID()
+                );
+            }
+
+            calendar.add(Calendar.WEEK_OF_YEAR, 1);
+
+            try {
+                initTimeslots();
+            }
+            catch (IOException e) {
+                System.out.println("IOError: " + e.getMessage());
+            }
         }
 
-        System.out.println(matchGraph.getMatches().size());*/
-
-        matchGraph.setMatchDegrees();
-        MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(tournament.isMatchBySkill(), matchGraph);
-
-        Set<Match> matches = greedyMaximumIndependentSet.findMatches();
+        // calendar.setTime(this.tournament.getStartDate());
 
         /*for (Match m : matches) {
             System.out.println("Primary Match: " + m);
         }*/
+
+        System.out.println("Primary Matches: " + matches.size());
 
         return matches;
     }
@@ -153,9 +174,92 @@ public class Scheduler {
             System.out.println("Secondary Match: " + m);
         }
 
+        System.out.println("Secondary Matches: " + newMatches.size());
+
         return newMatches;
     }
 
+    private Set<Match> scheduleBestOfMatches(Set<Match> matches, int expectedMatches) {
+
+        if (this.tournament.getTournamentSeries().getNumberOfGames() == 1) {
+            return Set.of();
+        }
+
+        Set<Match> matchesToSchedule = new LinkedHashSet<>(matches);
+
+        // while (matchesToSchedule.size() != 0) {
+        //for (int i = 0; i < 2; i++) {
+        // System.out.println(registrantsToMatch.size());
+        /*System.out.println(matchesToSchedule.size());
+        for (Match m : matchesToSchedule) {
+
+            System.out.println(" " + m);
+        }*/
+
+        while (matches.size() < expectedMatches) {
+        //for (int i = 0; i < 1; i++) {
+
+            System.out.println(calendar.getTime());
+            BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
+                    new LinkedHashSet<>(registrants),
+                    new LinkedHashSet<>(timeslots),//findAvailableTimeslots(matches)),
+                    matchesToSchedule,
+                    this.tournament.getTournamentSeries().getNumberOfGames(),
+                    this.tournament.getMatchDuration()
+            );
+
+        /*System.out.println(bestOfMatchGraph.getMatches().size());
+        for (Match m : bestOfMatchGraph.getMatches()) {
+
+            System.out.println(" " + m);
+        }*/
+            Set<Match> bestOfMatches = new LinkedHashSet<>();
+
+            MatchingAlgorithm bestOfMatching = new BestOfMatchingAlgorithm(bestOfMatchGraph);
+            bestOfMatches.addAll(bestOfMatching.findMatches());
+
+            Set<Match> matchesAlreadyScheduled = matchesToSchedule.stream().limit(bestOfMatches.size()).collect(Collectors.toCollection(LinkedHashSet::new));
+
+            matchesToSchedule = matchesToSchedule.stream()
+                    .skip(bestOfMatches.size())
+                    .limit(matches.size() - bestOfMatches.size())
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            matchesToSchedule.addAll(matchesAlreadyScheduled);
+
+            /*System.out.println(matchesToSchedule.size());
+            for (Match m : matchesToSchedule) {
+
+                System.out.println(" " + m);
+            }*/
+
+            calendar.add(Calendar.WEEK_OF_YEAR, 1);
+
+            try {
+                initTimeslots();
+            }
+            catch (IOException e) {
+                System.out.println("IOError: " + e.getMessage());
+            }
+
+            matches.addAll(bestOfMatches);
+        }
+
+
+        //}
+
+        /*for (Match m : bestOfMatchGraph.getMatches()) {
+            System.out.println("  Possible Best of Match: " + m);
+        }*/
+
+        /*for (Match m : bestOfMatches) {
+            System.out.println("Best of Match: " + m);
+        }*/
+        // System.out.println("Best of matches: " + bestOfMatches.size());
+
+        return matches;
+    }
+    /*
     private Set<Match> scheduleBestOfMatches(Set<Match> matches) {
 
         if (this.tournament.getTournamentSeries().getNumberOfGames() == 1) {
@@ -175,10 +279,10 @@ public class Scheduler {
 
         /*for (Match m : bestOfMatches) {
             System.out.println("Best of Match: " + m);
-        }*/
+        }
 
         return bestOfMatches;
-    }
+    }*/
 
     private List<Registrant> findRegistrantsToBeMatched(Set<Match> returnedMatches) {
 

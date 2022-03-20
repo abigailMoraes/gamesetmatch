@@ -45,6 +45,10 @@ public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
 
                 matchesToRemove.add(m2);
             }
+            else if (match.shareTimeslot(m2) && match.shareDate(m2))
+            {
+                m2.moveToNextWeek();
+            }
         }
 
         this.matchGraph.removeAll(matchesToRemove);

@@ -22,7 +22,7 @@ public class GraphTests {
             TournamentType.SINGLE_KNOCKOUT,
             TournamentSeries.BEST_OF_7,
             false,
-            30,
+            180,
             Calendar.getInstance().getTime()
     );
 
@@ -49,7 +49,7 @@ public class GraphTests {
         JSONArray array = new JSONArray();
         try {
 
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 100; i++) {
                 JSONObject player =  new JSONObject();
                 player.put("id", Integer.toString(i));
                 player.put("availability", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
@@ -109,9 +109,9 @@ public class GraphTests {
     }
 
     @Test
-    void GraphFour() {
+    void MultiWeekPrimaryScheduling() {
 
-        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet3.json";
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/MultiWeekPrimaryScheduling.json";
 
         Scheduler s = new Scheduler(tournament, filename);
         s.schedule();

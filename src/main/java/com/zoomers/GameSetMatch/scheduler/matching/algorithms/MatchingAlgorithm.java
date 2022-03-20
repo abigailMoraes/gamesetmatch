@@ -26,6 +26,7 @@ public abstract class MatchingAlgorithm {
 
         while (!this.matchGraph.getMatches().isEmpty()) {
 
+            // System.out.println("Matches left: " + this.matchGraph.getMatches().size());
             Match match = this.priorityQueue.poll();
             s.add(match);
             visitMatches(match);
