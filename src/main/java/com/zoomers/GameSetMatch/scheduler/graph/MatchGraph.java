@@ -36,6 +36,8 @@ public abstract class MatchGraph {
         return timeslots;
     }
 
+    public Set<Registrant> getRegistrants() { return registrants; }
+
     public abstract void decrementDegree(Match m);
 
     public abstract void setMatchDegrees();

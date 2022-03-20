@@ -1,6 +1,7 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
+import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
 
@@ -19,7 +20,7 @@ public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
     protected void visitMatches(Match match) {
 
         this.matchGraph.removeMatch(match);
-        match.setMatchStatus(MatchStatus.VALID);
+        markMatch(match);
 
         // System.out.println("Adding " + match + " to Independent Set with degree " + match.getDegrees());
 

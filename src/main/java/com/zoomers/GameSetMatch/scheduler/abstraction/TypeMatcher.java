@@ -22,20 +22,20 @@ public abstract class TypeMatcher {
             List<Registrant> registrants = bgList.get(t);
             for (int i = 0; i < registrants.size(); i++) {
 
-                Registrant r_i = registrants.get(i);
-                primaryMatchGraph.initializeTimeRepeat(r_i.getID());
+                Registrant r1 = registrants.get(i);
+                primaryMatchGraph.initializeTimeRepeat(r1.getID());
 
                 for (int j = i+1; j < registrants.size(); j++) {
 
-                    Registrant r_j = registrants.get(j);
+                    Registrant r2 = registrants.get(j);
 
-                    if (!areMatchConditionsSatisfied(r_i, r_j, t)) {
+                    if (!areMatchConditionsSatisfied(r1, r2, t)) {
                         continue;
                     }
 
                     Match m = new Match(
-                            r_i.getID(),
-                            r_j.getID(),
+                            r1.getID(),
+                            r2.getID(),
                             t,
                             bipartiteGraph.getMatchDuration(),
                             Math.abs(registrants.get(i).getSkill() - registrants.get(j).getSkill())
@@ -65,24 +65,24 @@ public abstract class TypeMatcher {
 
             for (int i = 0; i < registrantsToBeMatched.size(); i++) {
 
-                Registrant r_i = registrantsToBeMatched.get(i);
+                Registrant r1 = registrantsToBeMatched.get(i);
 
                 for (int j = i+1; j < registrantsToBeMatched.size(); j++) {
 
-                    Registrant r_j = registrantsToBeMatched.get(j);
+                    Registrant r2 = registrantsToBeMatched.get(j);
 
-                    if (!areMatchConditionsSatisfied(r_i, r_j, t)) {
+                    if (!areMatchConditionsSatisfied(r1, r2, t)) {
                         continue;
                     }
 
                     Match m = new Match(
-                            r_i.getID(),
-                            r_j.getID(),
+                            r1.getID(),
+                            r2.getID(),
                             t,
                             matchDuration,
-                            Math.abs(r_i.getSkill() - r_j.getSkill())
+                            Math.abs(r1.getSkill() - r1.getSkill())
                     );
-                    m.setMatchScore(calculateMatchScore(r_i, r_j, t));
+                    m.setMatchScore(calculateMatchScore(r1, r2, t));
 
                     secondaryMatchGraph.addMatch(m);
                 }
@@ -94,15 +94,18 @@ public abstract class TypeMatcher {
 
     public BestOfMatchGraph createPossibleBestOfMatches(
             Set<Registrant> registrants,
-            Set<Timeslot> availableTimeslots,
+            Set<Timeslot> timeslots,
             Set<Match> existingMatches,
             int bestOfSeries,
             int matchDuration
     ) {
 
+        // System.out.println("Timeslots: " + timeslots.size());
+        // System.out.println("Matches: " + existingMatches.size());
+
         BestOfMatchGraph bestOfMatchGraph = new BestOfMatchGraph(
                 registrants,
-                availableTimeslots,
+                timeslots,
                 bestOfSeries,
                 matchDuration
         );
@@ -111,9 +114,16 @@ public abstract class TypeMatcher {
 
         for (Match m : existingMatches) {
 
-            for (Timeslot t : availableTimeslots) {
+            for (Timeslot t : timeslots) {
 
                 if (Objects.equals(t.getDate(), m.getTimeslot().getDate())) {
+                    continue;
+                }
+
+                Registrant r1 = registrantsList.stream().filter(r -> r.getID() == m.getPlayers().getFirst()).findFirst().get();
+                Registrant r2 = registrantsList.stream().filter(r -> r.getID() == m.getPlayers().getSecond()).findFirst().get();
+
+                if (r1.getGamesToSchedule() == 0 || r2.getGamesToSchedule() == 0) {
                     continue;
                 }
 
@@ -125,19 +135,15 @@ public abstract class TypeMatcher {
                         1
                 );
 
-                Registrant r1 = registrantsList.stream().filter(r -> r.getID() == m.getPlayers().getFirst()).findFirst().get();
-                Registrant r2 = registrantsList.stream().filter(r -> r.getID() == m.getPlayers().getSecond()).findFirst().get();
-
                 seriesMatch.setMatchScore(calculateMatchScore(r1, r2, t));
                 bestOfMatchGraph.addMatch(seriesMatch);
+
+                /*if (calculateMatchScore(r1, r2, t) > 0) {
+
+
+                }*/
             }
         }
-
-        /*System.out.println(bestOfMatchGraph.getMatches().size());
-
-        for (Match m : bestOfMatchGraph.getMatches()) {
-            System.out.println("Possible Best of Matches: " + m);
-        }*/
 
         return bestOfMatchGraph;
     }

@@ -1,14 +1,12 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
+import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.graph.BestOfMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.MatchGraph;
 
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
 
@@ -47,6 +45,14 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
 
         availableMatches.removeAll(scheduledSeriesMatches);
 
+        for (Registrant r : registrants) {
+
+            availableMatches.removeIf(match ->
+                   (r.getID() == match.getPlayers().getFirst() ||
+                    r.getID() == match.getPlayers().getSecond()) &&
+                    r.getGamesToSchedule() == 0);
+        }
+
         for (Match match : scheduledSeriesMatches) {
 
             availableMatches.removeIf(match::shareDate);
@@ -69,16 +75,17 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
         // System.out.println("  Adding " + match + " with score " + match.getMatchScore());
 
         this.matchesToSearch.remove(match);
-        match.setMatchStatus(MatchStatus.VALID);
+
+        markMatch(match);
 
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
         for (Match m2 : this.matchesToSearch) {
 
-            if (match.sharePlayers(m2) || match.shareTimeslot(m2)) { //match.shareDate(m2)) {
+            if (match.sharePlayers(m2) || (match.shareTimeslot(m2) && match.shareDate(m2))) {
 
                 matchesToRemove.add(m2);
-                // System.out.println("  Removing " + m2 + " from matches to check");
+                // System.out.println("    Removing " + m2 + " from matches to check");
             }
         }
 

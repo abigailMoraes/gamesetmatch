@@ -1,6 +1,7 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
+import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.graph.SecondaryMatchGraph;
 
@@ -32,11 +33,9 @@ public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
     @Override
     protected void visitMatches(Match match) {
 
-        this.matchGraph.removeMatch(match);
-
-        match.setMatchStatus(MatchStatus.VALID);
-
         Set<Match> matchesToRemove = new LinkedHashSet<>();
+
+        markMatch(match);
 
         // System.out.println("Adding " + match + " to matches with score " + match.getMatchScore());
 

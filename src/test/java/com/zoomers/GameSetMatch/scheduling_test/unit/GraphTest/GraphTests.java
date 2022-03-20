@@ -8,11 +8,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 import org.junit.jupiter.api.Test;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
 
 public class GraphTests {
 
@@ -24,6 +25,9 @@ public class GraphTests {
             30,
             Calendar.getInstance().getTime()
     );
+
+    @Rule
+    public Timeout globalTime = Timeout.seconds(300);
 
     @Test
     void BaseMatchingTest() {
@@ -41,14 +45,14 @@ public class GraphTests {
     }
 
     @Test
-    void GraphThree() {
+    void GeneralUpperBoundStressTestFullAvailability() {
         JSONArray array = new JSONArray();
         try {
 
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 50; i++) {
                 JSONObject player =  new JSONObject();
                 player.put("id", Integer.toString(i));
-                player.put("availability", "101000000000000000000000");
+                player.put("availability", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
                 array.put(player);
             }
@@ -58,7 +62,39 @@ public class GraphTests {
             System.out.println(e);
         }
 
-        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseSecondaryMatching.json";
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/GeneralFullAvailability.json";
+
+        try {
+            FileWriter file = new FileWriter(filename);
+            file.write(array.toString());
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Scheduler s = new Scheduler(tournament, filename);
+        s.schedule();
+    }
+
+    @Test
+    void GeneralUpperBoundStressTestNoAvailability() {
+        JSONArray array = new JSONArray();
+        try {
+
+            for (int i = 0; i < 50; i++) {
+                JSONObject player =  new JSONObject();
+                player.put("id", Integer.toString(i));
+                player.put("availability", "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+
+                array.put(player);
+            }
+        }
+        catch (JSONException e) {
+
+            System.out.println(e);
+        }
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/GeneralNoAvailability.json";
 
         try {
             FileWriter file = new FileWriter(filename);

@@ -12,18 +12,22 @@ public class Registrant {
     private Skill skillLevel = Skill.BEGINNER;
     private Set<Registrant> playersToPlay;
     private int losses = 0;
+    private int gamesToSchedule;
 
-    public Registrant(int id, String availability, Skill skillLevel) {
+    public Registrant(int id, String availability, Skill skillLevel, int gamesToSchedule) {
         this.id = id;
         this.availability = availability;
         this.skillLevel = skillLevel;
+        this.gamesToSchedule = gamesToSchedule;
 
         // assert(this.availability.length() == 24);// * 7);
     }
 
-    public Registrant(int id, String availability) {
+    public Registrant(int id, String availability, int gamesToSchedule) {
         this.id = id;
         this.availability = availability;
+        this.skillLevel = Skill.BEGINNER;
+        this.gamesToSchedule = gamesToSchedule;
 
         // assert(this.availability.length() == 24);// * 7);
     }
@@ -51,8 +55,10 @@ public class Registrant {
         this.playersToPlay = playersToPlay;
     }
 
+    public void decreaseGamesToSchedule() { this.gamesToSchedule--; }
+
     public boolean hasNotPlayed(Registrant r2) {
-        return true;// this.playersToPlay.contains(r2);
+        return false;// this.playersToPlay.contains(r2);
     }
 
     public int getSkill() {
@@ -70,6 +76,8 @@ public class Registrant {
     public int getLosses() {
         return losses;
     }
+
+    public int getGamesToSchedule() { return gamesToSchedule; }
 
     @Override
     public String toString() {

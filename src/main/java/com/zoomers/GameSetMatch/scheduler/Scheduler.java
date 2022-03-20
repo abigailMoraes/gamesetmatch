@@ -25,7 +25,7 @@ import java.util.*;
 public class Scheduler {
 
     private final List<Registrant> registrants = new ArrayList<>();
-    private final List<Timeslot> timeslots = new ArrayList<>();
+    private List<Timeslot> timeslots = new ArrayList<>();
     private String playerFileName;
     private MockTournament tournament;
     private TypeMatcher typeMatcher;
@@ -38,6 +38,14 @@ public class Scheduler {
         this.calendar.setTime(this.tournament.getStartDate());
 
         setTypeMatcher(tournament.getTournamentType());
+        initPlayers();
+
+        try {
+            initTimeslots();
+        }
+        catch (IOException e) {
+            System.out.println("IOError: " + e.getMessage());
+        }
     }
 
     public Scheduler(int tournamentID) {
@@ -60,26 +68,35 @@ public class Scheduler {
 
     public void schedule() {
 
-        Set<Match> returnedMatches = new LinkedHashSet<>(schedulePrimaryMatches());
-        returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
-        returnedMatches.addAll(scheduleBestOfMatches(returnedMatches));
+        int expectedMatches = (this.registrants.size() / 2) * tournament.getTournamentSeries().getNumberOfGames();
 
-        /*for (Match m : returnedMatches) {
+        Set<Match> returnedMatches = new LinkedHashSet<>();
+
+        returnedMatches.addAll(schedulePrimaryMatches());
+        returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
+
+        while (returnedMatches.size() < expectedMatches) {
+
+            try {
+                initTimeslots();
+            }
+            catch (IOException e) {
+                System.out.println("IOError: " + e.getMessage());
+            }
+
+            returnedMatches.addAll(scheduleBestOfMatches(returnedMatches));
+
+            calendar.add(Calendar.WEEK_OF_YEAR, 1);
+        }
+
+        for (Match m : returnedMatches) {
             System.out.println(m);
-        }*/
-        System.out.println(returnedMatches.size());
+        }
+
+        System.out.println("Scheduled: " + returnedMatches.size());
     }
 
     private Set<Match> schedulePrimaryMatches() {
-
-        initPlayers();
-
-        try {
-            initTimeslots();
-        }
-        catch (IOException e) {
-            System.out.println("IOError: " + e.getMessage());
-        }
 
         // TODO: FIND REGISTRANTS USING TOURNAMENT_ID AND INSTANTIATE TIMESLOTS FROM DATABASE
 
@@ -132,9 +149,9 @@ public class Scheduler {
 
         Set<Match> newMatches = maximumMatchScoreMatcher.findMatches();
 
-        /*for (Match m : newMatches) {
+        for (Match m : newMatches) {
             System.out.println("Secondary Match: " + m);
-        }*/
+        }
 
         return newMatches;
     }
@@ -147,7 +164,7 @@ public class Scheduler {
 
         BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
                 new LinkedHashSet<>(registrants),
-                new LinkedHashSet<>(findAvailableTimeslots(matches)),
+                new LinkedHashSet<>(timeslots),//findAvailableTimeslots(matches)),
                 matches,
                 this.tournament.getTournamentSeries().getNumberOfGames(),
                 this.tournament.getMatchDuration()
@@ -214,8 +231,7 @@ public class Scheduler {
                     skill = Skill.BEGINNER;
                 }
 
-                Registrant r = new Registrant(id, availability, skill);
-                // r.setAvailabilityString(calendar.get(Calendar.DAY_OF_WEEK));
+                Registrant r = new Registrant(id, availability, skill, tournament.getTournamentSeries().getNumberOfGames());
                 registrants.add(r);
             }
         }
@@ -226,6 +242,10 @@ public class Scheduler {
     }
 
     private void initTimeslots() throws IOException {
+
+        Date date = calendar.getTime();
+        this.timeslots = new ArrayList<>();
+
         File slots = new File("./data/Timeslots");
         Scanner scanner = new Scanner(slots);
 
@@ -239,6 +259,7 @@ public class Scheduler {
             scanner = new Scanner(slots);
 
         }
-        calendar.setTime(tournament.getStartDate());
+
+        calendar.setTime(date);
     }
 }
