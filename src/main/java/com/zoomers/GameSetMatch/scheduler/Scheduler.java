@@ -1,3 +1,11 @@
+/**
+ * Controller for the Scheduling Algorithm; given a Tournament ID,
+ * the algorithm will produce a schedule for all players registered
+ * in the tournament.
+ *
+ * @version 2.16
+ */
+
 package com.zoomers.GameSetMatch.scheduler;
 
 import com.zoomers.GameSetMatch.entity.Tournament;
@@ -70,6 +78,14 @@ public class Scheduler {
         }
     }
 
+    /**
+     * Creates matches built on 3 scheduling variations:
+     * - Primary Scheduling: Selects matches for which both players are available and match conditions are satisfied
+     * - Secondary Scheduling: Schedules all players who were not matched in Primary Scheduling to a match
+     * - Best-Of Scheduling: Scheduling matches that occur in series, e.g. Best-of-5
+     *
+     * @return set of scheduled matches
+     */
     public Set<Match> schedule() {
 
         Set<Match> returnedMatches = new LinkedHashSet<>();
@@ -81,6 +97,14 @@ public class Scheduler {
 
             int expectedMatches = (this.registrants.size() / 2) * tournament.getTournamentSeries().getNumberOfGames();
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
+        }
+
+        Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
+        tournament.setRoundEndDate(roundEndDate);
+
+        for (Match m : returnedMatches) {
+
+            System.out.println(m);
         }
 
         return returnedMatches;
@@ -116,14 +140,7 @@ public class Scheduler {
                 );
             }
 
-            calendar.add(Calendar.WEEK_OF_YEAR, 1);
-
-            try {
-                initTimeslots();
-            }
-            catch (IOException e) {
-                System.out.println("IOError: " + e.getMessage());
-            }
+            addWeek();
         }
 
         return matches;
@@ -149,8 +166,6 @@ public class Scheduler {
 
         while (registrantsToMatch.size() != 0) {
 
-            System.out.println("Secondary: " + calendar.getTime());
-
             SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
                     registrantsToMatch,
                     availableTimeslots,
@@ -168,12 +183,7 @@ public class Scheduler {
                 );
             }
 
-            System.out.println("Secondary Matches: " + newMatches.size());
-            for (Match m : secondaryMatchGraph.getMatches()) {
-                System.out.println("  " + m);
-            }
-
-            calendar.add(Calendar.WEEK_OF_YEAR, 1);
+            addWeek();
         }
 
         return newMatches;
@@ -189,7 +199,6 @@ public class Scheduler {
 
         while (matches.size() < expectedMatches) {
 
-            System.out.println("Best Of: " + calendar.getTime());
             BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
                     new LinkedHashSet<>(registrants),
                     new LinkedHashSet<>(timeslots),//findAvailableTimeslots(matches)),
@@ -213,23 +222,36 @@ public class Scheduler {
                 matchesToSchedule.addAll(matchesAlreadyScheduled);
             }
 
-            calendar.add(Calendar.WEEK_OF_YEAR, 1);
-
-            try {
-                initTimeslots();
-            }
-            catch (IOException e) {
-                System.out.println("IOError: " + e.getMessage());
-            }
-
+            addWeek();
             matches.addAll(bestOfMatches);
-
-            System.out.println(matches.size());
         }
 
         return matches;
     }
 
+    /**
+     *  Helper function to facilitate scheduling games across more than one week.
+     *  Since availability is recurring weekly, the availability is reused for
+     *  scheduling next week's matches.
+     */
+    private void addWeek() {
+
+        calendar.add(Calendar.WEEK_OF_YEAR, 1);
+
+        try {
+            initTimeslots();
+        }
+        catch (IOException e) {
+            System.out.println("IOError: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 
+     *
+     * @param returnedMatches, the list of matches already scheduled by Primary Scheduling
+     * @return registrants that were not matched in primary scheduling
+     */
     private List<Registrant> findRegistrantsToBeMatched(Set<Match> returnedMatches) {
 
         List<Registrant> toBeMatched = new ArrayList<>(this.registrants);
