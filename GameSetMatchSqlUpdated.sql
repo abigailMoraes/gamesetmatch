@@ -25,11 +25,11 @@ INSERT INTO Tournament(name, description, start_date, close_registration_date, l
 CREATE TABLE Availability(userID int, tournamentID int, date DATE, availability_binary int, PRIMARY KEY(userID, tournamentID, date), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
 
 /*Create table statement for Round*/
-CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
-INSERT INTO Round_Has(roundNumber, tournamentID) values (1,1);
-INSERT INTO Round_Has(roundNumber, tournamentID) values (1,1);
-INSERT INTO Round_Has(roundNumber, tournamentID) values (2,1);
-INSERT INTO Round_Has(roundNumber, tournamentID) values (2,1);
+CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, start_date DATE, end_date DATE, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1);
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1);
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1);
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1);
 
 /*Create table statement for Match_Has*/
 CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID));
