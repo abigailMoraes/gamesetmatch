@@ -112,7 +112,7 @@ public class PrimaryMatchGraph extends MatchGraph {
             int d1Edges = timeRepeats.get(m.getPlayers().getFirst())[m.getTimeslot().getID()];
             int d2Edges = timeRepeats.get(m.getPlayers().getSecond())[m.getTimeslot().getID()];
             int prEdges = playerRepeats.get(Tuple.of(m.getPlayers().getFirst(), m.getPlayers().getSecond()));
-            int degrees = p1Edges + p2Edges - prEdges + tEdges - (d1Edges + d2Edges + prEdges);
+            int degrees = p1Edges + p2Edges + tEdges - (d1Edges + d2Edges + prEdges);
 
             m.setDegrees(degrees);
         }

@@ -25,7 +25,7 @@ public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
         this.matchGraph.removeMatch(match);
         markMatch(match);
 
-        // System.out.println("Adding " + match + " to Independent Set with degree " + match.getDegrees());
+        System.out.println("Adding " + match + " to Independent Set with degree " + match.getDegrees());
 
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
@@ -33,9 +33,10 @@ public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
 
             if (match.sharePlayers(m2) || (match.shareTimeslot(m2) && match.shareDate(m2))) {// && match.shareDate(m2))) {
 
+                System.out.println("  Removing " + m2 + " with " + match.getDegrees() + " degrees" + " from matches to check");
                 matchGraph.decrementDegree(m2);
                 matchesToRemove.add(m2);
-                // System.out.println("  Removing " + m2 + " from matches to check");
+
             }
         }
 

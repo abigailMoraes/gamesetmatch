@@ -111,14 +111,13 @@ public class Scheduler {
             BipartiteGraph bg = new BipartiteGraph(timeslots, registrantsToMatch, tournament.getMatchDuration());
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
 
-            if (matchGraph.getMatches().size() == 0) {
-                break;
-            }
-
             /*for (Match m : matchGraph.getMatches()) {
                 System.out.println("Possible Match: " + m);
             }*/
 
+            if (matchGraph.getMatches().size() == 0) {
+                break;
+            }
             // System.out.println(matchGraph.getMatches().size());
 
             matchGraph.setMatchDegrees();

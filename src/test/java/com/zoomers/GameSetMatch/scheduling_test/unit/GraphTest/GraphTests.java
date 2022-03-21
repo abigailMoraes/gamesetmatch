@@ -17,7 +17,7 @@ import java.util.Calendar;
 
 public class GraphTests {
 
-    private MockTournament tournament1 = new MockTournament(
+    private final MockTournament tournament1 = new MockTournament(
             0,
             TournamentType.SINGLE_KNOCKOUT,
             TournamentSeries.BEST_OF_1,
@@ -26,7 +26,16 @@ public class GraphTests {
             Calendar.getInstance().getTime()
     );
 
-    private MockTournament StressTournament = new MockTournament(
+    private final MockTournament weightedTournament1 = new MockTournament(
+            0,
+            TournamentType.SINGLE_KNOCKOUT,
+            TournamentSeries.BEST_OF_1,
+            true,
+            30,
+            Calendar.getInstance().getTime()
+    );
+
+    private final MockTournament StressTournament = new MockTournament(
             0,
             TournamentType.SINGLE_KNOCKOUT,
             TournamentSeries.BEST_OF_7,
@@ -41,6 +50,18 @@ public class GraphTests {
     @Test
     void BaseMatchingTest() {
         Scheduler s = new Scheduler(tournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
+        s.schedule();
+    }
+
+    @Test
+    void weightedBaseMatchingTest() {
+        Scheduler s = new Scheduler(weightedTournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
+        s.schedule();
+    }
+
+    @Test
+    void SingleMatchingTest() {
+        Scheduler s = new Scheduler(tournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/SingleMatch.json");
         s.schedule();
     }
 
