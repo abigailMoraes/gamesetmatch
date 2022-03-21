@@ -1,4 +1,4 @@
-package com.zoomers.GameSetMatch.scheduler.graph;
+package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;

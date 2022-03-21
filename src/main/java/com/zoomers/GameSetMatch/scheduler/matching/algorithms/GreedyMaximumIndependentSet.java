@@ -1,6 +1,6 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
-import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
 
 import java.util.*;
 

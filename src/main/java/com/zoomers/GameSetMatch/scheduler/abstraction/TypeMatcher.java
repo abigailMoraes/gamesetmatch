@@ -3,10 +3,10 @@ package com.zoomers.GameSetMatch.scheduler.abstraction;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
-import com.zoomers.GameSetMatch.scheduler.graph.BestOfMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
-import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.graph.SecondaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BestOfMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BipartiteGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.SecondaryMatchGraph;
 
 import java.util.*;
 

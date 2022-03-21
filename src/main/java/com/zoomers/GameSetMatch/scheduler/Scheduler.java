@@ -9,43 +9,42 @@
 package com.zoomers.GameSetMatch.scheduler;
 
 import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.abstraction.TypeMatcher;
-import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
-import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
-import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
-import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
-import com.zoomers.GameSetMatch.scheduler.graph.BestOfMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
-import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.graph.SecondaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.domain.*;
+import com.zoomers.GameSetMatch.scheduler.enumerations.*;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.*;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.*;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.DoubleKnockoutMatcher;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.RoundRobinMatcher;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.SingleKnockoutMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.*;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.query.FluentQuery;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Scheduler {
 
-    private final List<Registrant> registrants = new ArrayList<>();
+    private final TournamentRepository tournamentRepository;
+
+    private final List<Registrant> REGISTRANTS = new ArrayList<>();
     private List<Timeslot> timeslots = new ArrayList<>();
     private String playerFileName;
     private MockTournament tournament;
     private TypeMatcher typeMatcher;
-    private final Calendar calendar = Calendar.getInstance();
+    private final Calendar CALENDAR = Calendar.getInstance();
 
     public Scheduler(MockTournament tournament, String filename) {
 
         this.tournament = tournament;
         this.playerFileName = filename;
-        this.calendar.setTime(this.tournament.getStartDate());
+        this.CALENDAR.setTime(this.tournament.getStartDate());
 
         setTypeMatcher(tournament.getTournamentType());
         initPlayers();
@@ -60,7 +59,7 @@ public class Scheduler {
 
     public Scheduler(int tournamentID) {
 
-
+        // this.tournamentRepository = new TournamentRepository();
     }
 
     private void setTypeMatcher(TournamentType type) {
@@ -95,7 +94,7 @@ public class Scheduler {
 
         if (tournament.getTournamentSeries() != TournamentSeries.BEST_OF_1) {
 
-            int expectedMatches = (this.registrants.size() / 2) * tournament.getTournamentSeries().getNumberOfGames();
+            int expectedMatches = (this.REGISTRANTS.size() / 2) * tournament.getTournamentSeries().getNumberOfGames();
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
         }
 
@@ -115,11 +114,11 @@ public class Scheduler {
         // TODO: FIND REGISTRANTS USING TOURNAMENT_ID AND INSTANTIATE TIMESLOTS FROM DATABASE
 
         Set<Match> matches = new LinkedHashSet<>();
-        List<Registrant> registrantsToMatch = new ArrayList<>(registrants);
+        List<Registrant> registrantsToMatch = new ArrayList<>(REGISTRANTS);
 
         while (true) {
 
-            System.out.println(calendar.getTime());
+            System.out.println(CALENDAR.getTime());
 
             BipartiteGraph bg = new BipartiteGraph(timeslots, registrantsToMatch, tournament.getMatchDuration());
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
@@ -200,7 +199,7 @@ public class Scheduler {
         while (matches.size() < expectedMatches) {
 
             BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
-                    new LinkedHashSet<>(registrants),
+                    new LinkedHashSet<>(REGISTRANTS),
                     new LinkedHashSet<>(timeslots),//findAvailableTimeslots(matches)),
                     matchesToSchedule,
                     this.tournament.getTournamentSeries().getNumberOfGames(),
@@ -236,7 +235,7 @@ public class Scheduler {
      */
     private void addWeek() {
 
-        calendar.add(Calendar.WEEK_OF_YEAR, 1);
+        CALENDAR.add(Calendar.WEEK_OF_YEAR, 1);
 
         try {
             initTimeslots();
@@ -247,14 +246,14 @@ public class Scheduler {
     }
 
     /**
-     * 
+     *
      *
      * @param returnedMatches, the list of matches already scheduled by Primary Scheduling
      * @return registrants that were not matched in primary scheduling
      */
     private List<Registrant> findRegistrantsToBeMatched(Set<Match> returnedMatches) {
 
-        List<Registrant> toBeMatched = new ArrayList<>(this.registrants);
+        List<Registrant> toBeMatched = new ArrayList<>(this.REGISTRANTS);
         toBeMatched.removeIf(registrant -> {
             for (Match m : returnedMatches) {
                 if (registrant.getID() == m.getPlayers().getFirst() ||
@@ -304,7 +303,7 @@ public class Scheduler {
                 }
 
                 Registrant r = new Registrant(id, availability, skill, tournament.getTournamentSeries().getNumberOfGames());
-                registrants.add(r);
+                REGISTRANTS.add(r);
             }
         }
         catch (Exception e) {
@@ -315,7 +314,7 @@ public class Scheduler {
 
     private void initTimeslots() throws IOException {
 
-        Date date = calendar.getTime();
+        Date date = CALENDAR.getTime();
         this.timeslots = new ArrayList<>();
 
         File slots = new File("./data/Timeslots");
@@ -324,14 +323,14 @@ public class Scheduler {
         for (int i = 0; i < 7; i++) {
             while (scanner.hasNext()) {
                 float time = Float.parseFloat(scanner.nextLine());
-                Timeslot t = new Timeslot(time, calendar.getTime());
+                Timeslot t = new Timeslot(time, CALENDAR.getTime());
                 this.timeslots.add(t);
             }
-            calendar.add(Calendar.DATE, 1);
+            CALENDAR.add(Calendar.DATE, 1);
             scanner = new Scanner(slots);
 
         }
 
-        calendar.setTime(date);
+        CALENDAR.setTime(date);
     }
 }

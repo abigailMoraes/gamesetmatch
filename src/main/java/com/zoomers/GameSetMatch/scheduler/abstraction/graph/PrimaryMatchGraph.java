@@ -1,14 +1,12 @@
-package com.zoomers.GameSetMatch.scheduler.graph;
+package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.Set;
 
 public class PrimaryMatchGraph extends MatchGraph {
 
