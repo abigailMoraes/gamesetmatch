@@ -26,8 +26,8 @@ CREATE TABLE Availability(userID int, tournamentID int, date DATE, availability_
 
 /*Create table statement for Round*/
 CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, start_date DATE, end_date DATE, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1);
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1);
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'','');
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1);
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1);
 
@@ -37,6 +37,7 @@ CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME,
  INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/20 11:00:00','2022/02/20 11:30:00',30,1);
  INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/20 12:00:00','2022/02/20 12:30:00',30,1);
  INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/22 12:00:00','2022/02/20 12:30:00',30,1);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/25 11:00:00','2022/02/25 11:30:00',30,1);
  INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/05 12:00:00','2022/03/05 12:30:00',30,2);
  INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/05 12:30:00','2022/03/05 13:00:00',30,2);
  INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/14 14:30:00','2022/03/14 15:00:00',30,2);
@@ -64,6 +65,9 @@ INSERT INTO User_involves_match(userID, matchID, results, attendance) values (4,
 INSERT INTO User_involves_match(userID, matchID, results, attendance) values (5, 3, 'TBD', 'No');
 INSERT INTO User_involves_match(userID, matchID, results, attendance) values (6, 3, 'TBD', 'No');
 INSERT INTO User_involves_match(userID, matchID, results, attendance) values (6, 5, 'TBD', 'Yes');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 8, 'TBD', 'Yes');
+INSERT INTO User_involves_match(userID, matchID, results, attendance) values (4, 8, 'TBD', 'Yes');
+
 
 
 /*Create table User_registers_tournament*/
