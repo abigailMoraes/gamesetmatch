@@ -27,9 +27,9 @@ CREATE TABLE Availability(userID int, tournamentID int, date DATE, availability_
 /*Create table statement for Round*/
 CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, start_date DATE, end_date DATE, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'','');
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1);
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1);
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1,'2022/03/05','2022/03/21');
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
 
 /*Create table statement for Match_Has*/
 CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID));
