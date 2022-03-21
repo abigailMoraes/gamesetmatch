@@ -17,7 +17,16 @@ import java.util.Calendar;
 
 public class GraphTests {
 
-    private MockTournament tournament = new MockTournament(
+    private MockTournament tournament1 = new MockTournament(
+            0,
+            TournamentType.SINGLE_KNOCKOUT,
+            TournamentSeries.BEST_OF_1,
+            false,
+            30,
+            Calendar.getInstance().getTime()
+    );
+
+    private MockTournament StressTournament = new MockTournament(
             0,
             TournamentType.SINGLE_KNOCKOUT,
             TournamentSeries.BEST_OF_7,
@@ -31,7 +40,7 @@ public class GraphTests {
 
     @Test
     void BaseMatchingTest() {
-        Scheduler s = new Scheduler(tournament, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
+        Scheduler s = new Scheduler(tournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
         s.schedule();
     }
 
@@ -40,7 +49,7 @@ public class GraphTests {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseSecondaryMatching.json";
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(tournament1, filename);
         s.schedule();
     }
 
@@ -72,7 +81,7 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
     }
 
@@ -81,7 +90,7 @@ public class GraphTests {
         JSONArray array = new JSONArray();
         try {
 
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 100; i++) {
                 JSONObject player =  new JSONObject();
                 player.put("id", Integer.toString(i));
                 player.put("availability", "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
@@ -104,7 +113,7 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
     }
 
@@ -113,7 +122,7 @@ public class GraphTests {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/MultiWeekPrimaryScheduling.json";
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(tournament1, filename);
         s.schedule();
     }
 
@@ -122,7 +131,7 @@ public class GraphTests {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet4.json";
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(tournament1, filename);
         s.schedule();
     }
 
@@ -131,7 +140,7 @@ public class GraphTests {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet5.json";
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(tournament1, filename);
         s.schedule();
     }
 
@@ -140,7 +149,7 @@ public class GraphTests {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BestOfMatching.json";
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(tournament1, filename);
         s.schedule();
     }
 
@@ -173,7 +182,7 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
     }
 
@@ -206,7 +215,7 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
     }
 }

@@ -7,6 +7,7 @@ import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
 import com.zoomers.GameSetMatch.scheduler.graph.BestOfMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.graph.BipartiteGraph;
@@ -77,7 +78,11 @@ public class Scheduler {
 
         returnedMatches.addAll(schedulePrimaryMatches());
         returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
-        returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
+
+        if (tournament.getTournamentSeries() != TournamentSeries.BEST_OF_1) {
+
+            returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
+        }
 
         /*while (returnedMatches.size() < expectedMatches) {
         //for (int i = 0; i < 1; i++) {
@@ -99,14 +104,20 @@ public class Scheduler {
         Set<Match> matches = new LinkedHashSet<>();
         List<Registrant> registrantsToMatch = new ArrayList<>(registrants);
 
-        while (registrantsToMatch.size() != 0) {
+        while (true) {
+
+            System.out.println(calendar.getTime());
 
             BipartiteGraph bg = new BipartiteGraph(timeslots, registrantsToMatch, tournament.getMatchDuration());
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
 
-        /*for (Match m : matchGraph.getMatches()) {
-            System.out.println("Possible Match: " + m);
-        }*/
+            if (matchGraph.getMatches().size() == 0) {
+                break;
+            }
+
+            /*for (Match m : matchGraph.getMatches()) {
+                System.out.println("Possible Match: " + m);
+            }*/
 
             // System.out.println(matchGraph.getMatches().size());
 
@@ -157,24 +168,38 @@ public class Scheduler {
 
     private Set<Match> scheduleSecondaryMatches(Set<Match> matches) {
 
-        List<Registrant> registrantsToBeMatched = findRegistrantsToBeMatched(matches);
+        List<Registrant> registrantsToMatch = findRegistrantsToBeMatched(matches);
         List<Timeslot> availableTimeslots = findAvailableTimeslots(matches);
+        Set<Match> newMatches = new LinkedHashSet<>();
 
-        SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
-                registrantsToBeMatched,
-                availableTimeslots,
-                tournament.getMatchDuration()
-        );
+        while (registrantsToMatch.size() != 0) {
 
-        MatchingAlgorithm maximumMatchScoreMatcher = new MaximumMatchScoreMatcher(secondaryMatchGraph);
+            System.out.println("Secondary: " + calendar.getTime());
 
-        Set<Match> newMatches = maximumMatchScoreMatcher.findMatches();
+            SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
+                    registrantsToMatch,
+                    availableTimeslots,
+                    tournament.getMatchDuration()
+            );
 
-        for (Match m : newMatches) {
-            System.out.println("Secondary Match: " + m);
+            MatchingAlgorithm maximumMatchScoreMatcher = new MaximumMatchScoreMatcher(secondaryMatchGraph);
+
+            newMatches.addAll(maximumMatchScoreMatcher.findMatches());
+
+            for (Match m : newMatches) {
+                registrantsToMatch.removeIf(registrant ->
+                        m.getPlayers().getFirst() == registrant.getID() ||
+                                m.getPlayers().getSecond() == registrant.getID()
+                );
+            }
+
+            System.out.println("Secondary Matches: " + newMatches.size());
+            for (Match m : secondaryMatchGraph.getMatches()) {
+                System.out.println("  " + m);
+            }
+
+            calendar.add(Calendar.WEEK_OF_YEAR, 1);
         }
-
-        System.out.println("Secondary Matches: " + newMatches.size());
 
         return newMatches;
     }
@@ -199,7 +224,7 @@ public class Scheduler {
         while (matches.size() < expectedMatches) {
         //for (int i = 0; i < 1; i++) {
 
-            System.out.println(calendar.getTime());
+            System.out.println("Best Of: " + calendar.getTime());
             BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
                     new LinkedHashSet<>(registrants),
                     new LinkedHashSet<>(timeslots),//findAvailableTimeslots(matches)),
@@ -213,19 +238,21 @@ public class Scheduler {
 
             System.out.println(" " + m);
         }*/
-            Set<Match> bestOfMatches = new LinkedHashSet<>();
 
             MatchingAlgorithm bestOfMatching = new BestOfMatchingAlgorithm(bestOfMatchGraph);
-            bestOfMatches.addAll(bestOfMatching.findMatches());
+            Set<Match> bestOfMatches = new LinkedHashSet<>(bestOfMatching.findMatches());
 
-            Set<Match> matchesAlreadyScheduled = matchesToSchedule.stream().limit(bestOfMatches.size()).collect(Collectors.toCollection(LinkedHashSet::new));
+            if (bestOfMatches.size() < matchesToSchedule.size()) {
 
-            matchesToSchedule = matchesToSchedule.stream()
-                    .skip(bestOfMatches.size())
-                    .limit(matches.size() - bestOfMatches.size())
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
+                Set<Match> matchesAlreadyScheduled = matchesToSchedule.stream().limit(bestOfMatches.size()).collect(Collectors.toCollection(LinkedHashSet::new));
 
-            matchesToSchedule.addAll(matchesAlreadyScheduled);
+                matchesToSchedule = matchesToSchedule.stream()
+                        .skip(bestOfMatches.size())
+                        .limit(matches.size() - bestOfMatches.size())
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+
+                matchesToSchedule.addAll(matchesAlreadyScheduled);
+            }
 
             /*System.out.println(matchesToSchedule.size());
             for (Match m : matchesToSchedule) {
@@ -243,6 +270,8 @@ public class Scheduler {
             }
 
             matches.addAll(bestOfMatches);
+
+            System.out.println(matches.size());
         }
 
 
