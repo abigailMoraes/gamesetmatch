@@ -13,6 +13,7 @@ public class MockTournament {
     private final boolean matchBySkill;
     private final int matchDuration;
     private final Date startDate;
+    private Date roundEndDate;
 
     public MockTournament(
             int tournamentID,
@@ -28,6 +29,11 @@ public class MockTournament {
         this.matchBySkill = matchBySkill;
         this.matchDuration = matchDuration;
         this.startDate = startDate;
+    }
+
+    public void setRoundEndDate(Date date) {
+
+
     }
 
     public int getTournamentID() {

@@ -51,6 +51,8 @@ public class Scheduler {
     }
 
     public Scheduler(int tournamentID) {
+
+
     }
 
     private void setTypeMatcher(TournamentType type) {
@@ -68,11 +70,7 @@ public class Scheduler {
         }
     }
 
-    public void schedule() {
-
-        int expectedMatches = (this.registrants.size() / 2) * tournament.getTournamentSeries().getNumberOfGames();
-
-        System.out.println(expectedMatches);
+    public Set<Match> schedule() {
 
         Set<Match> returnedMatches = new LinkedHashSet<>();
 
@@ -81,20 +79,11 @@ public class Scheduler {
 
         if (tournament.getTournamentSeries() != TournamentSeries.BEST_OF_1) {
 
+            int expectedMatches = (this.registrants.size() / 2) * tournament.getTournamentSeries().getNumberOfGames();
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
         }
 
-        /*while (returnedMatches.size() < expectedMatches) {
-        //for (int i = 0; i < 1; i++) {
-
-            System.out.println(calendar.getTime());
-        }*/
-
-        for (Match m : returnedMatches) {
-            System.out.println(m);
-        }
-
-        System.out.println("Scheduled: " + returnedMatches.size());
+        return returnedMatches;
     }
 
     private Set<Match> schedulePrimaryMatches() {
@@ -111,14 +100,9 @@ public class Scheduler {
             BipartiteGraph bg = new BipartiteGraph(timeslots, registrantsToMatch, tournament.getMatchDuration());
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
 
-            /*for (Match m : matchGraph.getMatches()) {
-                System.out.println("Possible Match: " + m);
-            }*/
-
             if (matchGraph.getMatches().size() == 0) {
                 break;
             }
-            // System.out.println(matchGraph.getMatches().size());
 
             matchGraph.setMatchDegrees();
             MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(tournament.isMatchBySkill(), matchGraph);
@@ -141,14 +125,6 @@ public class Scheduler {
                 System.out.println("IOError: " + e.getMessage());
             }
         }
-
-        // calendar.setTime(this.tournament.getStartDate());
-
-        /*for (Match m : matches) {
-            System.out.println("Primary Match: " + m);
-        }*/
-
-        System.out.println("Primary Matches: " + matches.size());
 
         return matches;
     }
@@ -211,17 +187,7 @@ public class Scheduler {
 
         Set<Match> matchesToSchedule = new LinkedHashSet<>(matches);
 
-        // while (matchesToSchedule.size() != 0) {
-        //for (int i = 0; i < 2; i++) {
-        // System.out.println(registrantsToMatch.size());
-        /*System.out.println(matchesToSchedule.size());
-        for (Match m : matchesToSchedule) {
-
-            System.out.println(" " + m);
-        }*/
-
         while (matches.size() < expectedMatches) {
-        //for (int i = 0; i < 1; i++) {
 
             System.out.println("Best Of: " + calendar.getTime());
             BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
@@ -231,12 +197,6 @@ public class Scheduler {
                     this.tournament.getTournamentSeries().getNumberOfGames(),
                     this.tournament.getMatchDuration()
             );
-
-        /*System.out.println(bestOfMatchGraph.getMatches().size());
-        for (Match m : bestOfMatchGraph.getMatches()) {
-
-            System.out.println(" " + m);
-        }*/
 
             MatchingAlgorithm bestOfMatching = new BestOfMatchingAlgorithm(bestOfMatchGraph);
             Set<Match> bestOfMatches = new LinkedHashSet<>(bestOfMatching.findMatches());
@@ -253,12 +213,6 @@ public class Scheduler {
                 matchesToSchedule.addAll(matchesAlreadyScheduled);
             }
 
-            /*System.out.println(matchesToSchedule.size());
-            for (Match m : matchesToSchedule) {
-
-                System.out.println(" " + m);
-            }*/
-
             calendar.add(Calendar.WEEK_OF_YEAR, 1);
 
             try {
@@ -273,44 +227,8 @@ public class Scheduler {
             System.out.println(matches.size());
         }
 
-
-        //}
-
-        /*for (Match m : bestOfMatchGraph.getMatches()) {
-            System.out.println("  Possible Best of Match: " + m);
-        }*/
-
-        /*for (Match m : bestOfMatches) {
-            System.out.println("Best of Match: " + m);
-        }*/
-        // System.out.println("Best of matches: " + bestOfMatches.size());
-
         return matches;
     }
-    /*
-    private Set<Match> scheduleBestOfMatches(Set<Match> matches) {
-
-        if (this.tournament.getTournamentSeries().getNumberOfGames() == 1) {
-            return Set.of();
-        }
-
-        BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
-                new LinkedHashSet<>(registrants),
-                new LinkedHashSet<>(timeslots),//findAvailableTimeslots(matches)),
-                matches,
-                this.tournament.getTournamentSeries().getNumberOfGames(),
-                this.tournament.getMatchDuration()
-        );
-
-        MatchingAlgorithm bestOfMatching = new BestOfMatchingAlgorithm(bestOfMatchGraph);
-        Set<Match> bestOfMatches = bestOfMatching.findMatches();
-
-        /*for (Match m : bestOfMatches) {
-            System.out.println("Best of Match: " + m);
-        }
-
-        return bestOfMatches;
-    }*/
 
     private List<Registrant> findRegistrantsToBeMatched(Set<Match> returnedMatches) {
 
