@@ -1,3 +1,9 @@
+/**
+ * Undirected (Weighted) Graph for Secondary Scheduling
+ *
+ * @since 2022-03-21
+ */
+
 package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;

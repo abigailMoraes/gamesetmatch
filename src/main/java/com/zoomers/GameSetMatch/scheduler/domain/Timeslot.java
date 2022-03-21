@@ -27,6 +27,27 @@ public class Timeslot {
         return (int)((time - 9)* 2) + 24 * (calendar.get(Calendar.DAY_OF_WEEK) - 1);
     }
 
+    private String convertTimeToString(float timeToConvert) {
+
+        String timeFormat = "";
+
+        if (timeToConvert < 10) {
+            timeFormat += "0" + Math.floor(this.time);
+        }
+        else {
+            timeFormat += Math.floor(this.time);
+        }
+
+        if (timeToConvert % 0.5 == 0) {
+            timeFormat += ":30";
+        }
+        else {
+            timeFormat += ":00";
+        }
+
+        return timeFormat + ":00";
+    }
+
     public void addWeek() {
 
         LocalDate nextWeek = this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusWeeks(1);
@@ -46,6 +67,11 @@ public class Timeslot {
         return date;
     }
 
+    public String getEndTime(int matchDuration) {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        return sdfDate.format(this.date) + " " + convertTimeToString(time + matchDuration);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,7 +82,7 @@ public class Timeslot {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        return sdf.format(this.date) + " at " + this.time;
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        return sdfDate.format(this.date) + " " + convertTimeToString(time);
     }
 }

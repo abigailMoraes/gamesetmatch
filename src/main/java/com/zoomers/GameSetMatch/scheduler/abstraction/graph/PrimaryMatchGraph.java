@@ -1,3 +1,21 @@
+/**
+ * Undirected (Weighted) Graph represented as:
+ * - Vertices: Possible Matches (r1, r2, t)
+ * - Edges: If two matches share a player or timeslot
+ *
+ * NOTE ABOUT DEGREE COUNTING:
+ *
+ * In order to reduce space overhead, we only store a single instance of each match
+ * and calculate vertex degrees as a function of:
+ * - number of matches r1 has +
+ * - number of matches r2 has +
+ * - number of matches per timeslot -
+ * - number of overlapping edges for players -
+ * - number of overlapping edges for time
+ *
+ * @since 2022-03-21
+ */
+
 package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
@@ -48,7 +66,7 @@ public class PrimaryMatchGraph extends MatchGraph {
     private void initializePlayerDegrees(int id) {
 
         if (!this.playerDegrees.containsKey(id)) {
-            this.playerDegrees.put(id, -1);
+            this.playerDegrees.put(id, 0);
         }
     }
 
@@ -58,6 +76,10 @@ public class PrimaryMatchGraph extends MatchGraph {
         Arrays.fill(timeDegrees, -1);
     }
 
+    /**
+     *
+     * @param id
+     */
     public void initializeTimeRepeat(int id) {
 
         if (!this.timeRepeats.containsKey(id)) {
@@ -67,6 +89,20 @@ public class PrimaryMatchGraph extends MatchGraph {
         }
     }
 
+    /**
+     * playerRepeats accounts for whether an extra edge has been added between
+     * two matches that share both players.
+     *
+     * Given:
+     * - M1 P1 v P2 at 9
+     * - M2 P1 v P2 at 10
+     *
+     * Both P1 and P2 would increment their degrees (+2), even though only
+     * one edge should exist between this match.
+     *
+     * @param i_id
+     * @param j_id
+     */
     private void initializePlayerRepeat(int i_id, int j_id) {
 
         Tuple pair = Tuple.of(i_id, j_id);

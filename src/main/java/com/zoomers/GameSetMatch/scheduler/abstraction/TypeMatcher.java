@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.scheduler.abstraction;
 
+import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
@@ -7,10 +8,15 @@ import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BestOfMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BipartiteGraph;
 import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.abstraction.graph.SecondaryMatchGraph;
+import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
 public abstract class TypeMatcher {
+
+    @Autowired
+    private UserMatchTournamentRepository userMatchTournamentRepository;
 
     public PrimaryMatchGraph createPossiblePrimaryMatches(BipartiteGraph bipartiteGraph) {
 
@@ -29,7 +35,12 @@ public abstract class TypeMatcher {
 
                     Registrant r2 = registrants.get(j);
 
-                    if (!areMatchConditionsSatisfied(r1, r2, t)) {
+                    if (areMatchConditionsSatisfied(r1, r2, t)) {
+                        continue;
+                    }
+
+                    if (alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
+                            alreadyHasMatchInDifferentTournament(r2.getID(), t)) {
                         continue;
                     }
 
@@ -71,7 +82,12 @@ public abstract class TypeMatcher {
 
                     Registrant r2 = registrantsToBeMatched.get(j);
 
-                    if (!areMatchConditionsSatisfied(r1, r2, t)) {
+                    if (areMatchConditionsSatisfied(r1, r2, t)) {
+                        continue;
+                    }
+
+                    if (alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
+                            alreadyHasMatchInDifferentTournament(r2.getID(), t)) {
                         continue;
                     }
 
@@ -100,9 +116,6 @@ public abstract class TypeMatcher {
             int matchDuration
     ) {
 
-        // System.out.println("Timeslots: " + timeslots.size());
-        // System.out.println("Matches: " + existingMatches.size());
-
         BestOfMatchGraph bestOfMatchGraph = new BestOfMatchGraph(
                 registrants,
                 timeslots,
@@ -127,6 +140,11 @@ public abstract class TypeMatcher {
                     continue;
                 }
 
+                if (alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
+                    alreadyHasMatchInDifferentTournament(r2.getID(), t)) {
+                    continue;
+                }
+
                 Match seriesMatch = new Match(
                         m.getPlayers().getFirst(),
                         m.getPlayers().getSecond(),
@@ -137,9 +155,6 @@ public abstract class TypeMatcher {
 
                 seriesMatch.setMatchScore(calculateMatchScore(r1, r2, t));
                 bestOfMatchGraph.addMatch(seriesMatch);
-
-                /*if (calculateMatchScore(r1, r2, t) > 0) {
-                }*/
             }
         }
 
@@ -165,6 +180,23 @@ public abstract class TypeMatcher {
         matchScore -= Math.abs(r1.getSkill() - r2.getSkill());
 
         return matchScore;
+    }
+
+    private boolean alreadyHasMatchInDifferentTournament(int id, Timeslot t) {
+
+        List<UserMatchTournamentInfo> playerMatches = userMatchTournamentRepository.findMatchesByUserID(id);
+
+        if (playerMatches.size() == 0) { return false; }
+
+        for (UserMatchTournamentInfo tournamentInfo : playerMatches) {
+
+            // TODO: MISMATCH BETWEEN ENTITIES, REQUIRES RESOLVING BEFORE TESTING
+            if (Objects.equals(tournamentInfo.getStartTime(), t.toString())) {
+
+                return true;
+            }
+        }
+        return false;
     }
 
     protected abstract boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t);

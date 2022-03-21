@@ -8,6 +8,6 @@ public class SingleKnockoutMatcher extends TypeMatcher {
 
     @Override
     protected boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t) {
-        return true;
+        return false;
     }
 }

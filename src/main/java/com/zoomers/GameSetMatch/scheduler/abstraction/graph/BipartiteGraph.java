@@ -1,3 +1,11 @@
+/**
+ * Directed Bipartite Graph from timeslots to registrants.
+ * An edge between nodes exists if a registrant is available at that time.
+ * Represented as an adjacency list.
+ *
+ * @since 2022-03-21
+ */
+
 package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
@@ -14,7 +22,7 @@ public class BipartiteGraph {
     private int edgeCount;
     private final LinkedHashMap<Timeslot, List<Registrant>> adjacencyList;
     private int matchIndex;
-    private int matchDuration;
+    private final int matchDuration;
 
     public BipartiteGraph(List<Timeslot> timeslots, List<Registrant> players, int matchDuration) {
 
@@ -43,11 +51,18 @@ public class BipartiteGraph {
         }
     }
 
+    /**
+     * We create an edge from t to r if:
+     * - the time of the match will not exceed 9 pm
+     * - Registrant r is availability for the duration of the match
+     *
+     * @param r, registrant
+     * @param t, timeslot
+     */
     private void createAdjacencyList(Registrant r, Timeslot t) {
 
-        /*System.out.println(matchIndex + timeslots.size());
-        System.out.println(t.getID());*/
-
+        // TODO: THIS DOESN'T KEEP TRACK OF 9PM
+        // UPDATE TO t get time and match duration
         if (t.getID() + matchIndex > timeslots.size()) {
 
             return;

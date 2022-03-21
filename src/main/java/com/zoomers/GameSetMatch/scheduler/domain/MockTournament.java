@@ -33,7 +33,7 @@ public class MockTournament {
 
     public void setRoundEndDate(Date date) {
 
-
+        this.roundEndDate = date;
     }
 
     public int getTournamentID() {

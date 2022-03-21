@@ -3,13 +3,15 @@
  * the algorithm will produce a schedule for all players registered
  * in the tournament.
  *
- * @version 2.16
+ * @since 2022-03-21
  */
 
 package com.zoomers.GameSetMatch.scheduler;
 
-import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.entity.SchedulerTournament;
+import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
+import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.abstraction.TypeMatcher;
 import com.zoomers.GameSetMatch.scheduler.domain.*;
 import com.zoomers.GameSetMatch.scheduler.enumerations.*;
@@ -18,33 +20,35 @@ import com.zoomers.GameSetMatch.scheduler.matching.algorithms.*;
 import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.*;
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.FluentQuery;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Scheduler {
 
-    private final TournamentRepository tournamentRepository;
+    @Autowired
+    private TournamentRepository tournamentRepository;
+    @Autowired
+    private UserRegistersTournamentRepository userRegistersTournamentRepository;
+    @Autowired
+    private MatchRepository matchRepository;
+    private SchedulerTournament tournament;
+    private List<UserRegistersTournamentRepository.IRegistrant> TOURNAMENT_REGISTRANTS;
 
     private final List<Registrant> REGISTRANTS = new ArrayList<>();
     private List<Timeslot> timeslots = new ArrayList<>();
     private String playerFileName;
-    private MockTournament tournament;
+    private MockTournament mockTournament;
     private TypeMatcher typeMatcher;
     private final Calendar CALENDAR = Calendar.getInstance();
 
     public Scheduler(MockTournament tournament, String filename) {
 
-        this.tournament = tournament;
+        this.mockTournament = tournament;
         this.playerFileName = filename;
-        this.CALENDAR.setTime(this.tournament.getStartDate());
+        this.CALENDAR.setTime(this.mockTournament.getStartDate());
 
         setTypeMatcher(tournament.getTournamentType());
         initPlayers();
@@ -59,7 +63,15 @@ public class Scheduler {
 
     public Scheduler(int tournamentID) {
 
-        // this.tournamentRepository = new TournamentRepository();
+        tournament = tournamentRepository.getSchedulerTournamentByID(tournamentID);
+        TOURNAMENT_REGISTRANTS = userRegistersTournamentRepository.findRegistrantsByTournamentID(tournamentID);
+
+        try {
+            initTimeslots();
+        }
+        catch (IOException e) {
+            System.out.println("IOError: " + e.getMessage());
+        }
     }
 
     private void setTypeMatcher(TournamentType type) {
@@ -92,26 +104,28 @@ public class Scheduler {
         returnedMatches.addAll(schedulePrimaryMatches());
         returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
 
-        if (tournament.getTournamentSeries() != TournamentSeries.BEST_OF_1) {
+        if (mockTournament.getTournamentSeries() != TournamentSeries.BEST_OF_1) {
 
-            int expectedMatches = (this.REGISTRANTS.size() / 2) * tournament.getTournamentSeries().getNumberOfGames();
+            int expectedMatches = (this.REGISTRANTS.size() / 2) * mockTournament.getTournamentSeries().getNumberOfGames();
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
         }
 
         Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
-        tournament.setRoundEndDate(roundEndDate);
+        mockTournament.setRoundEndDate(roundEndDate);
 
         for (Match m : returnedMatches) {
 
-            System.out.println(m);
+            matchRepository.addMatch(
+                m.getTimeslot().toString(),
+                m.getTimeslot().getEndTime(tournament.getMatchDuration()),
+                tournament.getMatchDuration()
+            );
         }
 
         return returnedMatches;
     }
 
     private Set<Match> schedulePrimaryMatches() {
-
-        // TODO: FIND REGISTRANTS USING TOURNAMENT_ID AND INSTANTIATE TIMESLOTS FROM DATABASE
 
         Set<Match> matches = new LinkedHashSet<>();
         List<Registrant> registrantsToMatch = new ArrayList<>(REGISTRANTS);
@@ -120,7 +134,7 @@ public class Scheduler {
 
             System.out.println(CALENDAR.getTime());
 
-            BipartiteGraph bg = new BipartiteGraph(timeslots, registrantsToMatch, tournament.getMatchDuration());
+            BipartiteGraph bg = new BipartiteGraph(timeslots, registrantsToMatch, mockTournament.getMatchDuration());
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
 
             if (matchGraph.getMatches().size() == 0) {
@@ -128,7 +142,7 @@ public class Scheduler {
             }
 
             matchGraph.setMatchDegrees();
-            MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(tournament.isMatchBySkill(), matchGraph);
+            MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(mockTournament.isMatchBySkill(), matchGraph);
 
             matches.addAll(greedyMaximumIndependentSet.findMatches());
 
@@ -168,7 +182,7 @@ public class Scheduler {
             SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
                     registrantsToMatch,
                     availableTimeslots,
-                    tournament.getMatchDuration()
+                    mockTournament.getMatchDuration()
             );
 
             MatchingAlgorithm maximumMatchScoreMatcher = new MaximumMatchScoreMatcher(secondaryMatchGraph);
@@ -183,6 +197,7 @@ public class Scheduler {
             }
 
             addWeek();
+            availableTimeslots = timeslots;
         }
 
         return newMatches;
@@ -190,7 +205,7 @@ public class Scheduler {
 
     private Set<Match> scheduleBestOfMatches(Set<Match> matches, int expectedMatches) {
 
-        if (this.tournament.getTournamentSeries().getNumberOfGames() == 1) {
+        if (this.mockTournament.getTournamentSeries().getNumberOfGames() == 1) {
             return Set.of();
         }
 
@@ -202,8 +217,8 @@ public class Scheduler {
                     new LinkedHashSet<>(REGISTRANTS),
                     new LinkedHashSet<>(timeslots),//findAvailableTimeslots(matches)),
                     matchesToSchedule,
-                    this.tournament.getTournamentSeries().getNumberOfGames(),
-                    this.tournament.getMatchDuration()
+                    this.mockTournament.getTournamentSeries().getNumberOfGames(),
+                    this.mockTournament.getMatchDuration()
             );
 
             MatchingAlgorithm bestOfMatching = new BestOfMatchingAlgorithm(bestOfMatchGraph);
@@ -246,8 +261,6 @@ public class Scheduler {
     }
 
     /**
-     *
-     *
      * @param returnedMatches, the list of matches already scheduled by Primary Scheduling
      * @return registrants that were not matched in primary scheduling
      */
@@ -267,6 +280,10 @@ public class Scheduler {
         return toBeMatched;
     }
 
+    /**
+     * @param returnedMatches, the list of matches already scheduled by Primary Scheduling
+     * @return list of timeslots that are still available for matching
+     */
     private List<Timeslot> findAvailableTimeslots(Set<Match> returnedMatches) {
 
         List<Timeslot> availableTimeslots = new ArrayList<>(this.timeslots);
@@ -295,14 +312,14 @@ public class Scheduler {
 
                 Skill skill;
 
-                if (tournament.isMatchBySkill()) {
+                if (mockTournament.isMatchBySkill()) {
                     skill = Skill.values()[Integer.parseInt((String)registrant.get("skill")) - 1];
                 }
                 else {
                     skill = Skill.BEGINNER;
                 }
 
-                Registrant r = new Registrant(id, availability, skill, tournament.getTournamentSeries().getNumberOfGames());
+                Registrant r = new Registrant(id, availability, skill, mockTournament.getTournamentSeries().getNumberOfGames());
                 REGISTRANTS.add(r);
             }
         }

@@ -44,6 +44,9 @@ public class Tournament {
     @Column(name = "type")
     private String type;
 
+    @Column(name = "match_by_skill")
+    private boolean matchBySkill;
+
     @Column(name = "match_duration")
     private Long matchDuration;
 
