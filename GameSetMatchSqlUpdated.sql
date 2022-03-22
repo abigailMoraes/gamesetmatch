@@ -12,14 +12,28 @@ INSERT INTO User(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu
 
 
 /*Create table statement for Tournament*/
-CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), series varchar(60), type varchar(60), match_by int, match_duration long, number_of_matches int, round_duration int, admin_hosts_tournament int, status int, PRIMARY KEY(tournamentID),
+/*legend*/
+/* start_date = start_date of tournament */
+/* close_registration_date = date on which registration for tournament will close*/
+/* location = location designated for all rounds/matches in the tournament */
+/* max_participants = the maximum number of participants allowed to register (to allow admin to  account for capacity, budget, time etc.) */
+/* min_participants = the minimum number of participants allowed to register (to allow admin to specify the minimum amount of participants, below which no tournament can be held) */
+/* end_date = The end date of the tournament - date of the last match?? */
+
+/*ENUM values - note mysql convention - The index value of the empty string error value is 0. This means that you can use the following SELECT statement to find rows into which invalid ENUM values were assigned so 0 is reserved for ''*/
+/* series = an integer that refers to one of four series types 1 - 'Best of 1', 2 - 'Best of 3', 3 - 'Best of 5' and 4 - 'Best of 7' */
+/* format = an integer that refers to one of three format types 1 - 'Single-elimination', 2 - 'Double-Elimination', 3 - 'Round-Robin' */
+/* match_by = an integer that refers to one of two matching types 1 - 'Randomly' , 2 - 'By skill' */
+
+
+CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), series int, format int, match_by int, number_of_matches int,  admin_hosts_tournament int, status int, PRIMARY KEY(tournamentID),
                        FOREIGN KEY (admin_hosts_tournament) REFERENCES User(userID));
 
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 'BEST_OF_1','SINGLE_KNOCKOUT',1,30, 7, 1, -1 );
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Amongus Royale', 'Come join us for some space murder! (individual)','2022-03-04', '2022-03-03','Auditorium 6, North Wing',  10, 6, '50$ Steam Gift Card', 'BEST_OF_3', 'SINGLE_KNOCKOUT',0,30, 7, 3, 0);
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Spike or Bust Tournament', 'Bump. Set. Spike. All it takes is all you have got! (2 player teams)',  '2022-03-09', '2022-03-08',  'Volleyball court 3', 16, 2, '50$ GoSport Canada Gift Card', 'BEST_OF_5', 'DOUBLE_KNOCKOUT', 1,30, 7, 1, 0);
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('StreetFighter V Tournament', 'Choose your hero and test your skills!(individual)', '2022-04-03', '2022-04-02', 'Meeting Room 143,Basement',  8, 4,  '50$ GoSport Canada Gift Card', 'BEST_OF_7' ,'ROUND_ROBIN',0,30, 7, 3, 0);
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Amazon Chess Championship', 'Come battle your wits against the best and the brightest!', '2022-04-05', '2022-04-04',  'Meeting Room 13, Basement', 32, 4,  '100$ Amazon Gift Card', 'BEST_OF_1'  ,'SINGLE_KNOCKOUT',1, 7, 30, 1, 0);
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 1, -1 );
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Amongus Royale', 'Come join us for some space murder! (individual)','2022-03-04', '2022-03-03','Auditorium 6, North Wing',  10, 6, '50$ Steam Gift Card', 2, 1, 2, 3, 0);
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Spike or Bust Tournament', 'Bump. Set. Spike. All it takes is all you have got! (2 player teams)',  '2022-03-09', '2022-03-08',  'Volleyball court 3', 16, 2, '50$ GoSport Canada Gift Card', 3, 2, 1, 3, 0);
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('StreetFighter V Tournament', 'Choose your hero and test your skills!(individual)', '2022-04-03', '2022-04-02', 'Meeting Room 143,Basement',  8, 4,  '50$ GoSport Canada Gift Card', 4, 3, 2,  3, 0);
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Amazon Chess Championship', 'Come battle your wits against the best and the brightest!', '2022-04-05', '2022-04-04',  'Meeting Room 13, Basement', 32, 4,  '100$ Amazon Gift Card', 1, 1, 1,  1, 0);
 
 /*Create table statement for Availability*/
 CREATE TABLE Availability(userID int, tournamentID int, date DATE, availability_binary int, PRIMARY KEY(userID, tournamentID, date), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
