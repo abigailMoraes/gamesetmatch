@@ -31,17 +31,18 @@ INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
 
+/*is_conflict* is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot)
 /*Create table statement for Match_Has*/
-CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID));
+CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, is_conflict int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID));
 /*sample data for Match_Has, Note: duration is in minutes */
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/20 11:00:00','2022/02/20 11:30:00',30,1);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/20 12:00:00','2022/02/20 12:30:00',30,1);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/22 12:00:00','2022/02/20 12:30:00',30,1);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/25 11:00:00','2022/02/25 11:30:00',30,1);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/05 12:00:00','2022/03/05 12:30:00',30,2);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/05 12:30:00','2022/03/05 13:00:00',30,2);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/14 14:30:00','2022/03/14 15:00:00',30,2);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/21 15:30:00','2022/03/21 16:00:00',30,2);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/20 11:00:00','2022/02/20 11:30:00',30,1,0);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/20 12:00:00','2022/02/20 12:30:00',30,1,0);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/22 12:00:00','2022/02/20 12:30:00',30,1,0);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/25 11:00:00','2022/02/25 11:30:00',30,1,0);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/05 12:00:00','2022/03/05 12:30:00',30,2,0);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/05 12:30:00','2022/03/05 13:00:00',30,2,0);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/14 14:30:00','2022/03/14 15:00:00',30,2,0);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/21 15:30:00','2022/03/21 16:00:00',30,2,0);
 
 /*Create table statement for Admin_hosts_tournament*/
 CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
