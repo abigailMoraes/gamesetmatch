@@ -12,7 +12,7 @@ INSERT INTO User(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu
 
 
 /*Create table statement for Tournament*/
-CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), format varchar(60), type varchar(60), match_by_skill int, match_duration long, number_of_matches int, round_duration int, admin_hosts_tournament int, status int, PRIMARY KEY(tournamentID),
+CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), series varchar(60), type varchar(60), match_by int, match_duration long, number_of_matches int, round_duration int, admin_hosts_tournament int, status int, PRIMARY KEY(tournamentID),
                        FOREIGN KEY (admin_hosts_tournament) REFERENCES User(userID));
 
 INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 'BEST_OF_1','SINGLE_KNOCKOUT',1,30, 7, 1, -1 );
