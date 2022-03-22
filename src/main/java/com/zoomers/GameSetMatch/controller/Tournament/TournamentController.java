@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
+@Transactional
 @RequestMapping("/api/tournaments")
 public class TournamentController {
 
@@ -75,7 +77,9 @@ public class TournamentController {
 
     @PostMapping()
     public Tournament createTournament(@RequestBody Tournament tournament)  {
-        tournament.setStatus(0);
+        if (tournament.getStatus() == -1) {
+            tournament.setStatus(0);
+        }
         tournamentService.saveTournament(tournament);
         return tournament;
     }
@@ -91,11 +95,10 @@ public class TournamentController {
 
 
     @PutMapping(value = "/{tournamentID}")
-    public Tournament changeTournamentInfo(@PathVariable Long tournamentID, @RequestBody Tournament incoming) {
+    public ResponseEntity<String> changeTournamentInfo(@PathVariable Integer tournamentID, @RequestBody Tournament incoming) {
         Optional<Tournament> tournament = tournamentService.findTournamentByID(tournamentID);
-        Tournament tour = new Tournament();
         if (tournament.isPresent()) {
-            tour = tournament.get();
+            Tournament tour = tournament.get();
 
             if (incoming.getName() != null) {
                 tour.setName(incoming.getName());
@@ -148,14 +151,33 @@ public class TournamentController {
 
             tournamentService.saveTournament(tour);
         } else {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
         }
-        return tour;
+        return ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament is updated");
     }
 
     @GetMapping(value = "", params = {"status", "createdBy"})
     public List<Tournament> getTournament(@RequestParam(name = "status") int status,
                                                  @RequestParam(name = "createdBy") int user) {
         return tournamentService.getTournaments(status, user);
+    }
+
+    @DeleteMapping(value = "/{tournamentID}")
+    public ResponseEntity<String> deleteInactiveTournament(@PathVariable Integer tournamentID) {
+        Optional<Tournament> tournament = tournamentService.findTournamentByID(tournamentID);
+
+        if (tournament.isPresent()) {
+            Tournament tour = tournament.get();
+
+            if (tour.getStatus() == 4) {
+                tournamentService.deleteTournamentByID(tournamentID);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("ID: " + tournamentID + " Tournament is currently active. Cannot delete.");
+            }
+        } else {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament is deleted.");
     }
 }
