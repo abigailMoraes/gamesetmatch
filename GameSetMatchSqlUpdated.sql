@@ -47,8 +47,6 @@ CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME,
 /*Create table statement for Admin_hosts_tournament*/
 CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
 
-
-
 /*Create table statement for user_involves_match*/
 CREATE TABLE User_involves_match(userID int, matchID int, results varchar(40), attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
 /*sample data for User_involves_match*/
@@ -69,8 +67,6 @@ INSERT INTO User_involves_match(userID, matchID, results, attendance) values (6,
 INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 8, 'TBD', 'Yes');
 INSERT INTO User_involves_match(userID, matchID, results, attendance) values (4, 8, 'TBD', 'Yes');
 
-
-
 /*Create table User_registers_tournament*/
 CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES tournament(tournamentID));
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,1,3);
@@ -85,6 +81,7 @@ INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values 
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,2,3);
 
 /*Create table statement for Invitation Code*/
-CREATE TABLE Invitation_Code ( invitationCode varchar(10) NOT NULL, isValid tinyint(1) NOT NULL, createdOn varchar(30) NOT NULL, UNIQUE KEY invitationCode (invitationCode));
-INSERT INTO Invitation_Code(invitationCode,isValid,createdOn) VALUES('0M2WTV2J84', '0', '2022-03-10 23:16:05');
-INSERT INTO Invitation_Code(invitationCode,isValid,createdOn) VALUES('L3XAU31X3L', '1', '2022-03-10 23:28:15');
+CREATE TABLE Invitation_Code (invitation_code varchar(10) NOT NULL, is_valid bit(1) NOT NULL, created_on varchar(30) NOT NULL, UNIQUE KEY invitationCode (invitation_code));
+/*sample data for Invitation Code*/
+INSERT INTO Invitation_Code(invitation_code, is_valid, created_on) VALUES('0M2WTV2J84', 0, '2022-03-10 23:16:05');
+INSERT INTO Invitation_Code(invitation_code, is_valid, created_on) VALUES('L3XAU31X3L', 1, '2022-03-10 23:28:15');
