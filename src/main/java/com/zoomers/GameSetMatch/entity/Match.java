@@ -23,4 +23,5 @@ public class Match {
     @Column(name="end_time")
     private String endTime;
     private int duration;
+    private int roundID;
 }
