@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 public interface MatchRepository extends JpaRepository<Match,Integer> {
 
@@ -16,6 +17,8 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
          nativeQuery = true)
     void updateMatchInfo( int matchID, String startTime, String endTime, long duration, int roundID);
 
+    @Query(value = "SELECT * FROM match_has WHERE roundID = :roundID", nativeQuery = true)
+    List<Match> getMatchesByRound(int roundID);
 
 
 }

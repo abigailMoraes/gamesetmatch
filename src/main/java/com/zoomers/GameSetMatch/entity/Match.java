@@ -24,4 +24,7 @@ public class Match {
     private String endTime;
     private int duration;
     private int roundID;
+    @Column(name="is_conflict")
+    private int isConflict;
+    /*indicates whether there is a conflict in both player's attendance*/
 }

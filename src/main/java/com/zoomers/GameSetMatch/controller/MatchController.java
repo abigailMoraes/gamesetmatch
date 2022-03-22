@@ -53,6 +53,12 @@ public class MatchController {
         return userMatchTournamentRepository.findMatchInfoByMatchID(id, uid);
     }
 
+
+    @GetMapping( "/rounds/{roundID}/matches")
+    List<Match> getMatchesByRoundID(@PathVariable int roundID){
+        return matchRepository.getMatchesByRound(roundID);
+    }
+
     @PutMapping("/match/userAttendance")
     public void updateAttendance(@RequestBody IncomingAttendance attendance) {
         userMatchTournamentRepository.dropOutForUser(attendance.getMatchID(), attendance.getUserID(), attendance.getAttendance());
@@ -97,7 +103,6 @@ public class MatchController {
             }else {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
             }
-
         }
     }
 }
