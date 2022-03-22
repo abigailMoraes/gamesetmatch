@@ -28,7 +28,6 @@ public class MatchController {
     private final UserMatchTournamentRepository userMatchTournamentRepository;
     private final MatchRepository matchRepository;
     private final RoundRepository roundRepository;
-    private final TournamentRepository tournamentRepository;
 
     public MatchController(UserMatchTournamentRepository userMatchTournamentRepository, MatchRepository matchRepository, RoundRepository roundRepository, TournamentRepository tournamentRepository) {
         this.userMatchTournamentRepository = userMatchTournamentRepository;
@@ -90,12 +89,6 @@ public class MatchController {
             if(existingRound.isPresent()){
                if (!(existingRound.get().getEndDate().compareTo(latestMatchDate) == 0)){
                    existingRound.get().setEndDate(latestMatchDate);
-                   /* Updates tournament location if it is different from the latest match in the list*/
-                   Optional<Tournament> existingTournament = Optional.of(tournamentRepository.getById(tournamentID));
-                   if(existingTournament.isPresent()){
-                       if(!existingTournament.get().getLocation().equals(match.getLocation())){
-                           existingTournament.get().setLocation(match.getLocation());
-                       }
                    }else {
                        ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
                    }
