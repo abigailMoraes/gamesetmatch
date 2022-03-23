@@ -47,42 +47,51 @@ INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2
 
 /*is_conflict* is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot)
 /*Create table statement for Match_Has*/
-CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, is_conflict int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID));
+CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, is_conflict int, userID_1, userID_2, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES(User(userID)), FOREIGN KEY(userID_2) REFERENCES(User(userID)));
+/*Create table statement for user_involves_match*/
+CREATE TABLE User_involves_match(userID int, matchID int, results varchar(40), attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
+/*No sample data needed for User_involves_match since it will autopopulate after the trigger below is created*/
+
+/*Create the following triggers before populating Match_Has*/
+/*The first trigger autopopulates user_involves_match whenever there is an insert event in match_has*/
+/*The second trigger deletes the relevant entries in user_involves_match whenever there is a delete row event in match_has*/
+DELIMITER $$
+
+CREATE TRIGGER update_user_involves_match
+	AFTER INSERT
+    ON match_has FOR EACH ROW
+BEGIN
+    INSERT INTO user_involves_match VALUES(NEW.userID_1, NEW.matchID, 'Pending', 'TBD');
+    INSERT INTO user_involves_match VALUES(NEW.userID_2, NEW.matchID, 'Pending', 'TBD');
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER delete_user_involves_match_entries
+    BEFORE DELETE
+    ON match_has FOR EACH ROW
+BEGIN
+    DELETE FROM user_involves_match WHERE user_involves_match.userID = OLD.userID_1;
+    DELETE FROM user_involves_match WHERE user_involves_match.userID = OLD.userID_2;
+END$$    
+
+DELIMITER ;
+
+
 /*sample data for Match_Has, Note: duration is in minutes */
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/20 11:00:00','2022/02/20 11:30:00',30,1,0);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/20 12:00:00','2022/02/20 12:30:00',30,1,0);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/22 12:00:00','2022/02/20 12:30:00',30,1,0);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/02/25 11:00:00','2022/02/25 11:30:00',30,1,0);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/05 12:00:00','2022/03/05 12:30:00',30,2,0);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/05 12:30:00','2022/03/05 13:00:00',30,2,0);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/14 14:30:00','2022/03/14 15:00:00',30,2,0);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID) values ('2022/03/21 15:30:00','2022/03/21 16:00:00',30,2,0);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID, is_conflict, userID_1, userID_2) values ('2022/02/20 11:00:00','2022/02/20 11:30:00',30,1,0,1,2);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID, is_conflict, userID_1, userID_2) values ('2022/02/20 12:00:00','2022/02/20 12:30:00',30,1,0,3,4);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/02/22 12:00:00','2022/02/20 12:30:00',30,1,0,5,6);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/02/25 11:00:00','2022/02/25 11:30:00',30,1,0,1,2);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/05 12:00:00','2022/03/05 12:30:00',30,2,0,3,6);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/05 12:30:00','2022/03/05 13:00:00',30,2,0,1,2);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/14 14:30:00','2022/03/14 15:00:00',30,2,0,1,3);
+ INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/21 15:30:00','2022/03/21 16:00:00',30,2,0,2,4);
 
 /*Create table statement for Admin_hosts_tournament*/
 CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
-
-
-
-/*Create table statement for user_involves_match*/
-CREATE TABLE User_involves_match(userID int, matchID int, results varchar(40), attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
-/*sample data for User_involves_match*/
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (1, 1, 'win', 'No');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (1, 4, 'loss', 'No');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (1, 6, 'TBD', 'No');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (1, 7, 'TBD', 'Yes');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 1, 'loss', 'Yes');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 4, 'win', 'Yes');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 6, 'TBD', 'Yes');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (3, 2, 'win', 'Yes');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (3, 5, 'loss', 'No');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (3, 7, 'TBD', 'No');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (4, 2, 'TBD', 'Yes');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (5, 3, 'TBD', 'No');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (6, 3, 'TBD', 'No');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (6, 5, 'TBD', 'Yes');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (2, 8, 'TBD', 'Yes');
-INSERT INTO User_involves_match(userID, matchID, results, attendance) values (4, 8, 'TBD', 'Yes');
-
 
 
 /*Create table User_registers_tournament*/
