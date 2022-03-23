@@ -24,6 +24,8 @@ INSERT INTO User(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu
 /* series = an integer that refers to one of four series types 1 - 'Best of 1', 2 - 'Best of 3', 3 - 'Best of 5' and 4 - 'Best of 7' */
 /* format = an integer that refers to one of three format types 1 - 'Single-elimination', 2 - 'Double-Elimination', 3 - 'Round-Robin' */
 /* match_by = an integer that refers to one of two matching types 1 - 'Randomly' , 2 - 'By skill' */
+/*admin_hosts_tournament = int referring to the adminID of the admin that last edited the tournament */
+/*status = integer referring to the status of the tournament 0-OpenForRegistration, 1-ClosedRegistration, 2-ScheduleReadyForReview, 3-Ongoing, 4-FinalRound, 5-TournamentOver */
 
 
 CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), series int, format int, match_by int, number_of_matches int,  admin_hosts_tournament int, status int, PRIMARY KEY(tournamentID),
