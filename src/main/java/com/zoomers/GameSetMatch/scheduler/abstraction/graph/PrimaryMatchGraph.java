@@ -48,15 +48,15 @@ public class PrimaryMatchGraph extends MatchGraph {
         if (!matches.contains(m)) {
             matches.add(m);
 
-            int i_id = m.getPlayers().getFirst();
-            int j_id = m.getPlayers().getSecond();
+            int p1_id = m.getPlayers().getFirst();
+            int p2_id = m.getPlayers().getSecond();
             Timeslot t = m.getTimeslot();
 
-            initializePlayerDegrees(i_id);
-            initializePlayerDegrees(j_id);
-            initializeTimeRepeat(j_id);
-            initializePlayerRepeat(i_id, j_id);
-            incrementDegrees(t, i_id, j_id);
+            initializePlayerDegrees(p1_id);
+            initializePlayerDegrees(p2_id);
+            initializeTimeRepeat(p2_id);
+            initializePlayerRepeat(p1_id, p2_id);
+            incrementDegrees(t, p1_id, p2_id);
         }
         else {
             System.out.println("Already contains " + m);
@@ -100,12 +100,12 @@ public class PrimaryMatchGraph extends MatchGraph {
      * Both P1 and P2 would increment their degrees (+2), even though only
      * one edge should exist between this match.
      *
-     * @param i_id
-     * @param j_id
+     * @param p1_id
+     * @param p2_id
      */
-    private void initializePlayerRepeat(int i_id, int j_id) {
+    private void initializePlayerRepeat(int p1_id, int p2_id) {
 
-        Tuple pair = Tuple.of(i_id, j_id);
+        Tuple pair = Tuple.of(p1_id, p2_id);
 
         if (!this.playerRepeats.containsKey(pair)) {
 
@@ -113,14 +113,14 @@ public class PrimaryMatchGraph extends MatchGraph {
         }
     }
 
-    private void incrementDegrees(Timeslot t, int i_id, int j_id) {
+    private void incrementDegrees(Timeslot t, int p1_id, int p2_id) {
 
-        this.playerDegrees.put(i_id, this.playerDegrees.get(i_id) + 1);
-        this.playerDegrees.put(j_id, this.playerDegrees.get(j_id) + 1);
+        this.playerDegrees.put(p1_id, this.playerDegrees.get(p1_id) + 1);
+        this.playerDegrees.put(p2_id, this.playerDegrees.get(p2_id) + 1);
         this.timeDegrees[t.getID()]++;
-        this.timeRepeats.get(i_id)[t.getID()]++;
-        this.timeRepeats.get(j_id)[t.getID()]++;
-        this.playerRepeats.put(Tuple.of(i_id, j_id), this.playerRepeats.get(Tuple.of(i_id, j_id)) + 1);
+        this.timeRepeats.get(p1_id)[t.getID()]++;
+        this.timeRepeats.get(p2_id)[t.getID()]++;
+        this.playerRepeats.put(Tuple.of(p1_id, p2_id), this.playerRepeats.get(Tuple.of(p1_id, p2_id)) + 1);
     }
 
     public void decrementDegree(Match match) {

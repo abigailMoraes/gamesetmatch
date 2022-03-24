@@ -1,5 +1,9 @@
 package com.zoomers.GameSetMatch.entity;
 
+import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -201,4 +205,5 @@ public class Tournament {
     public void setStatus(int status) {this.status = status;}
 
     public int getStatus() {return this.status;}
+
 }

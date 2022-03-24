@@ -63,7 +63,7 @@ public class BipartiteGraph {
 
         // TODO: THIS DOESN'T KEEP TRACK OF 9PM
         // UPDATE TO t get time and match duration
-        if (t.getID() + matchIndex > timeslots.size()) {
+        if (t.getTime() + matchDuration / 30.0 > 21.0) {
 
             return;
         }

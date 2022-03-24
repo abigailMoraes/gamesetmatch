@@ -8,8 +8,6 @@ import java.util.Objects;
 
 public class Match {
 
-    private static int id = 0;
-    private final int match_id = id++;
     private MatchStatus matchStatus;
     private int degrees = 0;
     private final Tuple players;
@@ -23,13 +21,13 @@ public class Match {
         this.players = Tuple.of(p1, p2);
         this.timeslot = timeslot;
         this.skillWeight = skillWeight;
+        this.matchDuration = matchDuration;
 
         setMatchIndex(matchDuration);
     }
 
     private void setMatchIndex(int matchDuration) {
 
-        this.matchDuration = matchDuration;
         float matchInterval = matchDuration / 30f;
         this.matchIndex = (float) Math.ceil(matchInterval) / 2;
     }
@@ -64,10 +62,6 @@ public class Match {
 
     public void moveToNextWeek() {
         this.timeslot.addWeek();
-    }
-
-    public int getMatch_id() {
-        return match_id;
     }
 
     public Tuple getPlayers() {
@@ -107,12 +101,12 @@ public class Match {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Match match = (Match) o;
-        return match_id == match.match_id && Objects.equals(players, match.players) && Objects.equals(timeslot, match.timeslot);
+        return Objects.equals(players, match.players) && Objects.equals(timeslot, match.timeslot);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(match_id, players, timeslot);
+        return Objects.hash(players, timeslot);
     }
 
     @Override

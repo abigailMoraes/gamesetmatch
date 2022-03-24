@@ -3,7 +3,7 @@ package com.zoomers.GameSetMatch.scheduling_test.unit.GraphTest;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -19,7 +19,7 @@ public class GraphTests {
 
     private final MockTournament tournament1 = new MockTournament(
             0,
-            TournamentType.SINGLE_KNOCKOUT,
+            TournamentFormat.SINGLE_KNOCKOUT,
             TournamentSeries.BEST_OF_1,
             false,
             30,
@@ -28,7 +28,7 @@ public class GraphTests {
 
     private final MockTournament weightedTournament1 = new MockTournament(
             0,
-            TournamentType.SINGLE_KNOCKOUT,
+            TournamentFormat.SINGLE_KNOCKOUT,
             TournamentSeries.BEST_OF_1,
             true,
             30,
@@ -37,7 +37,7 @@ public class GraphTests {
 
     private final MockTournament StressTournament = new MockTournament(
             0,
-            TournamentType.SINGLE_KNOCKOUT,
+            TournamentFormat.SINGLE_KNOCKOUT,
             TournamentSeries.BEST_OF_7,
             false,
             180,

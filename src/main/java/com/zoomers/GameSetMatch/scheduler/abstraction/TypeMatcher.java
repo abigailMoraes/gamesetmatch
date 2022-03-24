@@ -74,6 +74,10 @@ public abstract class TypeMatcher {
 
         for (Timeslot t : availableTimeslots) {
 
+            if (invalidTimeslot(t, matchDuration)) {
+                continue;
+            }
+
             for (int i = 0; i < registrantsToBeMatched.size(); i++) {
 
                 Registrant r1 = registrantsToBeMatched.get(i);
@@ -133,6 +137,10 @@ public abstract class TypeMatcher {
                     continue;
                 }
 
+                if (invalidTimeslot(t, matchDuration)) {
+                    continue;
+                }
+
                 Registrant r1 = registrantsList.stream().filter(r -> r.getID() == m.getPlayers().getFirst()).findFirst().get();
                 Registrant r2 = registrantsList.stream().filter(r -> r.getID() == m.getPlayers().getSecond()).findFirst().get();
 
@@ -180,6 +188,11 @@ public abstract class TypeMatcher {
         matchScore -= Math.abs(r1.getSkill() - r2.getSkill());
 
         return matchScore;
+    }
+
+    private boolean invalidTimeslot(Timeslot t, int matchDuration) {
+
+        return t.getTime() + matchDuration / 30.0 > 21.0;
     }
 
     private boolean alreadyHasMatchInDifferentTournament(int id, Timeslot t) {

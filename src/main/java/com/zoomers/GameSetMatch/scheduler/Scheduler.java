@@ -1,5 +1,5 @@
 /**
- * Controller for the Scheduling Algorithm; given a Tournament ID,
+ * Service for the Scheduling Algorithm; given a Tournament ID,
  * the algorithm will produce a schedule for all players registered
  * in the tournament.
  *
@@ -8,7 +8,6 @@
 
 package com.zoomers.GameSetMatch.scheduler;
 
-import com.zoomers.GameSetMatch.entity.SchedulerTournament;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
@@ -34,7 +33,6 @@ public class Scheduler {
     private UserRegistersTournamentRepository userRegistersTournamentRepository;
     @Autowired
     private MatchRepository matchRepository;
-    private SchedulerTournament tournament;
     private List<UserRegistersTournamentRepository.IRegistrant> TOURNAMENT_REGISTRANTS;
 
     private final List<Registrant> REGISTRANTS = new ArrayList<>();
@@ -50,7 +48,7 @@ public class Scheduler {
         this.playerFileName = filename;
         this.CALENDAR.setTime(this.mockTournament.getStartDate());
 
-        setTypeMatcher(tournament.getTournamentType());
+        setTypeMatcher(tournament.getTournamentFormat());
         initPlayers();
 
         try {
@@ -63,7 +61,6 @@ public class Scheduler {
 
     public Scheduler(int tournamentID) {
 
-        tournament = tournamentRepository.getSchedulerTournamentByID(tournamentID);
         TOURNAMENT_REGISTRANTS = userRegistersTournamentRepository.findRegistrantsByTournamentID(tournamentID);
 
         try {
@@ -74,7 +71,7 @@ public class Scheduler {
         }
     }
 
-    private void setTypeMatcher(TournamentType type) {
+    private void setTypeMatcher(TournamentFormat type) {
 
         switch (type) {
             case SINGLE_KNOCKOUT:
@@ -115,11 +112,11 @@ public class Scheduler {
 
         for (Match m : returnedMatches) {
 
-            matchRepository.addMatch(
+            /*matchRepository.addMatch(
                 m.getTimeslot().toString(),
                 m.getTimeslot().getEndTime(tournament.getMatchDuration()),
                 tournament.getMatchDuration()
-            );
+            );*/
         }
 
         return returnedMatches;
@@ -142,7 +139,7 @@ public class Scheduler {
             }
 
             matchGraph.setMatchDegrees();
-            MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(mockTournament.isMatchBySkill(), matchGraph);
+            MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(mockTournament.getMatchBy(), matchGraph);
 
             matches.addAll(greedyMaximumIndependentSet.findMatches());
 
@@ -159,15 +156,13 @@ public class Scheduler {
         return matches;
     }
 
-    private MatchingAlgorithm getMatchingAlgorithm(boolean isMatchBySkill, PrimaryMatchGraph matchGraph) {
+    private MatchingAlgorithm getMatchingAlgorithm(int matchBy, PrimaryMatchGraph matchGraph) {
 
-        if (isMatchBySkill)
-        {
-            return new GreedyMinimumWeightIndependentSet(matchGraph);
-        }
-        else
-        {
-            return new GreedyMaximumIndependentSet(matchGraph);
+        switch (matchBy) {
+            case 1:
+                return new GreedyMinimumWeightIndependentSet(matchGraph);
+            default:
+                return new GreedyMaximumIndependentSet(matchGraph);
         }
     }
 
@@ -312,7 +307,7 @@ public class Scheduler {
 
                 Skill skill;
 
-                if (mockTournament.isMatchBySkill()) {
+                if (mockTournament.getMatchBy() == 1) {
                     skill = Skill.values()[Integer.parseInt((String)registrant.get("skill")) - 1];
                 }
                 else {
