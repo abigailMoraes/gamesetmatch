@@ -21,12 +21,16 @@ public class TournamentService {
         tournament.save(tour);
     }
 
-    public Optional<Tournament> findTournamentByID(Long id) {
+    public Optional<Tournament> findTournamentByID(Integer id) {
         return tournament.findById(Math.toIntExact(id));
     }
 
     public List<Tournament> getTournaments(int status, int id) {
         return tournament.findTournaments(status, id);
+    }
+
+    public void deleteTournamentByID(Integer id) {
+        tournament.deleteTournamentByTournamentID(id);
     }
 }
 

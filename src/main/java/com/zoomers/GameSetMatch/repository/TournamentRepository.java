@@ -43,4 +43,6 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
                     )
             }
     )*/
+
+    void deleteTournamentByTournamentID(Integer id);
 }
