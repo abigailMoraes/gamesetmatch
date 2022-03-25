@@ -87,25 +87,12 @@ public class Timeslot {
 
     public LocalDateTime getLocalEndDateTime(int matchDuration) {
 
-        LocalDate localDate =  this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDateTime startTime = this.getLocalStartDateTime();
 
-        // timeToAdd should be the number of hours to add.
-        float timeToAdd = (float) (Math.round(45/60.0 * 2) / 2.0);
+        long timeToAdd = Math.round(Math.ceil(matchDuration/30.0)) * 30;
 
-        float endTime = this.time + timeToAdd;
+        LocalDateTime localDateTime = startTime.plusMinutes(timeToAdd);
 
-        int minutes = 0;
-        if (endTime % 0.5 == 0) {
-            minutes = 30;
-        }
-
-        LocalTime localTime = LocalTime.of(
-                (int)Math.floor(endTime),
-                minutes,
-                0,
-                0
-        );
-        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
         return localDateTime;
     }
 
