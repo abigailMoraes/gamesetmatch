@@ -31,8 +31,13 @@ INSERT INTO User(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu
 CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), format int, series int, match_by int, match_duration int, admin_hosts_tournament int, status int, current_round int, PRIMARY KEY(tournamentID),
                        FOREIGN KEY (admin_hosts_tournament) REFERENCES User(userID));
 
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1 );
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1, 0 );
 INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1, 0 );
+
+ALTER TABLE Tournament ADD match_by int;
+ALTER TABLE Tournament ADD series int;
+ALTER TABLE Tournament ADD current_round int;
+ALTER TABLE Round_Has ADD roundNumber int;
 
 /*Create table statement for Availability*/
 CREATE TABLE Availability(userID int, tournamentID int, day_of_week int, availability_string varchar(24), PRIMARY KEY(userID, tournamentID, day_of_week), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
@@ -106,10 +111,10 @@ DELIMITER $$
 
 CREATE TRIGGER update_user_involves_match
 	AFTER INSERT
-    ON match_has FOR EACH ROW
+    ON Match_Has FOR EACH ROW
 BEGIN
-    INSERT INTO user_involves_match VALUES(NEW.userID_1, NEW.matchID, 'Pending', 'TBD');
-    INSERT INTO user_involves_match VALUES(NEW.userID_2, NEW.matchID, 'Pending', 'TBD');
+    INSERT INTO User_involves_match VALUES(NEW.userID_1, NEW.matchID, 'Pending', 'TBD');
+    INSERT INTO User_involves_match VALUES(NEW.userID_2, NEW.matchID, 'Pending', 'TBD');
 END$$
 
 DELIMITER ;
@@ -118,31 +123,31 @@ DELIMITER $$
 
 CREATE TRIGGER delete_user_involves_match_entries
     BEFORE DELETE
-    ON match_has FOR EACH ROW
+    ON Match_Has FOR EACH ROW
 BEGIN
-    DELETE FROM user_involves_match WHERE user_involves_match.userID = OLD.userID_1;
-    DELETE FROM user_involves_match WHERE user_involves_match.userID = OLD.userID_2;
+    DELETE FROM User_involves_match WHERE User_involves_match.userID = OLD.userID_1;
+    DELETE FROM User_involves_match WHERE User_involves_match.userID = OLD.userID_2;
 END$$    
 
 DELIMITER ;
 
 
 /*sample data for Match_Has, Note: duration is in minutes */
- INSERT INTO Match_Has(start_time,end_time,duration,roundID, is_conflict, userID_1, userID_2) values ('2022/02/20 11:00:00','2022/02/20 11:30:00',30,1,0,1,2);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID, is_conflict, userID_1, userID_2) values ('2022/02/20 12:00:00','2022/02/20 12:30:00',30,1,0,3,4);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/02/22 12:00:00','2022/02/20 12:30:00',30,1,0,5,6);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/02/25 11:00:00','2022/02/25 11:30:00',30,1,0,1,2);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/05 12:00:00','2022/03/05 12:30:00',30,2,0,3,6);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/05 12:30:00','2022/03/05 13:00:00',30,2,0,1,2);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/14 14:30:00','2022/03/14 15:00:00',30,2,0,1,3);
- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/21 15:30:00','2022/03/21 16:00:00',30,2,0,2,4);
+-- INSERT INTO Match_Has(start_time,end_time,duration,roundID, is_conflict, userID_1, userID_2) values ('2022/02/20 11:00:00','2022/02/20 11:30:00',30,1,0,1,2);
+-- INSERT INTO Match_Has(start_time,end_time,duration,roundID, is_conflict, userID_1, userID_2) values ('2022/02/20 12:00:00','2022/02/20 12:30:00',30,1,0,3,4);
+-- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/02/22 12:00:00','2022/02/20 12:30:00',30,1,0,5,6);
+-- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/02/25 11:00:00','2022/02/25 11:30:00',30,1,0,1,2);
+-- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/05 12:00:00','2022/03/05 12:30:00',30,2,0,3,6);
+-- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/05 12:30:00','2022/03/05 13:00:00',30,2,0,1,2);
+-- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/14 14:30:00','2022/03/14 15:00:00',30,2,0,1,3);
+-- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/21 15:30:00','2022/03/21 16:00:00',30,2,0,2,4);
 
 /*Create table statement for Admin_hosts_tournament*/
 CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
 
 
 /*Create table User_registers_tournament*/
-CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES tournament(tournamentID));
+CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,1,3);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,1,3);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,1,2);

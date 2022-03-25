@@ -2,32 +2,29 @@ package com.zoomers.GameSetMatch.repository;
 
 import com.zoomers.GameSetMatch.entity.Match;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 public interface MatchRepository extends JpaRepository<Match,Integer> {
 
-    @Query(value="UPDATE match_has SET match_has.start_time = :startTime, match_has.end_time = :endTime,\n" +
-            "match_has.duration = :duration, match_has.roundID = :roundID WHERE match_has.matchID = :matchID",
+    @Query(value="UPDATE Match_Has SET Match_Has.start_time = :startTime, Match_Has.end_time = :endTime,\n" +
+            "Match_Has.duration = :duration, Match_Has.roundID = :roundID WHERE Match_Has.matchID = :matchID",
          nativeQuery = true)
     void updateMatchInfo( int matchID, String startTime, String endTime, long duration, int roundID);
 
-    @Query(value = "SELECT * FROM match_has WHERE roundID = :roundID", nativeQuery = true)
+    @Query(value = "SELECT * FROM Match_Has WHERE roundID = :roundID", nativeQuery = true)
     List<Match> getMatchesByRound(int roundID);
 
-    @Query(value = "SELECT * FROM match_has WHERE matchID = :matchID", nativeQuery = true)
+    @Query(value = "SELECT * FROM Match_Has WHERE matchID = :matchID", nativeQuery = true)
     List<Match> getMatchesByID(int matchID);
 
-    @Query(value = "SELECT * FROM match_has " +
+    @Query(value = "SELECT * FROM Match_Has " +
             "WHERE (userID_1 = :userID OR userID_2 = :userID) AND start_time >= NOW()",
             nativeQuery = true)
     List<Match> getUpcomingMatchesByUserID(int userID);
 
-    @Query(nativeQuery = true, value = "INSERT INTO match_has VALUES :startTime, :endTime, :roundID, :isConflict, :userOneID, :userTwoID")
+    @Query(nativeQuery = true, value = "INSERT INTO Match_Has VALUES :startTime, :endTime, :roundID, :isConflict, :userOneID, :userTwoID")
     void addMatch(LocalDateTime startTime, LocalDateTime endTime, int roundID, int isConflict, int userOneID, int userTwoID);
 }

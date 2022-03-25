@@ -8,27 +8,39 @@
 
 package com.zoomers.GameSetMatch.scheduler;
 
+import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.abstraction.TypeMatcher;
-import com.zoomers.GameSetMatch.scheduler.domain.*;
-import com.zoomers.GameSetMatch.scheduler.enumerations.*;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.*;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BestOfMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BipartiteGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.SecondaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.domain.Match;
+import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
+import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
+import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.*;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.*;
-import org.json.simple.*;
+import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.DoubleKnockoutMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.RoundRobinMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.SingleKnockoutMatcher;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
-import java.time.LocalDateTime;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
 
 @Service
 public class Scheduler {
@@ -54,10 +66,10 @@ public class Scheduler {
         this.TIMESLOTS = new ArrayList<>();
         this.CALENDAR = Calendar.getInstance();
 
-        List<MockTournament> tournamentList = tournamentRepository.getMockTournamentByID(tournamentID);
-        assert(tournamentList.size() == 1);
+        this.MOCK_TOURNAMENT = tournamentRepository.getMockTournamentByID(tournamentID);
+        assert(this.MOCK_TOURNAMENT != null);
 
-        this.MOCK_TOURNAMENT = tournamentList.get(0);
+//        this.MOCK_TOURNAMENT = tournamentList.get(0);
 
         initTypeMatcher(this.MOCK_TOURNAMENT.getTournamentFormat());
         initTournamentPlayers(tournamentID);
@@ -97,6 +109,7 @@ public class Scheduler {
      *
      * @return set of scheduled matches
      */
+    @Transactional
     private Set<Match> schedule() {
 
         Set<Match> returnedMatches = new LinkedHashSet<>();
@@ -112,26 +125,28 @@ public class Scheduler {
         Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
         MOCK_TOURNAMENT.setRoundEndDate(roundEndDate);
 
-        roundRepository.createRound(
-                this.MOCK_TOURNAMENT.getTournamentID(),
-                this.MOCK_TOURNAMENT.getRoundEndDate(),
-                this.MOCK_TOURNAMENT.getCurrentRound(),
-                this.MOCK_TOURNAMENT.getStartDate()
-        );
+        Round newRound = new Round();
 
-        int roundID = roundRepository.getLastTournamentRound(this.MOCK_TOURNAMENT.getTournamentID());
+        newRound.setTournamentID(this.MOCK_TOURNAMENT.getTournamentID());
+        newRound.setRoundNumber(this.MOCK_TOURNAMENT.getCurrentRound());
+        newRound.setEndDate(this.MOCK_TOURNAMENT.getRoundEndDate());
+        newRound.setStartDate( this.MOCK_TOURNAMENT.getStartDate());
 
+        Round persistedRound = roundRepository.save(newRound);
+
+        List<com.zoomers.GameSetMatch.entity.Match> matchEntities = new ArrayList<>();
         for (Match m : returnedMatches) {
-
-            /*System.out.println(m);
-            matchRepository.addMatch(
-                m.getTimeslot().getLocalStartDateTime(),
-                    m.getTimeslot().getLocalEndDateTime(this.MOCK_TOURNAMENT.getMatchDuration()),
-
-            );*/
+            com.zoomers.GameSetMatch.entity.Match matchEntity = new com.zoomers.GameSetMatch.entity.Match();
+            matchEntity.setStartTime(m.getTimeslot().getLocalStartDateTime());
+            matchEntity.setEndTime(m.getTimeslot().getLocalEndDateTime(this.MOCK_TOURNAMENT.getMatchDuration()));
+            matchEntity.setIsConflict(m.getMatchStatus().ordinal());
+            matchEntity.setRoundID(persistedRound.getRoundID());
+            matchEntity.setUserID_1(m.getPlayers().getFirst());
+            matchEntity.setUserID_2(m.getPlayers().getSecond());
+            matchEntities.add(matchEntity);
         }
 
-
+        matchRepository.saveAll(matchEntities);
         return returnedMatches;
     }
 

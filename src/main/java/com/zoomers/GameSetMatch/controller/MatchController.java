@@ -5,18 +5,16 @@ import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
 import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.Round;
-import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
-import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,15 +23,14 @@ import java.util.Optional;
 @CrossOrigin(origins = "*", maxAge = 3700)
 @RequestMapping("/api")
 public class MatchController {
-    private final UserMatchTournamentRepository userMatchTournamentRepository;
-    private final MatchRepository matchRepository;
-    private final RoundRepository roundRepository;
+    @Autowired
+    UserMatchTournamentRepository userMatchTournamentRepository;
 
-    public MatchController(UserMatchTournamentRepository userMatchTournamentRepository, MatchRepository matchRepository, RoundRepository roundRepository, TournamentRepository tournamentRepository) {
-        this.userMatchTournamentRepository = userMatchTournamentRepository;
-        this.matchRepository = matchRepository;
-        this.roundRepository = roundRepository;
-    }
+    @Autowired
+    MatchRepository matchRepository;
+
+    @Autowired
+    RoundRepository roundRepository;
 
 
     @GetMapping("/match/involves/user/{id}")
