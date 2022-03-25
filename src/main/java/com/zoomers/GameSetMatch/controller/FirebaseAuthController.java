@@ -29,6 +29,7 @@ public class FirebaseAuthController {
             String uid = decodedToken.getUid();
             String name = decodedToken.getName();
             String email = decodedToken.getEmail();
+            String picture = decodedToken.getPicture();
 
             // check DB if user exist
             User database_user = repository.findByFirebaseId(uid);
@@ -42,6 +43,9 @@ public class FirebaseAuthController {
             } else {
                 user = database_user;
             }
+
+            user.setPicture(picture);
+
 
         } catch (FirebaseAuthException ex) {
             ex.printStackTrace();
