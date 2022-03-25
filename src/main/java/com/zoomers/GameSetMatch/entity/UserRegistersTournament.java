@@ -20,9 +20,9 @@ import java.util.Date;
         )
 )
 @NamedNativeQuery(
-        name="UserRegistersTournament.getRegistrantsByID",
+        name="UserRegistersTournament.getSchedulerRegistrantsByTournamentID",
         query="SELECT userID, skill_level " +
-                "FROM UserRegistersTournament WHERE tournamentID = :id",
+                "FROM User_registers_tournament WHERE tournamentID = :tournamentID",
         resultSetMapping = "RegistrantMapping"
 )
 public class UserRegistersTournament {

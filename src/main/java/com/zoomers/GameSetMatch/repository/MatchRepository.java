@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public interface MatchRepository extends JpaRepository<Match,Integer> {
@@ -25,4 +27,7 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
             "WHERE (userID_1 = :userID OR userID_2 = :userID) AND start_time >= NOW()",
             nativeQuery = true)
     List<Match> getUpcomingMatchesByUserID(int userID);
+
+    @Query(nativeQuery = true, value = "INSERT INTO match_has VALUES :startTime, :endTime, :roundID, :isConflict, :userOneID, :userTwoID")
+    void addMatch(LocalDateTime startTime, LocalDateTime endTime, int roundID, int isConflict, int userOneID, int userTwoID);
 }

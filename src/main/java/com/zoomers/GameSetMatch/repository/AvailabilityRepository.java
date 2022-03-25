@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface AvailabilityRepository extends JpaRepository<Availability, AvailabilityID> {
 
-    @Query(value = "SELECT availability_binary FROM Availability WHERE userID = :id", nativeQuery = true)
-    List<Availability> findRegistrantAvailability(int id);
+    @Query(value = "SELECT availability_string FROM Availability WHERE userID = :id ORDER BY day_of_week", nativeQuery = true)
+    List<String> findRegistrantAvailability(int id);
 }

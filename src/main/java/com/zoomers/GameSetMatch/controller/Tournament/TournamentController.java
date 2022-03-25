@@ -5,6 +5,7 @@ import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTourn
 import com.zoomers.GameSetMatch.entity.Tournament;
 
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
@@ -179,5 +180,12 @@ public class TournamentController {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
         }
         return ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament is deleted.");
+    }
+
+    @PostMapping(value = "/{tournamentID}/schedule")
+    public void createSchedule(@PathVariable(name = "tournamentID") int tournamentID) {
+
+        Scheduler scheduler = new Scheduler();
+        scheduler.createSchedule(tournamentID);
     }
 }

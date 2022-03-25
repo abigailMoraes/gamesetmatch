@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,13 +23,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
 
 @RunWith( SpringRunner.class )
-@Import({TournamentRepository.class})
+// @Import({TournamentRepository.class})
 @SpringBootTest
-@EnableAutoConfiguration
+// @EnableAutoConfiguration
 // @DataJpaTest
 public class GraphTests {
+
+    @Autowired
+    private TournamentRepository tournamentRepository;
+
+    @Autowired
+    private Scheduler scheduler;
 
     private final MockTournament tournament1 = new MockTournament(
             0,
@@ -62,7 +70,7 @@ public class GraphTests {
 
     @Rule
     public Timeout globalTime = Timeout.seconds(300);
-
+/*
     @Test
     public void BaseMatchingTest() {
         Scheduler s = new Scheduler(tournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
@@ -255,9 +263,10 @@ public class GraphTests {
         Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
     }
-
+*/
     @Test
     public void BasicDBIntegration() {
-        Scheduler s = new Scheduler(1);
+
+        scheduler.createSchedule(1);
     }
 }

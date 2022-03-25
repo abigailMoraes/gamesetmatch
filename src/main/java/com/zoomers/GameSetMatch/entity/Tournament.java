@@ -25,8 +25,8 @@ import java.util.Date;
 )
 @NamedNativeQuery(
         name="Tournament.getMockTournamentByID",
-        query="SELECT tournamentID, type, format, match_by_skill, match_duration, start_date, current_round " +
-                "FROM Tournament WHERE tournamentID = :id",
+        query="SELECT tournamentID, format, series, match_by, match_duration, start_date, current_round " +
+                "FROM Tournament WHERE tournamentID = :tournamentID",
         resultSetMapping = "MockTournamentMapping"
 )
 public class Tournament {

@@ -28,17 +28,65 @@ INSERT INTO User(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu
 /*status = integer referring to the status of the tournament 0-OpenForRegistration, 1-ClosedRegistration, 2-ScheduleReadyForReview, 3-Ongoing, 4-FinalRound, 5-TournamentOver */
 
 
-CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), format int, series int, match_by int, match_duration int, admin_hosts_tournament int, status int, PRIMARY KEY(tournamentID),
+CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), format int, series int, match_by int, match_duration int, admin_hosts_tournament int, status int, current_round int, PRIMARY KEY(tournamentID),
                        FOREIGN KEY (admin_hosts_tournament) REFERENCES User(userID));
 
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, msg_radmin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1 );
 INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1 );
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1, 0 );
 
 /*Create table statement for Availability*/
-CREATE TABLE Availability(userID int, tournamentID int, date DATE, availability_binary int, PRIMARY KEY(userID, tournamentID, date), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
+CREATE TABLE Availability(userID int, tournamentID int, day_of_week int, availability_string varchar(24), PRIMARY KEY(userID, tournamentID, day_of_week), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
+
+INSERT INTO Availability values (1, 1, 1, "000000001110000000000000");
+INSERT INTO Availability values (1, 1, 2, "000000000000000000000000");
+INSERT INTO Availability values (1, 1, 3, "000000000000000000000000");
+INSERT INTO Availability values (1, 1, 4, "000000000000000000000000");
+INSERT INTO Availability values (1, 1, 5, "000000000000000000000000");
+INSERT INTO Availability values (1, 1, 6, "000000000000000000000000");
+INSERT INTO Availability values (1, 1, 7, "000000000000000000000000");
+
+INSERT INTO Availability values (2, 1, 1, "001000001110000100000000");
+INSERT INTO Availability values (2, 1, 2, "000000000000000000000000");
+INSERT INTO Availability values (2, 1, 3, "000000000000000000000000");
+INSERT INTO Availability values (2, 1, 4, "000000000000000000000000");
+INSERT INTO Availability values (2, 1, 5, "000000000000000000000000");
+INSERT INTO Availability values (2, 1, 6, "000000000000000000000000");
+INSERT INTO Availability values (2, 1, 7, "000000000000000000000000");
+
+INSERT INTO Availability values (3, 1, 1, "000000001000001110000000");
+INSERT INTO Availability values (3, 1, 2, "000000000000000000000000");
+INSERT INTO Availability values (3, 1, 3, "000000000000000000000000");
+INSERT INTO Availability values (3, 1, 4, "000000000000000000000000");
+INSERT INTO Availability values (3, 1, 5, "000000000000000000000000");
+INSERT INTO Availability values (3, 1, 6, "000000000000000000000000");
+INSERT INTO Availability values (3, 1, 7, "000000000000000000000000");
+
+INSERT INTO Availability values (4, 1, 1, "000010000000001110000000");
+INSERT INTO Availability values (4, 1, 2, "000000000000000000000000");
+INSERT INTO Availability values (4, 1, 3, "000000000000000000000000");
+INSERT INTO Availability values (4, 1, 4, "000000000000000000000000");
+INSERT INTO Availability values (4, 1, 5, "000000000000000000000000");
+INSERT INTO Availability values (4, 1, 6, "000000000000000000000000");
+INSERT INTO Availability values (4, 1, 7, "000000000000000000000000");
+
+INSERT INTO Availability values (5, 1, 1, "000000001000001110000000");
+INSERT INTO Availability values (5, 1, 2, "000000000000000000000000");
+INSERT INTO Availability values (5, 1, 3, "000000000000000000000000");
+INSERT INTO Availability values (5, 1, 4, "000000000000000000000000");
+INSERT INTO Availability values (5, 1, 5, "000000000000000000000000");
+INSERT INTO Availability values (5, 1, 6, "000000000000000000000000");
+INSERT INTO Availability values (5, 1, 7, "000000000000000000000000");
+
+INSERT INTO Availability values (6, 1, 1, "001000000000000000000000");
+INSERT INTO Availability values (6, 1, 2, "000000000000000000000000");
+INSERT INTO Availability values (6, 1, 3, "000000000000000000000000");
+INSERT INTO Availability values (6, 1, 4, "000000000000000000000000");
+INSERT INTO Availability values (6, 1, 5, "000000000000000000000000");
+INSERT INTO Availability values (6, 1, 6, "000000000000000000000000");
+INSERT INTO Availability values (6, 1, 7, "000000000000000000000000");
 
 /*Create table statement for Round*/
-CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, start_date DATE, end_date DATE, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
+CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, start_date DATETIME, end_date DATETIME, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1,'2022/03/05','2022/03/21');
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
@@ -46,7 +94,7 @@ INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2
 
 /*is_conflict* is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot)
 /*Create table statement for Match_Has*/
-CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, is_conflict int, userID_1, userID_2, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES(User(userID)), FOREIGN KEY(userID_2) REFERENCES(User(userID)));
+CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, roundID int, is_conflict int, userID_1 int, userID_2 int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES User(userID), FOREIGN KEY(userID_2) REFERENCES User(userID));
 /*Create table statement for user_involves_match*/
 CREATE TABLE User_involves_match(userID int, matchID int, results varchar(40), attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
 /*No sample data needed for User_involves_match since it will autopopulate after the trigger below is created*/

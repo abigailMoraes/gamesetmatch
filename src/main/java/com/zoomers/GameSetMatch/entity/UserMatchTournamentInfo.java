@@ -29,7 +29,6 @@ public class UserMatchTournamentInfo {
     @Column(name="end_time")
     private String endTime;
     private int duration;
-    private String type;
     private String name;
     private String location;
     private String description;

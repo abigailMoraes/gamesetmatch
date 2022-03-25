@@ -1,7 +1,7 @@
 package com.zoomers.GameSetMatch.scheduler.abstraction;
 
-import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
+import com.zoomers.GameSetMatch.scheduler.SpringConfig;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
@@ -9,15 +9,10 @@ import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BestOfMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BipartiteGraph;
 import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
 import com.zoomers.GameSetMatch.scheduler.abstraction.graph.SecondaryMatchGraph;
-import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
 public abstract class TypeMatcher {
-
-    @Autowired
-    private MatchRepository matchRepository;
 
     public PrimaryMatchGraph createPossiblePrimaryMatches(BipartiteGraph bipartiteGraph) {
 
@@ -198,6 +193,7 @@ public abstract class TypeMatcher {
 
     private boolean alreadyHasMatchInDifferentTournament(int id, Timeslot t) {
 
+        MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
         List<com.zoomers.GameSetMatch.entity.Match> playerMatches = matchRepository.getUpcomingMatchesByUserID(id);
 
         if (playerMatches.size() == 0) { return false; }

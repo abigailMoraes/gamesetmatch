@@ -20,7 +20,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
     List<UserMatchTournamentInfo> findMatchesByUserID(int id);
 
     @Query(  value ="SELECT u.results, u.attendance, m.matchID, m.start_time, m.end_time,\n" +
-            "m.duration, round_has.type, tournament.name, tournament.location, tournament.description \n" +
+            "m.duration, tournament.name, tournament.location, tournament.description \n" +
             "FROM (SELECT * FROM user_involves_match WHERE userID = :id) u \n" +
             "JOIN (SELECT * FROM match_has WHERE end_time <= NOW()) m ON m.matchID = u.matchID LEFT JOIN \n" +
             " round_has ON m.roundID = round_has.roundID LEFT JOIN tournament \n" +

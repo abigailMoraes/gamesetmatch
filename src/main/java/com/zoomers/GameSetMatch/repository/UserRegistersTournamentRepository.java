@@ -23,7 +23,7 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
     List<IRegistrant> findRegistrantsByTournamentID(Integer tournamentID);
 
     @Query(nativeQuery = true)
-    List<Registrant> getRegistrantsByID(@Param("tournamentID") Integer tournamentID);
+    List<Registrant> getSchedulerRegistrantsByTournamentID(@Param("tournamentID") Integer tournamentID);
 
     //TODO: add skill level table that maps value to meaning e.g. skill 1 = beginner, 2 = intermediate...
     interface IRegistrant {

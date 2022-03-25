@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
 
@@ -7,6 +8,11 @@ import javax.persistence.ColumnResult;
 import javax.persistence.ConstructorResult;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.SqlResultSetMapping;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 public class MockTournament {
@@ -14,7 +20,7 @@ public class MockTournament {
     private final int tournamentID;
     private final TournamentFormat tournamentFormat;
     private final TournamentSeries tournamentSeries;
-    private final int matchBySkill;
+    private final MatchBy matchBy;
     private final int matchDuration;
     private final Date startDate;
     private Date roundEndDate;
@@ -25,7 +31,7 @@ public class MockTournament {
             int tournamentID,
             int tournamentFormat,
             int tournamentSeries,
-            int matchBySkill,
+            int matchBy,
             int matchDuration,
             Date startDate,
             int currentRound
@@ -33,7 +39,7 @@ public class MockTournament {
         this.tournamentID = tournamentID;
         this.tournamentFormat = TournamentFormat.values()[tournamentFormat - 1];
         this.tournamentSeries = TournamentSeries.values()[tournamentSeries - 1];
-        this.matchBySkill = matchBySkill;
+        this.matchBy = MatchBy.values()[matchBy - 1];
         this.matchDuration = matchDuration;
         this.startDate = startDate;
         this.currentRound = currentRound;
@@ -60,13 +66,17 @@ public class MockTournament {
         return tournamentSeries;
     }
 
-    public int getMatchBy() {
-        return matchBySkill;
+    public MatchBy getMatchBy() {
+        return matchBy;
     }
 
     public Date getStartDate() {
 
-        return startDate;
+        return this.startDate;
+    }
+
+    public Date getRoundEndDate() {
+        return this.roundEndDate;
     }
 
     public int getMatchDuration() {

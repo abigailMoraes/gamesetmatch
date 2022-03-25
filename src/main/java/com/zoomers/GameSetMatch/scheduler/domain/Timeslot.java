@@ -1,7 +1,11 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
+import com.google.api.client.util.DateTime;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
@@ -32,10 +36,10 @@ public class Timeslot {
         String timeFormat = "";
 
         if (timeToConvert < 10) {
-            timeFormat += "0" + Math.floor(this.time);
+            timeFormat += "0" + (int)Math.floor(this.time);
         }
         else {
-            timeFormat += Math.floor(this.time);
+            timeFormat += (int)Math.floor(this.time);
         }
 
         if (timeToConvert % 0.5 == 0) {
@@ -51,10 +55,7 @@ public class Timeslot {
     public void addWeek() {
 
         LocalDate nextWeek = this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().plusWeeks(1);
-
-        System.out.println("    Before: " + this.date);
         this.date = Date.from(nextWeek.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        System.out.println("    After: " + this.date);
     }
 
     public float getTime() {
@@ -64,7 +65,53 @@ public class Timeslot {
     public int getID() { return id; }
 
     public Date getDate() {
-        return date;
+        return this.date;
+    }
+
+    public LocalDateTime getLocalStartDateTime() {
+
+        LocalDate localDate =  this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        int minutes = 0;
+        if (this.time % 0.5 == 0) {
+            minutes = 30;
+        }
+
+        LocalTime localTime = LocalTime.of(
+                (int)Math.floor(this.time),
+                minutes,
+                0,
+                0
+        );
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
+        return localDateTime;
+    }
+
+    public LocalDateTime getLocalEndDateTime(int matchDuration) {
+
+        LocalDate localDate =  this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        // timeToAdd should be the number of hours to add.
+        // If match is 60 minutes --> = 1.0
+        // Match = 90 minutes --> 1.5
+        // Match = 80 mintues --> 1.5 (ceil to highest .5 value)
+        float timeToAdd = (float) Math.ceil(matchDuration / 60.0);
+
+        float endTime = this.time + timeToAdd;
+
+        int minutes = 0;
+        if (this.time % 0.5 == 0) {
+            minutes = 30;
+        }
+
+        LocalTime localTime = LocalTime.of(
+                (int)Math.floor(this.time),
+                minutes,
+                0,
+                0
+        );
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
+        return localDateTime;
     }
 
     public String getEndTime(int matchDuration) {
