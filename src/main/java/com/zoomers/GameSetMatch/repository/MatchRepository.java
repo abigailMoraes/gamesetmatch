@@ -10,13 +10,6 @@ import java.util.List;
 
 public interface MatchRepository extends JpaRepository<Match,Integer> {
 
-    @Transactional
-    @Modifying
-    @Query(value = "INSERT INTO match_has " +
-            "VALUES match_has.start_time = :startTime, match_has.end_time = :endTime, match_has.duration = duration",
-            nativeQuery = true)
-    void addMatch(String startTime, String endTime, int duration);
-
     @Query(value="UPDATE match_has SET match_has.start_time = :startTime, match_has.end_time = :endTime,\n" +
             "match_has.duration = :duration, match_has.roundID = :roundID WHERE match_has.matchID = :matchID",
          nativeQuery = true)
@@ -24,4 +17,12 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
 
     @Query(value = "SELECT * FROM match_has WHERE roundID = :roundID", nativeQuery = true)
     List<Match> getMatchesByRound(int roundID);
+
+    @Query(value = "SELECT * FROM match_has WHERE matchID = :matchID", nativeQuery = true)
+    List<Match> getMatchesByID(int matchID);
+
+    @Query(value = "SELECT * FROM match_has " +
+            "WHERE (userID_1 = :userID OR userID_2 = :userID) AND start_time >= NOW()",
+            nativeQuery = true)
+    List<Match> getUpcomingMatchesByUserID(int userID);
 }

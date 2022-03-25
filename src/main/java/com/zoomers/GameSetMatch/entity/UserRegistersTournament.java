@@ -1,10 +1,30 @@
 package com.zoomers.GameSetMatch.entity;
 
+import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
+import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
+
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @IdClass(UserRegistersTournamentID.class)
 @Table(name = "User_registers_tournament")
+
+@SqlResultSetMapping(name="RegistrantMapping",
+        classes = @ConstructorResult(
+                targetClass = Registrant.class,
+                columns = {
+                        @ColumnResult(name="userID", type=Integer.class),
+                        @ColumnResult(name="skill_level", type=Integer.class)
+                }
+        )
+)
+@NamedNativeQuery(
+        name="UserRegistersTournament.getRegistrantsByID",
+        query="SELECT userID, skill_level " +
+                "FROM UserRegistersTournament WHERE tournamentID = :id",
+        resultSetMapping = "RegistrantMapping"
+)
 public class UserRegistersTournament {
     public UserRegistersTournament(Integer tournamentID, Integer userID) {
         this.tournamentID = tournamentID;

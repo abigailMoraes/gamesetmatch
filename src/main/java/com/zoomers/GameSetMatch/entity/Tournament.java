@@ -9,7 +9,26 @@ import java.util.Date;
 
 @Entity
 @Table(name = "Tournament")
-
+@SqlResultSetMapping(name="MockTournamentMapping",
+        classes = @ConstructorResult(
+                targetClass = MockTournament.class,
+                columns = {
+                        @ColumnResult(name="tournamentID", type=Integer.class),
+                        @ColumnResult(name="format", type=Integer.class),
+                        @ColumnResult(name="series", type=Integer.class),
+                        @ColumnResult(name="match_by", type=Integer.class),
+                        @ColumnResult(name="match_duration", type=Integer.class),
+                        @ColumnResult(name="start_date", type=Date.class),
+                        @ColumnResult(name="current_round", type=Integer.class)
+                }
+        )
+)
+@NamedNativeQuery(
+        name="Tournament.getMockTournamentByID",
+        query="SELECT tournamentID, type, format, match_by_skill, match_duration, start_date, current_round " +
+                "FROM Tournament WHERE tournamentID = :id",
+        resultSetMapping = "MockTournamentMapping"
+)
 public class Tournament {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,16 +62,16 @@ public class Tournament {
     private String prize;
 
     @Column(name = "format")
-    private String format;
+    private Integer format;
 
-    @Column(name = "type")
-    private String type;
+    @Column(name = "series")
+    private Integer series;
 
-    @Column(name = "match_by_skill")
-    private boolean matchBySkill;
+    @Column(name = "match_by")
+    private Integer matchBySkill;
 
     @Column(name = "match_duration")
-    private Long matchDuration;
+    private Integer matchDuration;
 
     @Column(name = "number_of_matches")
     private Integer numberOfMatches;
@@ -158,27 +177,27 @@ public class Tournament {
         this.prize = prize;
     }
 
-    public String getFormat() {
+    public Integer getFormat() {
         return format;
     }
 
-    public void setFormat(String format) {
+    public void setFormat(int format) {
         this.format = format;
     }
 
-    public String getType() {
-        return type;
+    public Integer getSeries() {
+        return series;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setSeries(int series) {
+        this.series = series;
     }
 
-    public Long getMatchDuration() {
+    public Integer getMatchDuration() {
         return matchDuration;
     }
 
-    public void setMatchDuration(Long matchDuration) {
+    public void setMatchDuration(Integer matchDuration) {
         this.matchDuration = matchDuration;
     }
 
@@ -205,5 +224,4 @@ public class Tournament {
     public void setStatus(int status) {this.status = status;}
 
     public int getStatus() {return this.status;}
-
 }

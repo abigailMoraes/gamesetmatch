@@ -1,6 +1,7 @@
 package com.zoomers.GameSetMatch.scheduler.abstraction;
 
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
+import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
@@ -16,7 +17,7 @@ import java.util.*;
 public abstract class TypeMatcher {
 
     @Autowired
-    private UserMatchTournamentRepository userMatchTournamentRepository;
+    private MatchRepository matchRepository;
 
     public PrimaryMatchGraph createPossiblePrimaryMatches(BipartiteGraph bipartiteGraph) {
 
@@ -197,13 +198,12 @@ public abstract class TypeMatcher {
 
     private boolean alreadyHasMatchInDifferentTournament(int id, Timeslot t) {
 
-        List<UserMatchTournamentInfo> playerMatches = userMatchTournamentRepository.findMatchesByUserID(id);
+        List<com.zoomers.GameSetMatch.entity.Match> playerMatches = matchRepository.getUpcomingMatchesByUserID(id);
 
         if (playerMatches.size() == 0) { return false; }
 
-        for (UserMatchTournamentInfo tournamentInfo : playerMatches) {
+        for (com.zoomers.GameSetMatch.entity.Match tournamentInfo : playerMatches) {
 
-            // TODO: MISMATCH BETWEEN ENTITIES, REQUIRES RESOLVING BEFORE TESTING
             if (Objects.equals(tournamentInfo.getStartTime(), t.toString())) {
 
                 return true;

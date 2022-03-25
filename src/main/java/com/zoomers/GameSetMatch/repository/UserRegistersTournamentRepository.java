@@ -2,8 +2,10 @@ package com.zoomers.GameSetMatch.repository;
 
 import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
 import com.zoomers.GameSetMatch.entity.UserRegistersTournamentID;
+import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,6 +21,9 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
             "ORDER BY u.name;",
             nativeQuery = true)
     List<IRegistrant> findRegistrantsByTournamentID(Integer tournamentID);
+
+    @Query(nativeQuery = true)
+    List<Registrant> getRegistrantsByID(@Param("tournamentID") Integer tournamentID);
 
     //TODO: add skill level table that maps value to meaning e.g. skill 1 = beginner, 2 = intermediate...
     interface IRegistrant {

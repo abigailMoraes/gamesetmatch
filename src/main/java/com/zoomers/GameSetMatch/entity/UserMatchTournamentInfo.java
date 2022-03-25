@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 
 public class UserMatchTournamentInfo {
-    private String results;
+    private int results;
     private String attendance;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

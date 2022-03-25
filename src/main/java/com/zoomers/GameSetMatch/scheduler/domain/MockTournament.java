@@ -18,26 +18,34 @@ public class MockTournament {
     private final int matchDuration;
     private final Date startDate;
     private Date roundEndDate;
+    private int currentRound;
+    private boolean isFinalRound;
 
     public MockTournament(
             int tournamentID,
-            TournamentFormat tournamentFormat,
-            TournamentSeries tournamentSeries,
+            int tournamentFormat,
+            int tournamentSeries,
             int matchBySkill,
             int matchDuration,
-            Date startDate
+            Date startDate,
+            int currentRound
     ) {
         this.tournamentID = tournamentID;
-        this.tournamentFormat = tournamentFormat;
-        this.tournamentSeries = tournamentSeries;
+        this.tournamentFormat = TournamentFormat.values()[tournamentFormat - 1];
+        this.tournamentSeries = TournamentSeries.values()[tournamentSeries - 1];
         this.matchBySkill = matchBySkill;
         this.matchDuration = matchDuration;
         this.startDate = startDate;
+        this.currentRound = currentRound;
     }
 
     public void setRoundEndDate(Date date) {
 
         this.roundEndDate = date;
+    }
+
+    public void setFinalRound(boolean isFinalRound) {
+        this.isFinalRound = isFinalRound;
     }
 
     public int getTournamentID() {
@@ -63,5 +71,9 @@ public class MockTournament {
 
     public int getMatchDuration() {
         return matchDuration;
+    }
+
+    public int getCurrentRound() {
+        return currentRound;
     }
 }

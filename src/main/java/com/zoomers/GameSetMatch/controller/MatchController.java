@@ -33,7 +33,6 @@ public class MatchController {
         this.userMatchTournamentRepository = userMatchTournamentRepository;
         this.matchRepository = matchRepository;
         this.roundRepository = roundRepository;
-        this.tournamentRepository = tournamentRepository;
     }
 
 
@@ -49,7 +48,7 @@ public class MatchController {
 
     @GetMapping("/match/{id}/{uid}")
     UserMatchTournamentInfo getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
-        return userMatchTournamentRepository.findMatchInfoByMatchID(id, uid);
+        return userMatchTournamentRepository.findMatchInfoByMatchID(id);
     }
 
 
@@ -92,7 +91,7 @@ public class MatchController {
                    }else {
                        ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
                    }
-               }
+
             }else {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
             }

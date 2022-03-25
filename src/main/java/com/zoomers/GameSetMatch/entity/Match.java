@@ -2,11 +2,14 @@ package com.zoomers.GameSetMatch.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.Date;
+
 @Entity
 @Table(name = "match_has")
 @Getter
@@ -26,5 +29,9 @@ public class Match {
     private int roundID;
     @Column(name="is_conflict")
     private int isConflict;
+    @Column(name="userID_1")
+    private int userID_1;
+    @Column(name="userID_2")
+    private int userID_2;
     /*indicates whether there is a conflict in both player's attendance*/
 }

@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.scheduling_test.unit.GraphTest;
 
+import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
@@ -7,66 +8,81 @@ import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
-import org.junit.jupiter.api.Test;
+// import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
 
+@RunWith( SpringRunner.class )
+@Import({TournamentRepository.class})
+@SpringBootTest
+@EnableAutoConfiguration
+// @DataJpaTest
 public class GraphTests {
 
     private final MockTournament tournament1 = new MockTournament(
             0,
-            TournamentFormat.SINGLE_KNOCKOUT,
-            TournamentSeries.BEST_OF_1,
-            false,
+            1,
+            1,
+            1,
             30,
-            Calendar.getInstance().getTime()
+            Calendar.getInstance().getTime(),
+            0
     );
 
     private final MockTournament weightedTournament1 = new MockTournament(
             0,
-            TournamentFormat.SINGLE_KNOCKOUT,
-            TournamentSeries.BEST_OF_1,
-            true,
+            1,
+            1,
+            1,
             30,
-            Calendar.getInstance().getTime()
+            Calendar.getInstance().getTime(),
+            0
     );
 
     private final MockTournament StressTournament = new MockTournament(
             0,
-            TournamentFormat.SINGLE_KNOCKOUT,
-            TournamentSeries.BEST_OF_7,
-            false,
+            1,
+            4,
+            1,
             180,
-            Calendar.getInstance().getTime()
+            Calendar.getInstance().getTime(),
+            0
     );
 
     @Rule
     public Timeout globalTime = Timeout.seconds(300);
 
     @Test
-    void BaseMatchingTest() {
+    public void BaseMatchingTest() {
         Scheduler s = new Scheduler(tournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
         s.schedule();
     }
 
     @Test
-    void weightedBaseMatchingTest() {
+    public void weightedBaseMatchingTest() {
         Scheduler s = new Scheduler(weightedTournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
         s.schedule();
     }
 
     @Test
-    void SingleMatchingTest() {
+    public void SingleMatchingTest() {
         Scheduler s = new Scheduler(tournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/SingleMatch.json");
         s.schedule();
     }
 
     @Test
-    void BaseSecondaryMatching() {
+    public void BaseSecondaryMatching() {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseSecondaryMatching.json";
 
@@ -75,7 +91,7 @@ public class GraphTests {
     }
 
     @Test
-    void GeneralUpperBoundStressTestFullAvailability() {
+    public void GeneralUpperBoundStressTestFullAvailability() {
         JSONArray array = new JSONArray();
         try {
 
@@ -107,7 +123,7 @@ public class GraphTests {
     }
 
     @Test
-    void GeneralUpperBoundStressTestNoAvailability() {
+    public void GeneralUpperBoundStressTestNoAvailability() {
         JSONArray array = new JSONArray();
         try {
 
@@ -139,7 +155,7 @@ public class GraphTests {
     }
 
     @Test
-    void MultiWeekPrimaryScheduling() {
+    public void MultiWeekPrimaryScheduling() {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/MultiWeekPrimaryScheduling.json";
 
@@ -148,7 +164,7 @@ public class GraphTests {
     }
 
     @Test
-    void GraphFive() {
+    public void GraphFive() {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet4.json";
 
@@ -157,7 +173,7 @@ public class GraphTests {
     }
 
     @Test
-    void GraphSix() {
+    public void GraphSix() {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet5.json";
 
@@ -166,7 +182,7 @@ public class GraphTests {
     }
 
     @Test
-    void BestOfMatching() {
+    public void BestOfMatching() {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BestOfMatching.json";
 
@@ -175,7 +191,7 @@ public class GraphTests {
     }
 
     @Test
-    void StressTestNoAvailability() {
+    public void StressTestNoAvailability() {
         JSONArray array = new JSONArray();
 
         try {
@@ -208,7 +224,7 @@ public class GraphTests {
     }
 
     @Test
-    void StressTestFullAvailability() {
+    public void StressTestFullAvailability() {
         JSONArray array = new JSONArray();
 
         try {
@@ -238,5 +254,10 @@ public class GraphTests {
 
         Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
+    }
+
+    @Test
+    public void BasicDBIntegration() {
+        Scheduler s = new Scheduler(1);
     }
 }
