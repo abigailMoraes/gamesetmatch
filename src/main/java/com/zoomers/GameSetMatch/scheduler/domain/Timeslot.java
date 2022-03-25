@@ -1,7 +1,5 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
-import com.google.api.client.util.DateTime;
-
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -92,20 +90,17 @@ public class Timeslot {
         LocalDate localDate =  this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         // timeToAdd should be the number of hours to add.
-        // If match is 60 minutes --> = 1.0
-        // Match = 90 minutes --> 1.5
-        // Match = 80 mintues --> 1.5 (ceil to highest .5 value)
-        float timeToAdd = (float) Math.ceil(matchDuration / 60.0);
+        float timeToAdd = (float) (Math.round(45/60.0 * 2) / 2.0);
 
         float endTime = this.time + timeToAdd;
 
         int minutes = 0;
-        if (this.time % 0.5 == 0) {
+        if (endTime % 0.5 == 0) {
             minutes = 30;
         }
 
         LocalTime localTime = LocalTime.of(
-                (int)Math.floor(this.time),
+                (int)Math.floor(endTime),
                 minutes,
                 0,
                 0

@@ -3,27 +3,15 @@ package com.zoomers.GameSetMatch.scheduling_test.unit.GraphTest;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
-// import org.junit.jupiter.api.Test;
-import org.junit.Test;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.List;
+// import org.junit.jupiter.api.Test;
 
 @RunWith( SpringRunner.class )
 // @Import({TournamentRepository.class})

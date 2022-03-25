@@ -1,7 +1,7 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
-import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
+import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.entity.Tournament;
 
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
@@ -36,7 +36,10 @@ public class TournamentController {
     UserRegistersTournamentService userRegistersTournament;
 
     @Autowired
-    private TournamentService tournamentService;
+    TournamentService tournamentService;
+
+    @Autowired
+    Scheduler scheduler;
 
     @GetMapping()
     public List<OutgoingTournament> getAllTournaments(@RequestParam int registeredUser) {
@@ -184,8 +187,6 @@ public class TournamentController {
 
     @PostMapping(value = "/{tournamentID}/schedule")
     public void createSchedule(@PathVariable(name = "tournamentID") int tournamentID) {
-
-        Scheduler scheduler = new Scheduler();
         scheduler.createSchedule(tournamentID);
     }
 }
