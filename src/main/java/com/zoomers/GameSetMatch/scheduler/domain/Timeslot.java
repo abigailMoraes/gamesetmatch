@@ -40,11 +40,11 @@ public class Timeslot {
             timeFormat += (int)Math.floor(this.time);
         }
 
-        if (timeToConvert % 0.5 == 0) {
-            timeFormat += ":30";
+        if (timeToConvert % 1 == 0) {
+            timeFormat += ":00";
         }
         else {
-            timeFormat += ":00";
+            timeFormat += ":30";
         }
 
         return timeFormat + ":00";
@@ -68,11 +68,11 @@ public class Timeslot {
 
     public LocalDateTime getLocalStartDateTime() {
 
-        LocalDate localDate =  this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate = this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-        int minutes = 0;
-        if (this.time % 0.5 == 0) {
-            minutes = 30;
+        int minutes = 30;
+        if (this.time % 1 == 0) {
+            minutes = 0;
         }
 
         LocalTime localTime = LocalTime.of(
@@ -81,8 +81,7 @@ public class Timeslot {
                 0,
                 0
         );
-        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
-        return localDateTime;
+        return LocalDateTime.of(localDate, localTime);
     }
 
     public LocalDateTime getLocalEndDateTime(int matchDuration) {

@@ -4,7 +4,9 @@ import com.zoomers.GameSetMatch.repository.AvailabilityRepository;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.SpringConfig;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
 import com.zoomers.GameSetMatch.services.RegistrantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -29,6 +31,7 @@ public class Registrant {
     private Set<Integer> playersToPlay;
     private int losses = 0;
     private int gamesToSchedule;
+    private PlayerStatus status = PlayerStatus.SAFE;
 
     public Registrant(int id, int skillLevel) {
         this.id = id;
@@ -47,10 +50,36 @@ public class Registrant {
         this.availability = registrantService.initAvailability(this.id);
     }
 
-    public void initCurrentStatus() {
+    public void initCurrentStatus(TournamentFormat format) {
 
         this.playersToPlay = registrantService.initPlayersToPlay(this.id, this.playersToPlay);
         this.losses = registrantService.initLosses(this.id);
+
+        switch(format) {
+            case ROUND_ROBIN:
+            {
+                if (this.playersToPlay.size() == 0) {
+                    this.status = PlayerStatus.ELIMINATED;
+                }
+            }
+            break;
+            case SINGLE_KNOCKOUT:
+            {
+                if (this.losses >= 1) {
+                    this.status = PlayerStatus.ELIMINATED;
+                }
+            }
+            break;
+            case DOUBLE_KNOCKOUT:
+            {
+                if (this.losses >= 2) {
+                    this.status = PlayerStatus.ELIMINATED;
+                }
+                else if (this.losses == 1) {
+                    this.status = PlayerStatus.ONE_LOSS;
+                }
+            }
+        }
     }
 
     public void setPlayersToPlay(Set<Integer> playersToPlay) {
@@ -90,6 +119,10 @@ public class Registrant {
 
     public Set<Integer> getPlayersToPlay() {
         return playersToPlay;
+    }
+
+    public PlayerStatus getStatus() {
+        return status;
     }
 
     @Override

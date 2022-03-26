@@ -72,7 +72,7 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
     protected void visitMatches(Match match) {
 
         // System.out.println("  Adding " + match + " with score " + match.getMatchScore());
-
+        // MATCHES ARE BEING DUPLICATED
         this.matchesToSearch.remove(match);
 
         markMatch(match);
@@ -80,6 +80,10 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
         for (Match m2 : this.matchesToSearch) {
+
+            if (m2.getPlayers().getFirst() == 19) {
+                boolean a = (match.shareTimeslot(m2) && match.shareDate(m2));
+            }
 
             if (match.sharePlayers(m2) || (match.shareTimeslot(m2) && match.shareDate(m2))) {
 

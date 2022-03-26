@@ -23,7 +23,14 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
     @Query(value = "SELECT * FROM Match_Has " +
             "WHERE (userID_1 = :userID OR userID_2 = :userID) AND start_time >= NOW()",
             nativeQuery = true)
-    List<Match> getUpcomingMatchesByUserID(int userID);
+    List<Match> getTournamentMatchesByUserID(int userID);
+
+    @Query(value = "SELECT * FROM Match_Has " +
+            "WHERE (userID_1 = :userID OR userID_2 = :userID) AND start_time = :startTime",
+            nativeQuery = true)
+    Match getMatchByUserIDAndTime(int userID, LocalDateTime startTime);
+
+
 
     @Query(nativeQuery = true, value = "INSERT INTO Match_Has VALUES :startTime, :endTime, :roundID, :isConflict, :userOneID, :userTwoID")
     void addMatch(LocalDateTime startTime, LocalDateTime endTime, int roundID, int isConflict, int userOneID, int userTwoID);

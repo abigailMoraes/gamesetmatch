@@ -22,13 +22,11 @@ import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
-import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
+import com.zoomers.GameSetMatch.scheduler.enumerations.*;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.*;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.DoubleKnockoutMatcher;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.RoundRobinMatcher;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.SingleKnockoutMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.DoubleKnockoutMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.RoundRobinMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.SingleKnockoutMatcher;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -73,6 +71,7 @@ public class Scheduler {
 
         initTypeMatcher(this.MOCK_TOURNAMENT.getTournamentFormat());
         initTournamentPlayers(tournamentID);
+        this.CALENDAR.setTime(this.MOCK_TOURNAMENT.getStartDate());
 
         try {
             initTimeslots();
@@ -122,6 +121,7 @@ public class Scheduler {
             int expectedMatches = (this.REGISTRANTS.size() / 2) * MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames();
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
         }
+
         Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
         MOCK_TOURNAMENT.setRoundEndDate(roundEndDate);
 
@@ -144,7 +144,14 @@ public class Scheduler {
             matchEntity.setUserID_1(m.getPlayers().getFirst());
             matchEntity.setUserID_2(m.getPlayers().getSecond());
             matchEntities.add(matchEntity);
+            // System.out.println(m);
         }
+
+        tournamentRepository.updateTournament(
+                this.MOCK_TOURNAMENT.getTournamentID(),
+                this.MOCK_TOURNAMENT.getTournamentStatus().getStatus(),
+                this.MOCK_TOURNAMENT.getCurrentRound()
+            );
 
         matchRepository.saveAll(matchEntities);
         return returnedMatches;
@@ -157,12 +164,13 @@ public class Scheduler {
 
         while (true) {
 
-            System.out.println(CALENDAR.getTime());
+            System.out.println("Primary: " + this.CALENDAR.getTime());
 
             BipartiteGraph bg = new BipartiteGraph(TIMESLOTS, registrantsToMatch, MOCK_TOURNAMENT.getMatchDuration());
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
+
             if (matchGraph.getMatches().size() == 0) {
-                System.out.println("break");
+                decreaseWeek();
                 break;
             }
 
@@ -179,6 +187,11 @@ public class Scheduler {
             }
 
             addWeek();
+        }
+
+        for (Match match : matches) {
+
+            System.out.println("Primary Match: " + match);
         }
 
         return matches;
@@ -200,9 +213,9 @@ public class Scheduler {
         List<Timeslot> availableTimeslots = findAvailableTimeslots(matches);
         Set<Match> newMatches = new LinkedHashSet<>();
 
-        while (registrantsToMatch.size() != 0) {
+        while (registrantsToMatch.size() > 1) {
 
-            System.out.println(registrantsToMatch);
+            System.out.println("Secondary: " + this.CALENDAR.getTime());
 
             SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
                     registrantsToMatch,
@@ -225,6 +238,13 @@ public class Scheduler {
             availableTimeslots = TIMESLOTS;
         }
 
+        decreaseWeek();
+
+        for (Match match : newMatches) {
+
+            System.out.println("Secondary Match: " + match);
+        }
+
         return newMatches;
     }
 
@@ -237,6 +257,8 @@ public class Scheduler {
         Set<Match> matchesToSchedule = new LinkedHashSet<>(matches);
 
         while (matches.size() < expectedMatches) {
+
+            System.out.println("Best-Of: " + this.CALENDAR.getTime());
 
             BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
                     new LinkedHashSet<>(REGISTRANTS),
@@ -265,6 +287,11 @@ public class Scheduler {
             matches.addAll(bestOfMatches);
         }
 
+        for (Match match : matches) {
+
+            System.out.println("Best-Of Match: " + match);
+        }
+
         return matches;
     }
 
@@ -276,6 +303,18 @@ public class Scheduler {
     private void addWeek() {
 
         CALENDAR.add(Calendar.WEEK_OF_YEAR, 1);
+
+        try {
+            initTimeslots();
+        }
+        catch (IOException e) {
+            System.out.println("IOError: " + e.getMessage());
+        }
+    }
+
+    private void decreaseWeek() {
+
+        CALENDAR.add(Calendar.WEEK_OF_YEAR, -1);
 
         try {
             initTimeslots();
@@ -362,10 +401,12 @@ public class Scheduler {
         for (Registrant r : REGISTRANTS) {
 
             r.setGamesToSchedule(this.MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames());
-            r.setPlayersToPlay(registrantIDs);
+            r.setPlayersToPlay(new LinkedHashSet<>(registrantIDs));
             r.initAvailability();
-            r.initCurrentStatus();
+            r.initCurrentStatus(this.MOCK_TOURNAMENT.getTournamentFormat());
         }
+
+        REGISTRANTS.removeIf(registrant -> registrant.getStatus() == PlayerStatus.ELIMINATED);
     }
 
     private void initTimeslots() throws IOException {
@@ -395,18 +436,23 @@ public class Scheduler {
         if (this.MOCK_TOURNAMENT.getTournamentFormat() == TournamentFormat.ROUND_ROBIN) {
             checkIfAllPlayersHavePlayed();
         } else {
-            this.MOCK_TOURNAMENT.setFinalRound(this.REGISTRANTS.size() == 2);
+            if (this.REGISTRANTS.size() == 2) {
+                this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.FINAL_ROUND);
+            }
+            else {
+                this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.ONGOING);
+            }
         }
     }
 
     private void checkIfAllPlayersHavePlayed() {
 
         for (Registrant r : REGISTRANTS) {
-            if (r.getPlayersToPlay().size() != 0) {
-                this.MOCK_TOURNAMENT.setFinalRound(false);
+            if (r.getPlayersToPlay().size() > 1) {
+                this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.ONGOING);
                 return;
             }
         }
-        this.MOCK_TOURNAMENT.setFinalRound(true);
+        this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.FINAL_ROUND);
     }
 }

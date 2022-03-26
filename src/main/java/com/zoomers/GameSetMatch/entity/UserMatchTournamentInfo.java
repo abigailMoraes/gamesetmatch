@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Entity
 
 public class UserMatchTournamentInfo {
-    private int results;
+    private String results;
     private String attendance;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,6 @@ public class UserMatchTournamentInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name="end_time")
     private String endTime;
-
     private String name;
     private String location;
     private String description;

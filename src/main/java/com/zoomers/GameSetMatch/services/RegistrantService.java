@@ -74,10 +74,10 @@ public class RegistrantService {
 
             Match match = m.get(0);
 
-            if (match.getUserID_1() == id && userMatchTournamentInfo.getResults() == 2) {
+            if (match.getUserID_1() == id && userMatchTournamentInfo.getResults().equals("Loss")) {//== 2) {
                 losses++;
             }
-            else if (match.getUserID_2() == id && userMatchTournamentInfo.getResults() == 1) {
+            else if (match.getUserID_2() == id && userMatchTournamentInfo.getResults().equals("Loss")) {// == 1) {
                 losses++;
             }
         }
