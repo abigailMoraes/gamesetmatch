@@ -2,6 +2,7 @@ package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,16 @@ public class TournamentService {
 
     public void deleteTournamentByID(Integer id) {
         tournament.deleteTournamentByTournamentID(id);
+    }
+
+    public boolean changeTournamentStatus(Integer id, TournamentStatus status) {
+        Tournament tournament = this.findTournamentByID(id).orElse(null);
+        if (tournament != null) {
+            tournament.setStatus(status.ordinal());
+            this.saveTournament(tournament);
+            return true;
+        }
+        return false;
     }
 }
 

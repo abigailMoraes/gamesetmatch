@@ -3,18 +3,21 @@ package com.zoomers.GameSetMatch.controller;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingAttendance;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
+import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
 import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.services.TournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +26,8 @@ import java.util.Optional;
 @CrossOrigin(origins = "*", maxAge = 3700)
 @RequestMapping("/api")
 public class MatchController {
+    @Autowired
+    TournamentService tournamentService;
     @Autowired
     UserMatchTournamentRepository userMatchTournamentRepository;
 
@@ -49,8 +54,8 @@ public class MatchController {
 
 
     @GetMapping( "/rounds/{roundID}/matches")
-    List<Match> getMatchesByRoundID(@PathVariable int roundID){
-        return matchRepository.getMatchesByRound(roundID);
+    List<MatchDetailsForCalendar> getMatchesByRoundID(@PathVariable int roundID){
+        return matchRepository.getMatchDetailsForCalendarByRoundID(roundID);
     }
 
     @PutMapping("/match/userAttendance")
@@ -66,30 +71,26 @@ public class MatchController {
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
     public void updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
                                     @RequestBody List<IncomingMatch> matches) {
-        Date latestMatchDate = Date.valueOf(matches.get(0).getEndTime().substring(0,9));
+        LocalDateTime latestMatchDate =matches.get(0).getEndTime();
         for (IncomingMatch match : matches) {
+            System.out.println(match.getStartTime());
+            System.out.println(match.getEndTime());
             Optional<Match> existingMatch = Optional.of(matchRepository.getById(match.getID()));
+            System.out.println(match);
+
             if (existingMatch.isPresent()) {
                 matchRepository.updateMatchInfo(match.getID(),
-                        match.getStartTime(), match.getEndTime(), roundID);
+                        match.getStartTime(), match.getEndTime());
             } else {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Match ID");
             }
             Optional<Round> existingRound = Optional.of(roundRepository.getById(roundID));
             /* Update end date for existing round if date for match end time is later than the corresponding
             round end date */
-            if(latestMatchDate.compareTo(Date.valueOf(match.getEndTime().substring(0,10))) < 0){
-                latestMatchDate = Date.valueOf(match.getEndTime().substring(0,10));
-            }
-            if(existingRound.isPresent()) {
-                if (!(existingRound.get().getEndDate().compareTo(latestMatchDate) == 0)) {
-                    existingRound.get().setEndDate(latestMatchDate);
-                } else {
-                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
-                }
-            } else {
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
+            if(latestMatchDate.isBefore(match.getEndTime())){
+                latestMatchDate = match.getEndTime();
             }
         }
+        tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.ONGOING);
     }
 }

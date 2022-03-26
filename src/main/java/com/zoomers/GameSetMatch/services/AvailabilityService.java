@@ -35,7 +35,7 @@ public class AvailabilityService {
         return stringAvailability;
     }
 
-    public List<String> getPlayerAvailabilities(int r_id) {
-        return availability.findRegistrantAvailability(r_id);
+    public List<String> getPlayerAvailabilities(int r_id, int t_id) {
+        return availability.findRegistrantAvailability(r_id, t_id);
     }
 }

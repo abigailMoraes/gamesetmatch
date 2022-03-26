@@ -28,10 +28,10 @@ public class MockTournament {
             Date startDate,
             int previousRound
     ) {
-        this.tournamentID = tournamentID;
-        this.tournamentFormat = TournamentFormat.values()[tournamentFormat - 1];
-        this.tournamentSeries = TournamentSeries.values()[tournamentSeries - 1];
-        this.matchBy = MatchBy.values()[matchBy - 1];
+         this.tournamentID = tournamentID;
+        this.tournamentFormat = TournamentFormat.values()[tournamentFormat];
+        this.tournamentSeries = TournamentSeries.values()[tournamentSeries];
+        this.matchBy = MatchBy.values()[matchBy];
         this.matchDuration = matchDuration;
         this.startDate = startDate;
         this.currentRound = previousRound + 1;

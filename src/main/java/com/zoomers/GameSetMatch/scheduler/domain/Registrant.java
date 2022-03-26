@@ -26,6 +26,7 @@ public class Registrant {
     private RegistrantService registrantService;
 
     private final int id;
+    private final int tournamentId;
     private String availability; // 24 * 7 character string
     private Skill skillLevel;
     private Set<Integer> playersToPlay;
@@ -33,10 +34,10 @@ public class Registrant {
     private int gamesToSchedule;
     private PlayerStatus status = PlayerStatus.SAFE;
 
-    public Registrant(int id, int skillLevel) {
+    public Registrant(int id, int skillLevel, int tournamentId) {
         this.id = id;
-        this.skillLevel = Skill.values()[skillLevel - 1];
-
+        this.skillLevel = Skill.values()[skillLevel];
+        this.tournamentId = tournamentId;
         // assert(this.availability.length() == 24);// * 7);
     }
 
@@ -47,7 +48,7 @@ public class Registrant {
     public void initAvailability() {
 
         this.registrantService = SpringConfig.getBean(RegistrantService.class);
-        this.availability = registrantService.initAvailability(this.id);
+        this.availability = registrantService.initAvailability(this.id, this.tournamentId);
     }
 
     public void initCurrentStatus(TournamentFormat format) {

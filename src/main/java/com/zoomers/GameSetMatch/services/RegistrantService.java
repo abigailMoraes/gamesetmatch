@@ -1,13 +1,10 @@
 package com.zoomers.GameSetMatch.services;
 
-import com.zoomers.GameSetMatch.entity.Availability;
 import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
-import com.zoomers.GameSetMatch.repository.AvailabilityRepository;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.SpringConfig;
-import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +19,10 @@ public class RegistrantService {
     @Autowired
     private MatchRepository matchRepository;
 
-    public String initAvailability(int r_id) {
+    public String initAvailability(int r_id, int t_id) {
 
         AvailabilityService availabilityService = SpringConfig.getBean(AvailabilityService.class);
-        List<String> availabilityList = availabilityService.getPlayerAvailabilities(r_id);
+        List<String> availabilityList = availabilityService.getPlayerAvailabilities(r_id, t_id);
         StringBuilder sb = new StringBuilder();
         String availability = "";
 

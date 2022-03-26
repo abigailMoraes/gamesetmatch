@@ -57,6 +57,7 @@ public class Scheduler {
     private MockTournament MOCK_TOURNAMENT;
     private TypeMatcher typeMatcher;
     private Calendar CALENDAR;
+    private TournamentStatus originalStatus;
 
     public void createSchedule(int tournamentID) {
 
@@ -66,7 +67,7 @@ public class Scheduler {
 
         this.MOCK_TOURNAMENT = tournamentRepository.getMockTournamentByID(tournamentID);
         assert(this.MOCK_TOURNAMENT != null);
-
+        this.originalStatus = MOCK_TOURNAMENT.getTournamentStatus();
 //        this.MOCK_TOURNAMENT = tournamentList.get(0);
 
         initTypeMatcher(this.MOCK_TOURNAMENT.getTournamentFormat());
@@ -147,9 +148,13 @@ public class Scheduler {
             // System.out.println(m);
         }
 
+        TournamentStatus newStatus = this.originalStatus == TournamentStatus.OPEN_FOR_REGISTRATION ||
+                this.originalStatus == TournamentStatus.REGISTRATION_CLOSED ?
+                TournamentStatus.READY_TO_PUBLISH_SCHEDULE : TournamentStatus.READY_TO_PUBLISH_NEXT_ROUND;
+
         tournamentRepository.updateTournament(
                 this.MOCK_TOURNAMENT.getTournamentID(),
-                this.MOCK_TOURNAMENT.getTournamentStatus().getStatus(),
+                newStatus.getStatus(),
                 this.MOCK_TOURNAMENT.getCurrentRound()
             );
 
@@ -382,7 +387,7 @@ public class Scheduler {
                     skill = 1;
                 }
 
-                Registrant r = new Registrant(id, skill);
+                Registrant r = new Registrant(id, skill, MOCK_TOURNAMENT.getTournamentID());
                 r.setGamesToSchedule(MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames());
                 REGISTRANTS.add(r);
             }

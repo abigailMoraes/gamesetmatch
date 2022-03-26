@@ -13,13 +13,14 @@ import javax.persistence.*;
                 targetClass = Registrant.class,
                 columns = {
                         @ColumnResult(name="userID", type=Integer.class),
-                        @ColumnResult(name="skill_level", type=Integer.class)
+                        @ColumnResult(name="skill_level", type=Integer.class),
+                        @ColumnResult(name="tournamentID", type=Integer.class)
                 }
         )
 )
 @NamedNativeQuery(
         name="UserRegistersTournament.getSchedulerRegistrantsByTournamentID",
-        query="SELECT userID, skill_level " +
+        query="SELECT userID, skill_level, tournamentID " +
                 "FROM User_registers_tournament WHERE tournamentID = :tournamentID",
         resultSetMapping = "RegistrantMapping"
 )

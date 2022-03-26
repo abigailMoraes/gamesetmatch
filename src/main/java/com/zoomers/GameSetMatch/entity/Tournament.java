@@ -69,9 +69,6 @@ public class Tournament {
     @Column(name = "match_duration")
     private Integer matchDuration;
 
-    @Column(name = "round_duration")
-    private Integer roundDuration;
-
     // The latest admin ID who creates/modifies the tournament
     @Column(name = "admin_hosts_tournament")
     private int adminHostsTournament;
@@ -84,6 +81,9 @@ public class Tournament {
     //     4 = tournament over
     @Column(name = "status")
     private int status;
+
+    @Column(name="current_round")
+    private int currentRound;
 
 
     public Tournament() {
