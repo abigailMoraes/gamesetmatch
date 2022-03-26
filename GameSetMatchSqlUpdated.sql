@@ -159,7 +159,7 @@ INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2
 /*Create table statement for Match_Has*/
 CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, roundID int, is_conflict int, userID_1 int, userID_2 int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES User(userID), FOREIGN KEY(userID_2) REFERENCES User(userID));
 /*Create table statement for user_involves_match*/
-CREATE TABLE User_involves_match(userID int, matchID int, results varchar(40), attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
+CREATE TABLE User_involves_match(userID int, matchID int, results int, attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
 /*No sample data needed for User_involves_match since it will autopopulate after the trigger below is created*/
 
 /*Create the following triggers before populating Match_Has*/
@@ -171,8 +171,8 @@ CREATE TRIGGER update_user_involves_match
 	AFTER INSERT
     ON Match_Has FOR EACH ROW
 BEGIN
-    INSERT INTO User_involves_match VALUES(NEW.userID_1, NEW.matchID, 'Pending', 'TBD');
-    INSERT INTO User_involves_match VALUES(NEW.userID_2, NEW.matchID, 'Pending', 'TBD');
+    INSERT INTO User_involves_match VALUES(NEW.userID_1, NEW.matchID, -1, 'TBD');
+    INSERT INTO User_involves_match VALUES(NEW.userID_2, NEW.matchID, -1, 'TBD');
 END$$
 
 DELIMITER ;
