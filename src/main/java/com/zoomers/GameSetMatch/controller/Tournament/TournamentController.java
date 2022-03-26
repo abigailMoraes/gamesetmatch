@@ -60,8 +60,6 @@ public class TournamentController {
             outgoingTournament.setSeries(tournament.getSeries());
             outgoingTournament.setCloseRegistrationDate(tournament.getCloseRegistrationDate());
             outgoingTournament.setMatchDuration(tournament.getMatchDuration());
-            outgoingTournament.setNumberOfMatches(tournament.getNumberOfMatches());
-
             if (tournament.getRoundDuration() != null) {
                 outgoingTournament.setRoundDuration(tournament.getRoundDuration());
             }
@@ -119,12 +117,6 @@ public class TournamentController {
             if (incoming.getLocation() != null) {
                 tour.setLocation(incoming.getLocation());
             }
-            if (incoming.getMaxParticipants() != null) {
-                tour.setMaxParticipants(incoming.getMaxParticipants());
-            }
-            if (incoming.getMinParticipants() != null) {
-                tour.setMinParticipants(incoming.getMinParticipants());
-            }
             if (incoming.getEndDate() != null) {
                 tour.setEndDate(incoming.getEndDate());
             }
@@ -139,9 +131,6 @@ public class TournamentController {
             }
             if (incoming.getMatchDuration() != null) {
                 tour.setMatchDuration(incoming.getMatchDuration());
-            }
-            if (incoming.getNumberOfMatches() != null) {
-                tour.setNumberOfMatches(incoming.getNumberOfMatches());
             }
             if (incoming.getRoundDuration() != null) {
                 tour.setRoundDuration(incoming.getRoundDuration());

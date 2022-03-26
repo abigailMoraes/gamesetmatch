@@ -12,7 +12,6 @@ import javax.persistence.*;
 @ToString
 @Table(name = "User_involves_match")
 
-
 @IdClass(UserMatchPairingId.class)
 public class UserInvolvesMatch {
     @Id

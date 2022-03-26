@@ -18,7 +18,7 @@ public class AvailabilityService {
         List<Availability> availabilities = new ArrayList<>();
 
         for (IncomingAvailability availability : incomingAvailabilities) {
-            String availabilityString = convertToString(availability.getSlots());
+            String availabilityString = availability.getSlots();
             int dayOfWeek = availability.getDayOfWeek();
             Availability newAvailability = new Availability(tournamentID, userID, dayOfWeek, availabilityString);
             availabilities.add(newAvailability);

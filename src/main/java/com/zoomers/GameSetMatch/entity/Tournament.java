@@ -1,12 +1,16 @@
 package com.zoomers.GameSetMatch.entity;
 
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @Table(name = "Tournament")
+@Getter
+@Setter
 @SqlResultSetMapping(name="MockTournamentMapping",
         classes = @ConstructorResult(
                 targetClass = MockTournament.class,
@@ -47,12 +51,6 @@ public class Tournament {
     @Column(name = "location")
     private String location;
 
-    @Column(name = "max_participants")
-    private Integer maxParticipants;
-
-    @Column(name = "min_participants")
-    private Integer minParticipants;
-
     @Column(name = "end_date")
     private Date endDate;
 
@@ -70,9 +68,6 @@ public class Tournament {
 
     @Column(name = "match_duration")
     private Integer matchDuration;
-
-    @Column(name = "number_of_matches")
-    private Integer numberOfMatches;
 
     @Column(name = "round_duration")
     private Integer roundDuration;
@@ -95,131 +90,4 @@ public class Tournament {
         this.status = -1;
     }
 
-    public Integer getTournamentID() {
-        return tournamentID;
-    }
-
-    public void setTournamentID(Integer tournamentID) {
-        this.tournamentID = tournamentID;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getCloseRegistrationDate() {
-        return closeRegistrationDate;
-    }
-
-    public void setCloseRegistrationDate(Date closeRegistrationDate) {
-        this.closeRegistrationDate = closeRegistrationDate;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public Integer getMaxParticipants() {
-        return maxParticipants;
-    }
-
-    public void setMaxParticipants(Integer maxParticipants) {
-        this.maxParticipants = maxParticipants;
-    }
-
-    public Integer getMinParticipants() {
-        return minParticipants;
-    }
-
-    public void setMinParticipants(Integer minParticipants) {
-        this.minParticipants = minParticipants;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public String getPrize() {
-        return prize;
-    }
-
-    public void setPrize(String prize) {
-        this.prize = prize;
-    }
-
-    public Integer getFormat() {
-        return format;
-    }
-
-    public void setFormat(int format) {
-        this.format = format;
-    }
-
-    public Integer getSeries() {
-        return series;
-    }
-
-    public void setSeries(int series) {
-        this.series = series;
-    }
-
-    public Integer getMatchDuration() {
-        return matchDuration;
-    }
-
-    public void setMatchDuration(Integer matchDuration) {
-        this.matchDuration = matchDuration;
-    }
-
-    public Integer getNumberOfMatches() {
-        return numberOfMatches;
-    }
-
-    public void setNumberOfMatches(Integer numberOfMatches) {
-        this.numberOfMatches = numberOfMatches;
-    }
-
-    public Integer getRoundDuration() {
-        return roundDuration;
-    }
-
-    public void setRoundDuration(Integer roundDuration) {
-        this.roundDuration = roundDuration;
-    }
-
-    public void setAdminHostsTournament(int id) {this.adminHostsTournament= id;}
-
-    public int getAdminHostsTournament() {return this.adminHostsTournament;}
-
-    public void setStatus(int status) {this.status = status;}
-
-    public int getStatus() {return this.status;}
 }

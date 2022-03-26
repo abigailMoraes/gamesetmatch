@@ -91,9 +91,7 @@ public class Timeslot {
 
         long timeToAdd = Math.round(Math.ceil(matchDuration/30.0)) * 30;
 
-        LocalDateTime localDateTime = startTime.plusMinutes(timeToAdd);
-
-        return localDateTime;
+        return startTime.plusMinutes(timeToAdd);
     }
 
     public String getEndTime(int matchDuration) {

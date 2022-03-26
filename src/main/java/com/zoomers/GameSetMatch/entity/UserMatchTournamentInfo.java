@@ -8,7 +8,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.List;
 
 
 @Getter
@@ -28,7 +27,7 @@ public class UserMatchTournamentInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name="end_time")
     private String endTime;
-    private int duration;
+
     private String name;
     private String location;
     private String description;
