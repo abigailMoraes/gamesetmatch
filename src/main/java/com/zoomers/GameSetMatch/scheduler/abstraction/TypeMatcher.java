@@ -196,6 +196,8 @@ public abstract class TypeMatcher {
         MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
         List<com.zoomers.GameSetMatch.entity.Match> playerMatches = matchRepository.getUpcomingMatchesByUserID(id);
 
+        // System.out.println("Player " + id + ": " + playerMatches);
+
         if (playerMatches.size() == 0) { return false; }
 
         for (com.zoomers.GameSetMatch.entity.Match tournamentInfo : playerMatches) {

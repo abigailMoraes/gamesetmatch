@@ -35,11 +35,11 @@ public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
 
         markMatch(match);
 
-        // System.out.println("Adding " + match + " to matches with score " + match.getMatchScore());
+        System.out.println("Adding " + match + " to matches with score " + match.getMatchScore());
 
         for (Match m2 : this.matchGraph.getMatches()) {
 
-            if (match.sharePlayers(m2) || (match.shareTimeslot(m2) && match.shareDate(m2))) {
+            if (match.sharePlayers(m2)) {
 
                 matchesToRemove.add(m2);
             }

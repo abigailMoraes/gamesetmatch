@@ -259,4 +259,10 @@ public class GraphTests {
 
         scheduler.createSchedule(1);
     }
+
+    @Test
+    public void DBIntegrationOne() {
+
+        scheduler.createSchedule(4);
+    }
 }

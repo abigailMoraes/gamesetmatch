@@ -73,6 +73,7 @@ public class Scheduler {
 
         initTypeMatcher(this.MOCK_TOURNAMENT.getTournamentFormat());
         initTournamentPlayers(tournamentID);
+        this.CALENDAR.setTime(this.MOCK_TOURNAMENT.getStartDate());
 
         try {
             initTimeslots();
@@ -122,6 +123,7 @@ public class Scheduler {
             int expectedMatches = (this.REGISTRANTS.size() / 2) * MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames();
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
         }
+
         Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
         MOCK_TOURNAMENT.setRoundEndDate(roundEndDate);
 
@@ -136,6 +138,7 @@ public class Scheduler {
 
         List<com.zoomers.GameSetMatch.entity.Match> matchEntities = new ArrayList<>();
         for (Match m : returnedMatches) {
+            String s = m.toString();
             com.zoomers.GameSetMatch.entity.Match matchEntity = new com.zoomers.GameSetMatch.entity.Match();
             matchEntity.setStartTime(m.getTimeslot().getLocalStartDateTime());
             matchEntity.setEndTime(m.getTimeslot().getLocalEndDateTime(this.MOCK_TOURNAMENT.getMatchDuration()));
@@ -144,6 +147,7 @@ public class Scheduler {
             matchEntity.setUserID_1(m.getPlayers().getFirst());
             matchEntity.setUserID_2(m.getPlayers().getSecond());
             matchEntities.add(matchEntity);
+            // System.out.println(m);
         }
 
         matchRepository.saveAll(matchEntities);
@@ -157,12 +161,13 @@ public class Scheduler {
 
         while (true) {
 
-            System.out.println(CALENDAR.getTime());
+            System.out.println("Primary: " + this.CALENDAR.getTime());
 
             BipartiteGraph bg = new BipartiteGraph(TIMESLOTS, registrantsToMatch, MOCK_TOURNAMENT.getMatchDuration());
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
+
             if (matchGraph.getMatches().size() == 0) {
-                System.out.println("break");
+                decreaseWeek();
                 break;
             }
 
@@ -179,6 +184,11 @@ public class Scheduler {
             }
 
             addWeek();
+        }
+
+        for (Match match : matches) {
+
+            System.out.println("Primary Match: " + match);
         }
 
         return matches;
@@ -202,7 +212,7 @@ public class Scheduler {
 
         while (registrantsToMatch.size() != 0) {
 
-            System.out.println(registrantsToMatch);
+            System.out.println("Secondary: " + this.CALENDAR.getTime());
 
             SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
                     registrantsToMatch,
@@ -223,6 +233,11 @@ public class Scheduler {
 
             addWeek();
             availableTimeslots = TIMESLOTS;
+        }
+
+        for (Match match : newMatches) {
+
+            System.out.println("Secondary Match: " + match);
         }
 
         return newMatches;
@@ -265,6 +280,11 @@ public class Scheduler {
             matches.addAll(bestOfMatches);
         }
 
+        for (Match match : matches) {
+
+            System.out.println("Best-Of Match: " + match);
+        }
+
         return matches;
     }
 
@@ -276,6 +296,18 @@ public class Scheduler {
     private void addWeek() {
 
         CALENDAR.add(Calendar.WEEK_OF_YEAR, 1);
+
+        try {
+            initTimeslots();
+        }
+        catch (IOException e) {
+            System.out.println("IOError: " + e.getMessage());
+        }
+    }
+
+    private void decreaseWeek() {
+
+        CALENDAR.add(Calendar.WEEK_OF_YEAR, -1);
 
         try {
             initTimeslots();
