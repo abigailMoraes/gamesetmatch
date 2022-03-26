@@ -1,22 +1,6 @@
 /*Create table statement for user_info table, dept not included, added is_admin boolean and changed primary key to include both userID*/
 CREATE TABLE User(userID int NOT NULL AUTO_INCREMENT, firebase_id varchar(100), name varchar(80), email varchar(319), is_admin int, PRIMARY KEY(userID));
 
-/*Populate user_info table with sample data*/
-INSERT INTO User(firebase_id, name, email, is_admin) values ('hcarloni','Heike Carloni', 'hcarloni@gmail.com', 1);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('mbaron', 'Michael Baron','mbaron@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('msanders', 'Michelle Sanders', 'msanders@gmail.com', 1);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('efiaro', 'Ester Fiaro', 'efiaro@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('pghosh', 'Prabhat Ghosh', 'pghosh@gmail.com',0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('amorales', 'Alberto Morales','amorales@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu', 'echu@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('personA', 'Person A', 'pa@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('personB', 'Person B', 'pb@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('personC', 'Person C', 'pc@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('personD', 'Person D', 'pd@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('personE', 'Person E', 'pe@gmail.com', 0);
-INSERT INTO User(firebase_id, name, email, is_admin) values ('personF', 'Person F', 'pf@gmail.com', 0);
-
-
 /*Create table statement for Tournament*/
 /*legend*/
 /* start_date = start_date of tournament */
@@ -37,129 +21,24 @@ INSERT INTO User(firebase_id, name, email, is_admin) values ('personF', 'Person 
 CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), format int, series int, match_by int, match_duration int, admin_hosts_tournament int, status int, current_round int, PRIMARY KEY(tournamentID),
                        FOREIGN KEY (admin_hosts_tournament) REFERENCES User(userID));
 
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1, 0 );
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1, 0 );
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Rock, Paper, Scissors', 'Luck or skill? Time to find out!', '2022-03-29', '2022-03-25', 'Room 100', 64, 4, '250$ Steam Gift Card', 2, 3, 1, 70, 1, -1, 0 );
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Chess Tournament', 'Fun times', '2022-03-25', '2022-03-25', 'Room 100', 16, 4, '250$ Steam Gift Card', 2, 3, 1, 30, 1, -1, 0 );
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Amazon Quizzes', 'Hooray', '2022-03-27', '2022-03-25', 'Room 100', 16, 4, '250$ Steam Gift Card', 2, 3, 1, 30, 1, -1, 0 );
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Tournament 2', 'Wee', '2022-03-27', '2022-03-25', 'Room 100', 16, 4, '250$ Steam Gift Card', 2, 2, 1, 30, 1, -1, 0 );
-
-ALTER TABLE Tournament ADD match_by int;
-ALTER TABLE Tournament ADD series int;
-ALTER TABLE Tournament ADD current_round int;
-ALTER TABLE Round_Has ADD roundNumber int;
 
 /*Create table statement for Availability*/
 CREATE TABLE Availability(userID int, tournamentID int, day_of_week int, availability_string varchar(24), PRIMARY KEY(userID, tournamentID, day_of_week), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
 
-INSERT INTO Availability values (1, 1, 1, "000000001110000000000000");
-INSERT INTO Availability values (1, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (1, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (1, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (1, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (1, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (1, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (2, 1, 1, "001000001110000100000000");
-INSERT INTO Availability values (2, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (2, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (2, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (2, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (2, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (2, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (3, 1, 1, "000000001000001110000000");
-INSERT INTO Availability values (3, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (3, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (3, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (3, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (3, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (3, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (4, 1, 1, "000010000000001110000000");
-INSERT INTO Availability values (4, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (4, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (4, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (4, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (4, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (4, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (5, 1, 1, "000000001000001110000000");
-INSERT INTO Availability values (5, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (5, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (5, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (5, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (5, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (5, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (6, 1, 1, "001000000000000000000000");
-INSERT INTO Availability values (6, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (6, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (6, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (6, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (6, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (6, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (15, 4, 1, "000000001000000000000000");
-INSERT INTO Availability values (15, 4, 2, "000000000000000000000000");
-INSERT INTO Availability values (15, 4, 3, "000000000000000000000000");
-INSERT INTO Availability values (15, 4, 4, "000000000000000000000000");
-INSERT INTO Availability values (15, 4, 5, "000000000000000000000000");
-INSERT INTO Availability values (15, 4, 6, "000000000000000000000000");
-INSERT INTO Availability values (15, 4, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (16, 1, 1, "000000000000000100000000");
-INSERT INTO Availability values (16, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (16, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (16, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (16, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (16, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (16, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (17, 1, 1, "000000001000001000000000");
-INSERT INTO Availability values (17, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (17, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (17, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (17, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (17, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (17, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (18, 1, 1, "000010000000000000000000");
-INSERT INTO Availability values (18, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (18, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (18, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (18, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (18, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (18, 1, 7, "000000000000000000000000");
-
-INSERT INTO Availability values (19, 1, 1, "000000001000000000000000");
-INSERT INTO Availability values (19, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (19, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (19, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (19, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (19, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (19, 1, 7, "000000000000000000000001");
-
-INSERT INTO Availability values (20, 1, 1, "001000000000000000000000");
-INSERT INTO Availability values (20, 1, 2, "000000000000000000000000");
-INSERT INTO Availability values (20, 1, 3, "000000000000000000000000");
-INSERT INTO Availability values (20, 1, 4, "000000000000000000000000");
-INSERT INTO Availability values (20, 1, 5, "000000000000000000000000");
-INSERT INTO Availability values (20, 1, 6, "000000000000000000000000");
-INSERT INTO Availability values (20, 1, 7, "000000000000000000000001");
-
 /*Create table statement for Round*/
 CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, start_date DATETIME, end_date DATETIME, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1,'2022/03/05','2022/03/21');
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
-
+--INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
+--INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1,'2022/03/05','2022/03/21');
+--INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
+--INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
+--
+--ALTER TABLE Round_Has ADD roundNumber int;
 
 
 /*is_conflict* is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot)
 /*Create table statement for Match_Has*/
 CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, roundID int, is_conflict int, userID_1 int, userID_2 int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES User(userID), FOREIGN KEY(userID_2) REFERENCES User(userID));
+
 /*Create table statement for user_involves_match*/
 CREATE TABLE User_involves_match(userID int, matchID int, results int, attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
 
@@ -196,72 +75,24 @@ CREATE TRIGGER delete_user_involves_match_entries
 BEGIN
     DELETE FROM User_involves_match WHERE User_involves_match.userID = OLD.userID_1;
     DELETE FROM User_involves_match WHERE User_involves_match.userID = OLD.userID_2;
-END$$    
-
+END$$
 DELIMITER ;
 
-
-/*sample data for Match_Has, Note: duration is in minutes */
--- INSERT INTO Match_Has(start_time,end_time,duration,roundID, is_conflict, userID_1, userID_2) values ('2022/02/20 11:00:00','2022/02/20 11:30:00',30,1,0,1,2);
--- INSERT INTO Match_Has(start_time,end_time,duration,roundID, is_conflict, userID_1, userID_2) values ('2022/02/20 12:00:00','2022/02/20 12:30:00',30,1,0,3,4);
--- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/02/22 12:00:00','2022/02/20 12:30:00',30,1,0,5,6);
--- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/02/25 11:00:00','2022/02/25 11:30:00',30,1,0,1,2);
--- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/05 12:00:00','2022/03/05 12:30:00',30,2,0,3,6);
--- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/05 12:30:00','2022/03/05 13:00:00',30,2,0,1,2);
--- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/14 14:30:00','2022/03/14 15:00:00',30,2,0,1,3);
--- INSERT INTO Match_Has(start_time,end_time,duration,roundID,is_conflict, userID_1, userID_2) values ('2022/03/21 15:30:00','2022/03/21 16:00:00',30,2,0,2,4);
-
 /*Create table statement for Admin_hosts_tournament*/
-CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
-
+--CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
+--
 
 /*Create table User_registers_tournament*/
 CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,1,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,1,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,1,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (4,1,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (5,1,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,1,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,2,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,2,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,2,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,2,3);
-
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,2,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,2,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,2,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,2,3);
-
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,3,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,3,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,3,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (4,3,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (5,3,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,3,1);
-
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (15,4,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (16,4,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (17,4,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (18,4,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (19,4,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (20,4,1);
-
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (15,5,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (16,5,3);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (17,5,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (18,5,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (19,5,1);
 
 /*Create table statement for Invitation Code*/
 CREATE TABLE Invitation_Code ( invitationCode varchar(10) NOT NULL, isValid tinyint(1) NOT NULL, createdOn varchar(30) NOT NULL, UNIQUE KEY invitationCode (invitationCode));
-INSERT INTO Invitation_Code(invitationCode,isValid,createdOn) VALUES('0M2WTV2J84', '0', '2022-03-10 23:16:05');
-INSERT INTO Invitation_Code(invitationCode,isValid,createdOn) VALUES('L3XAU31X3L', '1', '2022-03-10 23:28:15');
 
-SET SQL_SAFE_UPDATES = 0;
+--SET SQL_SAFE_UPDATES = 0;
+--
+--/* ALL DELETE STATEMENTS */
+--
+--DELETE FROM Match_has;
+--ALTER TABLE match_has auto_increment=1;
+--DELETE FROM User;
 
-/* ALL DELETE STATEMENTS */
-
-DELETE FROM Match_has;
-ALTER TABLE match_has auto_increment=1;
-DELETE FROM User;

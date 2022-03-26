@@ -32,7 +32,6 @@ public class MatchController {
     @Autowired
     RoundRepository roundRepository;
 
-
     @GetMapping("/match/involves/user/{id}")
     List<UserMatchTournamentInfo> getMatchesForUser(@PathVariable int id) {
         return userMatchTournamentRepository.findMatchesByUserID(id);
@@ -82,14 +81,13 @@ public class MatchController {
             if(latestMatchDate.compareTo(Date.valueOf(match.getEndTime().substring(0,10))) < 0){
                 latestMatchDate = Date.valueOf(match.getEndTime().substring(0,10));
             }
-            if(existingRound.isPresent()){
-               if (!(existingRound.get().getEndDate().compareTo(latestMatchDate) == 0)){
-                   existingRound.get().setEndDate(latestMatchDate);
-                   }else {
-                       ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
-                   }
-
-            }else {
+            if(existingRound.isPresent()) {
+                if (!(existingRound.get().getEndDate().compareTo(latestMatchDate) == 0)) {
+                    existingRound.get().setEndDate(latestMatchDate);
+                } else {
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
+                }
+            } else {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
             }
         }
