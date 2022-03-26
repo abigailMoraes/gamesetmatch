@@ -17,6 +17,9 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
     @Query(value = "SELECT * FROM Tournament WHERE status = ?1 AND admin_hosts_tournament = ?2", nativeQuery = true)
     List<Tournament> findTournaments(int status, int id);
 
+    @Query(value = "SELECT * FROM Tournament WHERE status = :status", nativeQuery = true)
+    List<Tournament> findByStatus(int status);
+
     @Query(nativeQuery = true)
     MockTournament getMockTournamentByID(@Param("tournamentID") Integer tournamentID);
 

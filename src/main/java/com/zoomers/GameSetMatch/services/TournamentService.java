@@ -18,6 +18,10 @@ public class TournamentService {
         return tournament.findAll();
     }
 
+    public List<Tournament> findAllByStatus(int status) {
+        return tournament.findByStatus(status);
+    }
+
     public void saveTournament(Tournament tour) {
         tournament.save(tour);
     }

@@ -41,9 +41,11 @@ public class TournamentController {
     Scheduler scheduler;
 
     @GetMapping()
-    public List<OutgoingTournament> getAllTournaments(@RequestParam int registeredUser) {
+    public List<OutgoingTournament> getAllTournaments(@RequestParam int registeredUser, @RequestParam int status) {
         List<Integer> registeredTournaments = userRegistersTournament.getUserRegisteredInTournamentIDs(registeredUser);
-        List<Tournament> tournaments = tournament.getAllTournaments();
+        List<Tournament> tournaments;
+
+        tournaments = tournamentService.findAllByStatus(status);
 
         List<OutgoingTournament> responseTournaments = new ArrayList<>();
 
