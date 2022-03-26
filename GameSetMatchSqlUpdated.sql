@@ -47,12 +47,24 @@ INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
 INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
 
+
+
 /*is_conflict* is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot)
 /*Create table statement for Match_Has*/
 CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, is_conflict int, userID_1, userID_2, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES(User(userID)), FOREIGN KEY(userID_2) REFERENCES(User(userID)));
 /*Create table statement for user_involves_match*/
+
 CREATE TABLE User_involves_match(userID int, matchID int, results varchar(40), attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
+
 /*No sample data needed for User_involves_match since it will autopopulate after the trigger below is created*/
+/* Notes on user_involves_match */
+/* The results field is initialized as the string value, "Pending", this field can be updated by a user with one of the following values: */
+/* "Win" - user has won the match, "Loss" - user lost the match, "Draw" - players tied */
+/* Currently users may only update the results of a match if the corresponding results value is "TBD" */
+/* I can change this for admin/general users */
+/* The attendance field is initialized aas the string value, "TBD", this field can be updated by a user with one of the following values: */
+/* "Yes" - user will attend the match, "No" - user cannot attend the match */
+
 
 /*Create the following triggers before populating Match_Has*/
 /*The first trigger autopopulates user_involves_match whenever there is an insert event in match_has*/
