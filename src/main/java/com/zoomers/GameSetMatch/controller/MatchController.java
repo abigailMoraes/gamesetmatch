@@ -28,6 +28,7 @@ public class MatchController {
     private final UserMatchTournamentRepository userMatchTournamentRepository;
     private final MatchRepository matchRepository;
     private final RoundRepository roundRepository;
+    private final TournamentRepository tournamentRepository;
 
     public MatchController(UserMatchTournamentRepository userMatchTournamentRepository, MatchRepository matchRepository, RoundRepository roundRepository, TournamentRepository tournamentRepository) {
         this.userMatchTournamentRepository = userMatchTournamentRepository;
@@ -49,7 +50,7 @@ public class MatchController {
 
     @GetMapping("/match/{id}/{uid}")
     UserMatchTournamentInfo getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
-        return userMatchTournamentRepository.findMatchInfoByMatchID(id, uid);
+        return userMatchTournamentRepository.findMatchInfoByMatchID(id);
     }
 
 
@@ -89,11 +90,12 @@ public class MatchController {
             if(existingRound.isPresent()){
                if (!(existingRound.get().getEndDate().compareTo(latestMatchDate) == 0)){
                    existingRound.get().setEndDate(latestMatchDate);
-                   }else {
+                   }
+               else {
                        ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
                    }
-               }
-            }else {
+            }
+            else {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
             }
         }

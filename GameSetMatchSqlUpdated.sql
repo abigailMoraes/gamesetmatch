@@ -10,7 +10,6 @@ INSERT INTO User(firebase_id, name, email, is_admin) values ('pghosh', 'Prabhat 
 INSERT INTO User(firebase_id, name, email, is_admin) values ('amorales', 'Alberto Morales','amorales@gmail.com', 0);
 INSERT INTO User(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu', 'echu@gmail.com', 0);
 
-
 /*Create table statement for Tournament*/
 /*legend*/
 /* start_date = start_date of tournament */
@@ -28,14 +27,14 @@ INSERT INTO User(firebase_id, name, email, is_admin) values ('echu', 'Eileen Chu
 /*status = integer referring to the status of the tournament 0-OpenForRegistration, 1-ClosedRegistration, 2-ScheduleReadyForReview, 3-Ongoing, 4-FinalRound, 5-TournamentOver */
 
 
-CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), series int, format int, match_by int, number_of_matches int,  admin_hosts_tournament int, status int, PRIMARY KEY(tournamentID),
+CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), format int, series int, match_by int, match_duration int, admin_hosts_tournament int, status int, current_round int, PRIMARY KEY(tournamentID),
                        FOREIGN KEY (admin_hosts_tournament) REFERENCES User(userID));
 
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 1, -1 );
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Amongus Royale', 'Come join us for some space murder! (individual)','2022-03-04', '2022-03-03','Auditorium 6, North Wing',  10, 6, '50$ Steam Gift Card', 2, 1, 2, 3, 0);
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Spike or Bust Tournament', 'Bump. Set. Spike. All it takes is all you have got! (2 player teams)',  '2022-03-09', '2022-03-08',  'Volleyball court 3', 16, 2, '50$ GoSport Canada Gift Card', 3, 2, 1, 3, 0);
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('StreetFighter V Tournament', 'Choose your hero and test your skills!(individual)', '2022-04-03', '2022-04-02', 'Meeting Room 143,Basement',  8, 4,  '50$ GoSport Canada Gift Card', 4, 3, 2,  3, 0);
-INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, type, match_by_skill, match_duration, round_duration, admin_hosts_tournament, status) values('Amazon Chess Championship', 'Come battle your wits against the best and the brightest!', '2022-04-05', '2022-04-04',  'Meeting Room 13, Basement', 32, 4,  '100$ Amazon Gift Card', 1, 1, 1,  1, 0);
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Mariokart Madness', 'Come join us for some krazy karting! (Individual)', '2022-02-20', '2022-02-19', 'West Atrium room 203', 32, 4, '250$ Steam Gift Card', 1, 1, 1, 30, 1, -1, 0 );
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Amongus Royale', 'Come join us for some space murder! (individual)','2022-03-04', '2022-03-03','Auditorium 6, North Wing',  10, 6, '50$ Steam Gift Card', 2, 1, 2, 3, 1, -1, 0);
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Spike or Bust Tournament', 'Bump. Set. Spike. All it takes is all you have got! (2 player teams)',  '2022-03-09', '2022-03-08',  'Volleyball court 3', 16, 2, '50$ GoSport Canada Gift Card', 3, 2, 1, 3, 1, -1, 0);
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('StreetFighter V Tournament', 'Choose your hero and test your skills!(individual)', '2022-04-03', '2022-04-02', 'Meeting Room 143,Basement',  8, 4,  '50$ GoSport Canada Gift Card', 4, 3, 2,  3, 1, -1, 0);
+INSERT INTO Tournament(name, description, start_date, close_registration_date, location, max_participants, min_participants, prize, format, series, match_by, match_duration, admin_hosts_tournament, status, current_round) values('Amazon Chess Championship', 'Come battle your wits against the best and the brightest!', '2022-04-05', '2022-04-04',  'Meeting Room 13, Basement', 32, 4,  '100$ Amazon Gift Card', 1, 1, 1,  1, 1, -1, 0);
 
 /*Create table statement for Availability*/
 CREATE TABLE Availability(userID int, tournamentID int, date DATE, availability_binary int, PRIMARY KEY(userID, tournamentID, date), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
@@ -51,7 +50,7 @@ INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2
 
 /*is_conflict* is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot)
 /*Create table statement for Match_Has*/
-CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, is_conflict int, userID_1, userID_2, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES(User(userID)), FOREIGN KEY(userID_2) REFERENCES(User(userID)));
+CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, duration int, roundID int, is_conflict int, userID_1 int, userID_2 int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES User(userID), FOREIGN KEY(userID_2) REFERENCES User(userID));
 /*Create table statement for user_involves_match*/
 
 CREATE TABLE User_involves_match(userID int, matchID int, results varchar(40), attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
@@ -73,7 +72,7 @@ DELIMITER $$
 
 CREATE TRIGGER update_user_involves_match
 	AFTER INSERT
-    ON match_has FOR EACH ROW
+    ON Match_Has FOR EACH ROW
 BEGIN
     INSERT INTO user_involves_match VALUES(NEW.userID_1, NEW.matchID, 'Pending', 'TBD');
     INSERT INTO user_involves_match VALUES(NEW.userID_2, NEW.matchID, 'Pending', 'TBD');
@@ -89,7 +88,7 @@ CREATE TRIGGER delete_user_involves_match_entries
 BEGIN
     DELETE FROM user_involves_match WHERE user_involves_match.userID = OLD.userID_1;
     DELETE FROM user_involves_match WHERE user_involves_match.userID = OLD.userID_2;
-END$$    
+END$$
 
 DELIMITER ;
 
@@ -109,7 +108,7 @@ CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(us
 
 
 /*Create table User_registers_tournament*/
-CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES tournament(tournamentID));
+CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,1,3);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,1,3);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,1,2);
