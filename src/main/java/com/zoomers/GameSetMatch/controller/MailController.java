@@ -42,8 +42,7 @@ public class MailController {
         // currently, only support google account
         // make sure the server account has IMAP turned on, see link blow
         // https://support.google.com/mail/answer/7126229?hl=en#zippy=
-        // String from = "zoomers319@gmail.com";
-        String from = "mainfire103@gmail.com";
+        String from = "zoomers319@gmail.com";
 
         for (IncomingMatch match : schedule) {
 
