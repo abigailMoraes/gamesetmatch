@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.sql.Date;
 
 @Entity
-@Table(name = "round_has")
+@Table(name = "Round_Has")
 public class Round {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

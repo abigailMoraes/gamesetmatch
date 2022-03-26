@@ -14,4 +14,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
     List<Tournament> findTournaments(int status, int id);
 
     void deleteTournamentByTournamentID(Integer id);
+
+    @Query(value ="SELECT Tournament.name FROM Tournament WHERE Tournament.tournamentID = ?1",nativeQuery = true)
+    String getNameByTournamentID(Integer id);
 }

@@ -13,4 +13,9 @@ public interface RoundRepository extends JpaRepository<Round, Integer>{
     @Query(value="SELECT * FROM round_has WHERE round_has.tournamentID = :tournamentID",nativeQuery = true)
     List<Round> getRoundsByID(int tournamentID);
 
+    @Query(value ="SELECT Round_Has.roundNumber FROM Round_Has WHERE Round_Has.roundID = ?1",nativeQuery = true)
+    Integer getRoundNumberByRoundID(int roundID);
+
+    @Query(value ="SELECT Round_Has.tournamentID FROM Round_Has WHERE Round_Has.roundID = ?1",nativeQuery = true)
+    Integer getTournamentIDByRoundID(int roundID);
 }

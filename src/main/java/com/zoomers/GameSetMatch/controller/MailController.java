@@ -4,6 +4,8 @@ package com.zoomers.GameSetMatch.controller;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
+import com.zoomers.GameSetMatch.repository.RoundRepository;
+import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserInvolvesMatchRepository;
 import com.zoomers.GameSetMatch.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,17 +30,27 @@ public class MailController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private RoundRepository repository;
+
+    @Autowired
+    private TournamentRepository tournamentRepository;
+
     @PostMapping(value = "/publish")
     public void sendMails(@RequestBody List<IncomingMatch> schedule) throws MessagingException {
 
         // currently, only support google account
         // make sure the server account has IMAP turned on, see link blow
         // https://support.google.com/mail/answer/7126229?hl=en#zippy=
-        String from = "zoomers319@gmail.com";
+        // String from = "zoomers319@gmail.com";
+        String from = "mainfire103@gmail.com";
 
         for (IncomingMatch match : schedule) {
 
             List<UserInvolvesMatch> participants = userInvolvesMatchRepository.getUserInvolvesMatchByMatchID(match.getMatchID());
+            Integer roundNumber = repository.getRoundNumberByRoundID(match.getRoundID());
+            Integer tournamentID = repository.getTournamentIDByRoundID(match.getRoundID());
+            String tournamentName = tournamentRepository.getNameByTournamentID(tournamentID);
 
             for (UserInvolvesMatch participant : participants) {
 
@@ -61,6 +73,7 @@ public class MailController {
 
                 boolean html = true;
                 helper.setText("<p>Dear " + firstName + ",</p><br>"
+                        + "<p>Round <i>" + roundNumber + "</i> for the tournament <b><i>" + tournamentName + "</i></b> has been scheduled!</p><br>"
                         + "<p>You have a match scheduled on <b>" + date + "</b> from " +
                         "<b>" + startTime + "</b>" + " to " + "<b>" + endTime + "</b>"
                         + ". Be prepared and hope you can have fun.</p><br>" +
