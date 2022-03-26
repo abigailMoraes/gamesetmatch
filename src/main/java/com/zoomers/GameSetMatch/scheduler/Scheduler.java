@@ -210,7 +210,7 @@ public class Scheduler {
         List<Timeslot> availableTimeslots = findAvailableTimeslots(matches);
         Set<Match> newMatches = new LinkedHashSet<>();
 
-        while (registrantsToMatch.size() != 0) {
+        while (registrantsToMatch.size() > 1) {
 
             System.out.println("Secondary: " + this.CALENDAR.getTime());
 
@@ -235,6 +235,8 @@ public class Scheduler {
             availableTimeslots = TIMESLOTS;
         }
 
+        decreaseWeek();
+
         for (Match match : newMatches) {
 
             System.out.println("Secondary Match: " + match);
@@ -252,6 +254,8 @@ public class Scheduler {
         Set<Match> matchesToSchedule = new LinkedHashSet<>(matches);
 
         while (matches.size() < expectedMatches) {
+
+            System.out.println("Best-Of: " + this.CALENDAR.getTime());
 
             BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
                     new LinkedHashSet<>(REGISTRANTS),
