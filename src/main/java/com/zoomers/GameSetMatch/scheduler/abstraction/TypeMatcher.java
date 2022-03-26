@@ -12,6 +12,8 @@ import com.zoomers.GameSetMatch.scheduler.abstraction.graph.SecondaryMatchGraph;
 
 import java.util.*;
 
+import static java.util.Objects.isNull;
+
 public abstract class TypeMatcher {
 
     public PrimaryMatchGraph createPossiblePrimaryMatches(BipartiteGraph bipartiteGraph) {
@@ -194,20 +196,10 @@ public abstract class TypeMatcher {
     private boolean alreadyHasMatchInDifferentTournament(int id, Timeslot t) {
 
         MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
-        List<com.zoomers.GameSetMatch.entity.Match> playerMatches = matchRepository.getUpcomingMatchesByUserID(id);
 
-        // System.out.println("Player " + id + ": " + playerMatches);
+        com.zoomers.GameSetMatch.entity.Match conflictingMatch = matchRepository.getMatchByUserIDAndTime(id, t.getLocalStartDateTime());
 
-        if (playerMatches.size() == 0) { return false; }
-
-        for (com.zoomers.GameSetMatch.entity.Match tournamentInfo : playerMatches) {
-
-            if (Objects.equals(tournamentInfo.getStartTime(), t.toString())) {
-
-                return true;
-            }
-        }
-        return false;
+        return !isNull(conflictingMatch);
     }
 
     protected abstract boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t);
