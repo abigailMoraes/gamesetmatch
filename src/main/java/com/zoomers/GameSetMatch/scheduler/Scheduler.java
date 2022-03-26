@@ -34,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -419,17 +418,19 @@ public class Scheduler {
         Date date = CALENDAR.getTime();
         this.TIMESLOTS = new ArrayList<>();
 
-        File slots = new File("./data/Timeslots");
-        Scanner scanner = new Scanner(slots);
-
-        for (int i = 0; i < 7; i++) {
-            while (scanner.hasNext()) {
-                float time = Float.parseFloat(scanner.nextLine());
+//        InputStream slots = new ClassPathResource("Timeslots").getInputStream();
+//
+//        Scanner scanner = new Scanner(slots);
+        String str = "9,9.5,10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15,15.5,16,16.5,17,17.5,18,18.5,19,19.5,20,20.5";
+        String[] arrOfStr = str.split(",");
+         for (int i = 0; i < 7; i++) {
+            for(String s : arrOfStr) {
+                float time = Float.parseFloat(s);
                 Timeslot t = new Timeslot(time, CALENDAR.getTime());
                 this.TIMESLOTS.add(t);
             }
             CALENDAR.add(Calendar.DATE, 1);
-            scanner = new Scanner(slots);
+//            scanner = new Scanner(slots);
 
         }
 
