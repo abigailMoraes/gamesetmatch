@@ -4,7 +4,6 @@ public class IncomingMatch {
     private Integer matchID;
     private String startTime;
     private String endTime;
-    private int duration;
     private int roundID;
 
     public Integer getMatchID() {
@@ -26,9 +25,4 @@ public class IncomingMatch {
     public String getEndTime(){
         return this.endTime;
     }
-    public int getDuration(){
-        return this.duration;
-    }
-
-
 }

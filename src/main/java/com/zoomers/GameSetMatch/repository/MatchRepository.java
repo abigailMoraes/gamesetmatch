@@ -12,7 +12,7 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
     @Query(value="UPDATE Match_Has SET Match_Has.start_time = :startTime, Match_Has.end_time = :endTime,\n" +
             "Match_Has.duration = :duration, Match_Has.roundID = :roundID WHERE Match_Has.matchID = :matchID",
          nativeQuery = true)
-    void updateMatchInfo( int matchID, String startTime, String endTime, long duration, int roundID);
+    void updateMatchInfo( int matchID, String startTime, String endTime, int roundID);
 
     @Query(value = "SELECT * FROM Match_Has WHERE roundID = :roundID", nativeQuery = true)
     List<Match> getMatchesByRound(int roundID);

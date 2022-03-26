@@ -90,7 +90,7 @@ public class TournamentController {
     public void registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Integer tournamentID) {
         Integer userID = newRegistrtation.getUserID();
 
-        userRegistersTournament.saveRegistration(tournamentID, userID);
+        userRegistersTournament.saveRegistration(tournamentID, userID, newRegistrtation.getSkillLevel());
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
 
     }
@@ -174,8 +174,9 @@ public class TournamentController {
         return ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament is deleted.");
     }
 
-    @PostMapping(value = "/{tournamentID}/schedule")
-    public void createSchedule(@PathVariable(name = "tournamentID") int tournamentID) {
+    @PostMapping(value = "/{tournamentID}/runCreateSchedule")
+    public ResponseEntity createSchedule(@PathVariable(name = "tournamentID") int tournamentID) {
         scheduler.createSchedule(tournamentID);
+        return ResponseEntity.status(HttpStatus.OK).body("Schedule created");
     }
 }

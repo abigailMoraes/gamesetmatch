@@ -5,7 +5,7 @@ import java.util.List;
 public class IncomingRegistration {
     private Integer userID;
     private List<IncomingAvailability> availabilities;
-    private String skillLevel;
+    private Integer skillLevel;
 
     public Integer getUserID() {
         return userID;
@@ -15,7 +15,7 @@ public class IncomingRegistration {
         return availabilities;
     }
 
-    public String getSkillLevel() {
+    public Integer getSkillLevel() {
         return skillLevel;
     }
 }

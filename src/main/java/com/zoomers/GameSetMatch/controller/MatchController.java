@@ -64,7 +64,7 @@ public class MatchController {
         userMatchTournamentRepository.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
     }
 
-    @PutMapping("/tournament/{tournamentID}/round/{roundID}")
+    @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
     public void updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
                                     @RequestBody List<IncomingMatch> matches) {
         Date latestMatchDate = Date.valueOf(matches.get(0).getEndTime().substring(0,9));
@@ -72,7 +72,7 @@ public class MatchController {
             Optional<Match> existingMatch = Optional.of(matchRepository.getById(match.getID()));
             if (existingMatch.isPresent()) {
                 matchRepository.updateMatchInfo(match.getID(),
-                        match.getStartTime(), match.getEndTime(), match.getDuration(), roundID);
+                        match.getStartTime(), match.getEndTime(), roundID);
             } else {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Match ID");
             }

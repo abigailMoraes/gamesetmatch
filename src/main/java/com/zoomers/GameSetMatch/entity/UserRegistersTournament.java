@@ -1,10 +1,8 @@
 package com.zoomers.GameSetMatch.entity;
 
-import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @Entity
 @IdClass(UserRegistersTournamentID.class)
@@ -26,9 +24,10 @@ import java.util.Date;
         resultSetMapping = "RegistrantMapping"
 )
 public class UserRegistersTournament {
-    public UserRegistersTournament(Integer tournamentID, Integer userID) {
+    public UserRegistersTournament(Integer tournamentID, Integer userID, Integer skillLevel) {
         this.tournamentID = tournamentID;
         this.userID = userID;
+        this.skillLevel = skillLevel;
     }
 
     public UserRegistersTournament() {
