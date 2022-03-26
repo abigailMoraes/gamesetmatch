@@ -22,13 +22,11 @@ import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
-import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
+import com.zoomers.GameSetMatch.scheduler.enumerations.*;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.*;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.DoubleKnockoutMatcher;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.RoundRobinMatcher;
-import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.SingleKnockoutMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.DoubleKnockoutMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.RoundRobinMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.SingleKnockoutMatcher;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -138,7 +136,6 @@ public class Scheduler {
 
         List<com.zoomers.GameSetMatch.entity.Match> matchEntities = new ArrayList<>();
         for (Match m : returnedMatches) {
-            String s = m.toString();
             com.zoomers.GameSetMatch.entity.Match matchEntity = new com.zoomers.GameSetMatch.entity.Match();
             matchEntity.setStartTime(m.getTimeslot().getLocalStartDateTime());
             matchEntity.setEndTime(m.getTimeslot().getLocalEndDateTime(this.MOCK_TOURNAMENT.getMatchDuration()));
@@ -149,6 +146,12 @@ public class Scheduler {
             matchEntities.add(matchEntity);
             // System.out.println(m);
         }
+
+        tournamentRepository.updateTournament(
+                this.MOCK_TOURNAMENT.getTournamentID(),
+                this.MOCK_TOURNAMENT.getTournamentStatus().getStatus(),
+                this.MOCK_TOURNAMENT.getCurrentRound()
+            );
 
         matchRepository.saveAll(matchEntities);
         return returnedMatches;
@@ -398,10 +401,12 @@ public class Scheduler {
         for (Registrant r : REGISTRANTS) {
 
             r.setGamesToSchedule(this.MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames());
-            r.setPlayersToPlay(registrantIDs);
+            r.setPlayersToPlay(new LinkedHashSet<>(registrantIDs));
             r.initAvailability();
-            r.initCurrentStatus();
+            r.initCurrentStatus(this.MOCK_TOURNAMENT.getTournamentFormat());
         }
+
+        REGISTRANTS.removeIf(registrant -> registrant.getStatus() == PlayerStatus.ELIMINATED);
     }
 
     private void initTimeslots() throws IOException {
@@ -431,18 +436,23 @@ public class Scheduler {
         if (this.MOCK_TOURNAMENT.getTournamentFormat() == TournamentFormat.ROUND_ROBIN) {
             checkIfAllPlayersHavePlayed();
         } else {
-            this.MOCK_TOURNAMENT.setFinalRound(this.REGISTRANTS.size() == 2);
+            if (this.REGISTRANTS.size() == 2) {
+                this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.FINAL_ROUND);
+            }
+            else {
+                this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.ONGOING);
+            }
         }
     }
 
     private void checkIfAllPlayersHavePlayed() {
 
         for (Registrant r : REGISTRANTS) {
-            if (r.getPlayersToPlay().size() != 0) {
-                this.MOCK_TOURNAMENT.setFinalRound(false);
+            if (r.getPlayersToPlay().size() > 1) {
+                this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.ONGOING);
                 return;
             }
         }
-        this.MOCK_TOURNAMENT.setFinalRound(true);
+        this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.FINAL_ROUND);
     }
 }

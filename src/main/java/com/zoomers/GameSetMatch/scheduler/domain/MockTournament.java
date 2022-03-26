@@ -3,6 +3,7 @@ package com.zoomers.GameSetMatch.scheduler.domain;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 
 import java.util.Date;
 
@@ -16,7 +17,7 @@ public class MockTournament {
     private final Date startDate;
     private Date roundEndDate;
     private int currentRound;
-    private boolean isFinalRound;
+    private TournamentStatus tournamentStatus;
 
     public MockTournament(
             int tournamentID,
@@ -25,7 +26,7 @@ public class MockTournament {
             int matchBy,
             int matchDuration,
             Date startDate,
-            int currentRound
+            int previousRound
     ) {
         this.tournamentID = tournamentID;
         this.tournamentFormat = TournamentFormat.values()[tournamentFormat - 1];
@@ -33,7 +34,7 @@ public class MockTournament {
         this.matchBy = MatchBy.values()[matchBy - 1];
         this.matchDuration = matchDuration;
         this.startDate = startDate;
-        this.currentRound = currentRound;
+        this.currentRound = previousRound + 1;
     }
 
     public void setRoundEndDate(Date date) {
@@ -41,8 +42,8 @@ public class MockTournament {
         this.roundEndDate = date;
     }
 
-    public void setFinalRound(boolean isFinalRound) {
-        this.isFinalRound = isFinalRound;
+    public void setTournamentStatus(TournamentStatus tournamentStatus) {
+        this.tournamentStatus = tournamentStatus;
     }
 
     public int getTournamentID() {
@@ -76,5 +77,9 @@ public class MockTournament {
 
     public int getCurrentRound() {
         return currentRound;
+    }
+
+    public TournamentStatus getTournamentStatus() {
+        return tournamentStatus;
     }
 }

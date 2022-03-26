@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 
 public class UserMatchTournamentInfo {
-    private int results;
+    private String results;
     private String attendance;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,7 +28,6 @@ public class UserMatchTournamentInfo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name="end_time")
     private String endTime;
-    private int duration;
     private String name;
     private String location;
     private String description;

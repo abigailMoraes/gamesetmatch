@@ -33,7 +33,7 @@ public abstract class TypeMatcher {
 
                     Registrant r2 = registrants.get(j);
 
-                    if (areMatchConditionsSatisfied(r1, r2, t)) {
+                    if (!areMatchConditionsSatisfied(r1, r2, t)) {
                         continue;
                     }
 
@@ -84,7 +84,7 @@ public abstract class TypeMatcher {
 
                     Registrant r2 = registrantsToBeMatched.get(j);
 
-                    if (areMatchConditionsSatisfied(r1, r2, t)) {
+                    if (!areMatchConditionsSatisfied(r1, r2, t)) {
                         continue;
                     }
 
@@ -203,4 +203,6 @@ public abstract class TypeMatcher {
     }
 
     protected abstract boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t);
+
+    protected abstract int calculateMatchScore(Match match);
 }
