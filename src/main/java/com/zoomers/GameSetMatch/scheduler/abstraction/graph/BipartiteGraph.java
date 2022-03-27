@@ -1,4 +1,12 @@
-package com.zoomers.GameSetMatch.scheduler.graph;
+/**
+ * Directed Bipartite Graph from timeslots to registrants.
+ * An edge between nodes exists if a registrant is available at that time.
+ * Represented as an adjacency list.
+ *
+ * @since 2022-03-21
+ */
+
+package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
@@ -14,7 +22,7 @@ public class BipartiteGraph {
     private int edgeCount;
     private final LinkedHashMap<Timeslot, List<Registrant>> adjacencyList;
     private int matchIndex;
-    private int matchDuration;
+    private final int matchDuration;
 
     public BipartiteGraph(List<Timeslot> timeslots, List<Registrant> players, int matchDuration) {
 
@@ -43,16 +51,25 @@ public class BipartiteGraph {
         }
     }
 
+    /**
+     * We create an edge from t to r if:
+     * - the time of the match will not exceed 9 pm
+     * - Registrant r is availability for the duration of the match
+     *
+     * @param r, registrant
+     * @param t, timeslot
+     */
     private void createAdjacencyList(Registrant r, Timeslot t) {
 
-        if (t.getID() + matchIndex > timeslots.size()) {
+        // TODO: THIS DOESN'T KEEP TRACK OF 9PM
+        // UPDATE TO t get time and match duration
+        if (t.getTime() + matchDuration / 30.0 > 21.0) {
+
             return;
         }
 
         for (int i = t.getID(); i < t.getID() + matchIndex; i++) {
-
             if (r.getAvailability().charAt(i) != '1') {
-
                 return;
             }
         }
@@ -89,7 +106,7 @@ public class BipartiteGraph {
 
     public void printGraph() {
         for (Timeslot t : adjacencyList.keySet()) {
-            System.out.println("\nVertex " + t.getTime() + ":");
+            System.out.println("\nVertex " + t.toString() + ":");
             for (Registrant r : adjacencyList.get(t)) {
                 System.out.print(" -> " + r.getID());
             }

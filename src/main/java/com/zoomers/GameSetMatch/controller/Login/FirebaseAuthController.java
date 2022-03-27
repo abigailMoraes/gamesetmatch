@@ -1,4 +1,4 @@
-package com.zoomers.GameSetMatch.controller;
+package com.zoomers.GameSetMatch.controller.Login;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -21,7 +21,8 @@ public class FirebaseAuthController {
     }
 
     @PostMapping("/verifyIdToken")
-    public User verifyIdToken(@RequestBody String firebaseIdToken) throws FirebaseAuthException {
+    public UserResponse verifyIdToken(@RequestBody String firebaseIdToken) throws FirebaseAuthException {
+        UserResponse returnUser = new UserResponse();
         User user = new User();
         try {
 
@@ -44,12 +45,14 @@ public class FirebaseAuthController {
                 user = database_user;
             }
 
-            user.setPicture(picture);
-
-
+            returnUser.setId(user.getId());
+            returnUser.setEmail(user.getEmail());
+            returnUser.setName(user.getName());
+            returnUser.setIsAdmin(user.getIsAdmin());
+            returnUser.setPicture(picture);
         } catch (FirebaseAuthException ex) {
             ex.printStackTrace();
     }
-        return user;
+        return returnUser;
     }
 }
