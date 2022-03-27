@@ -18,7 +18,7 @@ public class ScheduledTasks {
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
-    @Scheduled(cron ="0 0 7-18 ? * *", zone="America/Los_Angeles")
+    @Scheduled(cron ="@midnight", zone="America/Los_Angeles")
     public void CloseRegistration() {
         System.out.println("Midnight scheduling");
         log.info("The time is now {}", dateFormat.format(new Date()));
