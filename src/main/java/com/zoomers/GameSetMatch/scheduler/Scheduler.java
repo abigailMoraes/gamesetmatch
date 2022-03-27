@@ -418,9 +418,6 @@ public class Scheduler {
         Date date = CALENDAR.getTime();
         this.TIMESLOTS = new ArrayList<>();
 
-//        InputStream slots = new ClassPathResource("Timeslots").getInputStream();
-//
-//        Scanner scanner = new Scanner(slots);
         String str = "9,9.5,10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15,15.5,16,16.5,17,17.5,18,18.5,19,19.5,20,20.5";
         String[] arrOfStr = str.split(",");
          for (int i = 0; i < 7; i++) {
@@ -430,7 +427,6 @@ public class Scheduler {
                 this.TIMESLOTS.add(t);
             }
             CALENDAR.add(Calendar.DATE, 1);
-//            scanner = new Scanner(slots);
 
         }
 
