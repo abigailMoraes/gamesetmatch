@@ -42,7 +42,7 @@ public class MailController {
         // currently, only support google account
         // make sure the server account has IMAP turned on, see link blow
         // https://support.google.com/mail/answer/7126229?hl=en#zippy=
-        String from = "zoomers319@gmail.com";
+        String from = "zoomers319a@gmail.com";
 
         for (IncomingMatch match : schedule) {
 
@@ -65,9 +65,9 @@ public class MailController {
                 helper.setTo(to);
 
                 String firstName = user.getName().split("\\s+")[0];
-                String date = match.getStartTime().split("\\s+")[0];
-                String startTime = match.getStartTime().split("\\s+")[1];
-                String endTime = match.getEndTime().split("\\s+")[1];
+                String date = Integer.toString(match.getStartTime().getHour());
+                String startTime = Integer.toString(match.getStartTime().getHour());
+                String endTime = Integer.toString(match.getEndTime().getHour());
 
 
                 boolean html = true;
