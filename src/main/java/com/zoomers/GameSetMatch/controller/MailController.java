@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -36,13 +37,14 @@ public class MailController {
     @Autowired
     private TournamentRepository tournamentRepository;
 
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     @PostMapping(value = "/publish")
     public void sendMails(@RequestBody List<IncomingMatch> schedule) throws MessagingException {
 
         // currently, only support google account
         // make sure the server account has IMAP turned on, see link blow
         // https://support.google.com/mail/answer/7126229?hl=en#zippy=
-        String from = "zoomers319a@gmail.com";
 
         for (IncomingMatch match : schedule) {
 
@@ -59,15 +61,14 @@ public class MailController {
                 MimeMessageHelper helper = new MimeMessageHelper(message);
 
                 helper.setSubject("[GameSetMatch]Incoming Match Notification");
-                helper.setFrom(from);
 
                 String to = user.getEmail();
                 helper.setTo(to);
 
                 String firstName = user.getName().split("\\s+")[0];
-                String date = Integer.toString(match.getStartTime().getHour());
-                String startTime = Integer.toString(match.getStartTime().getHour());
-                String endTime = Integer.toString(match.getEndTime().getHour());
+                String date = match.getStartTime().format(formatter).split("\\s+")[0];
+                String startTime = match.getStartTime().format(formatter).split("\\s+")[1];
+                String endTime = match.getEndTime().format(formatter).split("\\s+")[1];
 
 
                 boolean html = true;
