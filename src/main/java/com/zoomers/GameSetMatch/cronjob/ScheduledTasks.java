@@ -33,10 +33,9 @@ public class ScheduledTasks {
     @Autowired
     private Scheduler scheduler;
 
-    public ScheduledTasks(RoundHasRepository roundHasRepository, TournamentRepository tournamentRepository, TournamentStatus tournamentStatus, Scheduler scheduler) {
+    public ScheduledTasks(RoundHasRepository roundHasRepository, TournamentRepository tournamentRepository, Scheduler scheduler) {
         this.roundHasRepository = roundHasRepository;
         this.tournamentRepository = tournamentRepository;
-        this.tournamentStatus = tournamentStatus;
         this.scheduler = scheduler;
     }
 
@@ -58,7 +57,7 @@ public class ScheduledTasks {
         new_tournamentIDs = this.tournamentRepository.CloseRegistrationDate();
 //        System.out.println(new_tournamentIDs);
         for(Integer tournamentID : new_tournamentIDs){
-            this.tournamentRepository.setTournamentStatus(this.tournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
+            this.tournamentRepository.setTournamentStatus(tournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
             this.scheduler.createSchedule(tournamentID);
         }
 
