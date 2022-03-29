@@ -1,6 +1,5 @@
 package com.zoomers.GameSetMatch.cronjob;
 
-import com.zoomers.GameSetMatch.entity.RoundHas;
 import com.zoomers.GameSetMatch.repository.RoundHasRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
@@ -12,7 +11,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -27,41 +25,38 @@ public class ScheduledTasks {
     private  List<Integer> ongoing_tournamentIDs;
     private  List<Integer> new_tournamentIDs;
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
-    private static final SimpleDateFormat dateFormat1 = new SimpleDateFormat("HH:mm:ss");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
+
 
     @Autowired
     private Scheduler scheduler;
 
-    public ScheduledTasks(RoundHasRepository roundHasRepository, TournamentRepository tournamentRepository) {
+    public ScheduledTasks(RoundHasRepository roundHasRepository, TournamentRepository tournamentRepository, Scheduler scheduler) {
         this.roundHasRepository = roundHasRepository;
         this.tournamentRepository = tournamentRepository;
+        this.scheduler = scheduler;
     }
 
-    //    @Scheduled(cron = "@midnight", zone="America/Los_Angeles")
-    @Scheduled (initialDelay = 10000, fixedDelay=Long.MAX_VALUE)
-    public void RunScheduler() {
-
+//    @Scheduled (initialDelay = 1000, fixedDelay=Long.MAX_VALUE)
+    @Scheduled(cron = "@midnight", zone="America/Los_Angeles")
+    public void RunScheduler(){
         System.out.println("Midnight scheduling");
         Date today = new Date();
-//        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        log.info("The time is now {}", dateFormat1.format(today));
-//        df.setTimeZone(TimeZone.getTimeZone("America/Los_Angeles"));
-//        String PST = df.format(today);
-//        System.out.println(PST);
+        String end_date = dateFormat.format(today);
+//        System.out.println(end_date);
 
-        // Todo: Call scheduler to schedule subsequent round for ongoing tournament
-        ongoing_tournamentIDs = this.roundHasRepository.findRoundsPastEndDate();
-        System.out.println(ongoing_tournamentIDs);
+        ongoing_tournamentIDs = this.roundHasRepository.findRoundsPastEndDate(end_date);
+//        System.out.println(ongoing_tournamentIDs);
 
-    //        List<RoundHas> tournaments = this.roundHasRepository.findRoundsPastEndDate1();
-    //        System.out.println(tournaments);
+        for(Integer tournamentID : ongoing_tournamentIDs){
+            this.scheduler.createSchedule(tournamentID);
+        }
 
-        // Todo: Call scheduler to schedule round for new tournament
         new_tournamentIDs = this.tournamentRepository.findTournamentPastCloseDate();
-        System.out.println(new_tournamentIDs);
+//        System.out.println(new_tournamentIDs);
         for(Integer tournamentID : new_tournamentIDs){
             this.tournamentRepository.setTournamentStatus(1, tournamentID);
-            scheduler.createSchedule(tournamentID);
+            this.scheduler.createSchedule(tournamentID);
         }
 
 

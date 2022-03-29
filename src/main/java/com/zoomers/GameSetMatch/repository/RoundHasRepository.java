@@ -9,10 +9,10 @@ import java.util.List;
 public interface RoundHasRepository extends JpaRepository<RoundHas, Integer> {
 
     @Query (
-            value = "SELECT DISTINCT r.tournamentID FROM round_has r WHERE end_date = current_date",
+            value = "SELECT DISTINCT r.tournamentID FROM round_has r WHERE end_date = STR_TO_DATE(:date, '%Y-%m-%d %T')",
             nativeQuery = true
     )
-    List<Integer> findRoundsPastEndDate();
+    List<Integer> findRoundsPastEndDate(String date);
 
     @Query (
             value = "SELECT * FROM round_has r WHERE end_date = current_date",
