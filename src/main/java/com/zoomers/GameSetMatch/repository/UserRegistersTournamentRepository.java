@@ -32,4 +32,6 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
         String getEmail();
         String getSkillLevel();
     }
+
+    void deleteUserRegistersTournamentsByTournamentID(Integer tournamentID);
 }

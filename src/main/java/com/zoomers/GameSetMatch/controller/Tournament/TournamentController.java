@@ -76,8 +76,8 @@ public class TournamentController {
 
     @PostMapping()
     public Tournament createTournament(@RequestBody Tournament tournament)  {
-        if (tournament.getStatus() == -1) {
-            tournament.setStatus(0);
+        if (tournament.getStatus() == TournamentStatus.DEFAULT.getStatus()) {
+            tournament.setStatus(TournamentStatus.OPEN_FOR_REGISTRATION.getStatus());
             tournament.setCurrentRound(0);
         }
         tournamentService.saveTournament(tournament);
@@ -132,7 +132,7 @@ public class TournamentController {
             if (incoming.getAdminHostsTournament() != 0) {
                 tour.setAdminHostsTournament(incoming.getAdminHostsTournament());
             }
-            if (incoming.getStatus() != -1) {
+            if (incoming.getStatus() != TournamentStatus.DEFAULT.getStatus()) {
                 tour.setStatus(incoming.getStatus());
             }
 
@@ -163,7 +163,9 @@ public class TournamentController {
         if (tournament.isPresent()) {
             Tournament tour = tournament.get();
 
-            if (tour.getStatus() == 0 ) {
+            if (tour.getStatus() == TournamentStatus.OPEN_FOR_REGISTRATION.getStatus()) {
+                availability.deleteByTournamentID(tournamentID);
+                userRegistersTournament.deleteByTournamentID(tournamentID);
                 tournamentService.deleteTournamentByID(tournamentID);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)

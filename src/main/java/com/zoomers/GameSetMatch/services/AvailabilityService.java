@@ -38,4 +38,8 @@ public class AvailabilityService {
     public List<String> getPlayerAvailabilities(int r_id, int t_id) {
         return availability.findRegistrantAvailability(r_id, t_id);
     }
+
+    public void deleteByTournamentID(Integer tournamentID) {
+        availability.deleteAvailabilitiesByTournamentID(tournamentID);
+    }
 }

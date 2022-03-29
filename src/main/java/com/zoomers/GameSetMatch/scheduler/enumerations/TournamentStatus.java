@@ -1,6 +1,7 @@
 package com.zoomers.GameSetMatch.scheduler.enumerations;
 
 public enum TournamentStatus {
+    DEFAULT(-1),
     OPEN_FOR_REGISTRATION(0),
     REGISTRATION_CLOSED(1),
     READY_TO_PUBLISH_SCHEDULE(2),
