@@ -30,8 +30,8 @@ public class UserRegistersTournamentService {
         return userRegistersTournament.findRegistrantsByTournamentID(tournamentID);
     }
 
-    public void saveRegistration(Integer tournamentID, Integer userID) {
-        UserRegistersTournament registration = new UserRegistersTournament(tournamentID, userID);
+    public void saveRegistration(Integer tournamentID, Integer userID, Integer skillLevel) {
+        UserRegistersTournament registration = new UserRegistersTournament(tournamentID, userID, skillLevel);
         userRegistersTournament.save(registration);
     }
 }

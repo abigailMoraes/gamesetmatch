@@ -1,74 +1,102 @@
 package com.zoomers.GameSetMatch.scheduling_test.unit.GraphTest;
 
+import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
-import org.junit.jupiter.api.Test;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.Calendar;
 
+// import org.junit.jupiter.api.Test;
+
+@RunWith( SpringRunner.class )
+// @Import({TournamentRepository.class})
+@SpringBootTest
+// @EnableAutoConfiguration
+// @DataJpaTest
 public class GraphTests {
 
-    private MockTournament tournament = new MockTournament(
+    @Autowired
+    private TournamentRepository tournamentRepository;
+
+    @Autowired
+    private Scheduler scheduler;
+
+    private final MockTournament tournament1 = new MockTournament(
             0,
-            TournamentType.SINGLE_KNOCKOUT,
-            TournamentFormat.BEST_OF_1,
-            true,
-            30
+            1,
+            1,
+            1,
+            30,
+            Calendar.getInstance().getTime(),
+            0
     );
 
+    private final MockTournament weightedTournament1 = new MockTournament(
+            0,
+            1,
+            1,
+            1,
+            30,
+            Calendar.getInstance().getTime(),
+            0
+    );
+
+    private final MockTournament StressTournament = new MockTournament(
+            0,
+            1,
+            4,
+            1,
+            180,
+            Calendar.getInstance().getTime(),
+            0
+    );
+
+    @Rule
+    public Timeout globalTime = Timeout.seconds(300);
+/*
     @Test
-    void GraphOne() {
-        Scheduler s = new Scheduler(tournament, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet1.json");
+    public void BaseMatchingTest() {
+        Scheduler s = new Scheduler(tournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
         s.schedule();
     }
 
     @Test
-    void GraphTwo() {
-        JSONArray array = new JSONArray();
-
-        try {
-            for (int i = 0; i < 50; i++) {
-                JSONObject player = new JSONObject();
-                player.put("id", Integer.toString(i));
-                player.put("availability", "111111111111111111111111");
-
-                array.put(player);
-            }
-        }
-        catch (JSONException e) {
-
-            System.out.println(e);
-        }
-
-        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet2.json";
-
-        try {
-            FileWriter file = new FileWriter(filename);
-            file.write(array.toString());
-            file.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Scheduler s = new Scheduler(tournament, filename);
+    public void weightedBaseMatchingTest() {
+        Scheduler s = new Scheduler(weightedTournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseMatchingTest.json");
         s.schedule();
     }
 
     @Test
-    void GraphThree() {
+    public void SingleMatchingTest() {
+        Scheduler s = new Scheduler(tournament1, "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/SingleMatch.json");
+        s.schedule();
+    }
+
+    @Test
+    public void BaseSecondaryMatching() {
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BaseSecondaryMatching.json";
+
+        Scheduler s = new Scheduler(tournament1, filename);
+        s.schedule();
+    }
+
+    @Test
+    public void GeneralUpperBoundStressTestFullAvailability() {
         JSONArray array = new JSONArray();
         try {
 
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 100; i++) {
                 JSONObject player =  new JSONObject();
                 player.put("id", Integer.toString(i));
-                player.put("availability", "101000000000000000000000");
+                player.put("availability", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
 
                 array.put(player);
             }
@@ -78,7 +106,7 @@ public class GraphTests {
             System.out.println(e);
         }
 
-        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet2.json";
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/GeneralFullAvailability.json";
 
         try {
             FileWriter file = new FileWriter(filename);
@@ -88,37 +116,88 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
     }
 
     @Test
-    void GraphFour() {
+    public void GeneralUpperBoundStressTestNoAvailability() {
+        JSONArray array = new JSONArray();
+        try {
 
-        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet3.json";
+            for (int i = 0; i < 100; i++) {
+                JSONObject player =  new JSONObject();
+                player.put("id", Integer.toString(i));
+                player.put("availability", "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
 
-        Scheduler s = new Scheduler(tournament, filename);
+                array.put(player);
+            }
+        }
+        catch (JSONException e) {
+
+            System.out.println(e);
+        }
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/GeneralNoAvailability.json";
+
+        try {
+            FileWriter file = new FileWriter(filename);
+            file.write(array.toString());
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
     }
 
     @Test
-    void GraphFive() {
+    public void MultiWeekPrimaryScheduling() {
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/MultiWeekPrimaryScheduling.json";
+
+        Scheduler s = new Scheduler(tournament1, filename);
+        s.schedule();
+    }
+
+    @Test
+    public void GraphFive() {
 
         String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet4.json";
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(tournament1, filename);
         s.schedule();
     }
 
     @Test
-    void StressTest() {
+    public void GraphSix() {
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/PlayerSet5.json";
+
+        Scheduler s = new Scheduler(tournament1, filename);
+        s.schedule();
+    }
+
+    @Test
+    public void BestOfMatching() {
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/BestOfMatching.json";
+
+        Scheduler s = new Scheduler(tournament1, filename);
+        s.schedule();
+    }
+
+    @Test
+    public void StressTestNoAvailability() {
         JSONArray array = new JSONArray();
 
         try {
             for (int i = 0; i < 300; i++) {
                 JSONObject player =  new JSONObject();
                 player.put("id", Integer.toString(i));
-                player.put("availability", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+                player.put("availability", "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+                player.put("skill", "1");
 
                 array.put(player);
             }
@@ -138,7 +217,59 @@ public class GraphTests {
             e.printStackTrace();
         }
 
-        Scheduler s = new Scheduler(tournament, filename);
+        Scheduler s = new Scheduler(StressTournament, filename);
         s.schedule();
+    }
+
+    @Test
+    public void StressTestFullAvailability() {
+        JSONArray array = new JSONArray();
+
+        try {
+            for (int i = 0; i < 300; i++) {
+                JSONObject player =  new JSONObject();
+                player.put("id", Integer.toString(i));
+                player.put("availability", "111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+                player.put("skill", "1");
+
+                array.put(player);
+            }
+        }
+        catch (JSONException e) {
+
+            System.out.println(e);
+        }
+
+        String filename = "./src/test/java/com/zoomers/GameSetMatch/scheduling_test/json_files/stress2.json";
+
+        try {
+            FileWriter file = new FileWriter(filename);
+            file.write(array.toString());
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Scheduler s = new Scheduler(StressTournament, filename);
+        s.schedule();
+    }
+*/
+    @Test
+    public void BasicDBIntegration() {
+
+        scheduler.createSchedule(1);
+    }
+
+    @Test
+    public void DBIntegrationOne() {
+
+        scheduler.createSchedule(5);
+    }
+
+    @Test
+    public void DBIntegrationRoundRobinTest() {
+        for (int i = 0; i < 5; i++) {
+            scheduler.createSchedule(1);
+        }
     }
 }

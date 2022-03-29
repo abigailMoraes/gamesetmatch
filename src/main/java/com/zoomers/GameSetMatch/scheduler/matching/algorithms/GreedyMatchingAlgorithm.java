@@ -1,8 +1,7 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
-import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -19,7 +18,7 @@ public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
     protected void visitMatches(Match match) {
 
         this.matchGraph.removeMatch(match);
-        match.setMatchStatus(MatchStatus.VALID);
+        markMatch(match);
 
         // System.out.println("Adding " + match + " to Independent Set with degree " + match.getDegrees());
 
@@ -27,11 +26,12 @@ public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
 
         for (Match m2 : this.matchGraph.getMatches()) {
 
-            if (match.sharePlayers(m2) || match.shareTimeslot(m2)) {
+            if (match.sharePlayers(m2) || (match.shareTimeslot(m2) && match.shareDate(m2))) {// && match.shareDate(m2))) {
 
+                // System.out.println("  Removing " + m2 + " with " + match.getDegrees() + " degrees" + " from matches to check");
                 matchGraph.decrementDegree(m2);
                 matchesToRemove.add(m2);
-                // System.out.println("  Removing " + m2 + " from matches to check");
+
             }
         }
 

@@ -8,8 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.io.Serializable;
 
-
-
 public class UserMatchPairingId implements Serializable {
     private Integer userID;
     private Integer matchID;

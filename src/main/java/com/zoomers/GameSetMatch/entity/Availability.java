@@ -16,20 +16,20 @@ public class Availability {
     private Integer userID;
 
     @Id
-    @Column(name = "date")
-    private Date date;
+    @Column(name = "day_of_week")
+    private int dayOfWeek;
 
-    @Column(name = "availability_binary")
-    private int availability;
+    @Column(name = "availability_string")
+    private String availability;
 
     public Availability() {
 
     }
 
-    public Availability(Integer tournamentID, Integer userID, Date date, int availability) {
+    public Availability(Integer tournamentID, Integer userID, int day_of_week, String availability) {
         this.tournamentID = tournamentID;
         this.userID = userID;
-        this.date = date;
+        this.dayOfWeek = day_of_week;
         this.availability = availability;
     }
 
@@ -49,19 +49,19 @@ public class Availability {
         this.userID = userID;
     }
 
-    public Date getDate() {
-        return date;
+    public int getDate() {
+        return dayOfWeek;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDate(int day_of_week) {
+        this.dayOfWeek = day_of_week;
     }
 
-    public int getAvailability() {
+    public String getAvailability() {
         return availability;
     }
 
-    public void setAvailability(int availability) {
+    public void setAvailability(String availability) {
         this.availability = availability;
     }
 }

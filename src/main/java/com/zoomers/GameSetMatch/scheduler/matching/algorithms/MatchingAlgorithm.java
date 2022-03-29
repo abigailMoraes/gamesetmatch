@@ -1,8 +1,9 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.graph.MatchGraph;
-import com.zoomers.GameSetMatch.scheduler.graph.PrimaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
+import com.zoomers.GameSetMatch.scheduler.abstraction.graph.MatchGraph;
 
 import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
@@ -12,8 +13,12 @@ public abstract class MatchingAlgorithm {
 
     protected MatchGraph matchGraph;
     protected PriorityQueue<Match> priorityQueue;
+    protected Set<Registrant> registrants;
 
-    public MatchingAlgorithm(MatchGraph matchGraph) { this.matchGraph = matchGraph; }
+    public MatchingAlgorithm(MatchGraph matchGraph) {
+        this.matchGraph = matchGraph;
+        this.registrants = this.matchGraph.getRegistrants();
+    }
 
     public Set<Match> findMatches() {
 
@@ -21,6 +26,7 @@ public abstract class MatchingAlgorithm {
 
         while (!this.matchGraph.getMatches().isEmpty()) {
 
+            // System.out.println("Matches left: " + this.matchGraph.getMatches().size());
             Match match = this.priorityQueue.poll();
             s.add(match);
             visitMatches(match);
@@ -28,6 +34,16 @@ public abstract class MatchingAlgorithm {
         }
 
         return s;
+    }
+
+    protected void markMatch(Match match) {
+
+        match.setMatchStatus(MatchStatus.VALID);
+
+        Registrant r1 = registrants.stream().filter(r -> r.getID() == match.getPlayers().getFirst()).findFirst().get();
+        Registrant r2 = registrants.stream().filter(r -> r.getID() == match.getPlayers().getSecond()).findFirst().get();
+        r1.decreaseGamesToSchedule();
+        r2.decreaseGamesToSchedule();
     }
 
     protected abstract void buildPriorityQueue();

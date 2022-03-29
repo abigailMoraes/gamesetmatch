@@ -30,8 +30,8 @@ public class UserController {
     }
 
     @GetMapping("/match/{matchID}/participants")
-    public List<User> getMatchParticipants ( @PathVariable int id){
-        return repository.findMatchParticipantInfo(id);
+    public List<User> getMatchParticipants ( @PathVariable int matchID){
+        return repository.findMatchParticipantInfo(matchID);
     }
     
     @PutMapping("/user/{email}")

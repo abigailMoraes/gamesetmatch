@@ -1,14 +1,17 @@
-package com.zoomers.GameSetMatch.scheduler.graph;
+/**
+ * Undirected (Weighted) Graph for Secondary Scheduling
+ *
+ * @since 2022-03-21
+ */
+
+package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
-import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 public class SecondaryMatchGraph extends MatchGraph {
 
