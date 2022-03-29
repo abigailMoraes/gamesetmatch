@@ -72,11 +72,5 @@ public class Match {
 
     @Column(name="userID_2")
     private int userID_2;
-    /*indicates whether there is a conflict in both player's attendance*/
-    @Column(name = "userID_1")
-    private int ID1;
-
-    @Column(name = "userID_2")
-    private int ID2;
 
 }
