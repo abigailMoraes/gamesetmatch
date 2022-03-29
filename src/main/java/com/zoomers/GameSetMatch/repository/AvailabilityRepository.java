@@ -13,4 +13,7 @@ public interface AvailabilityRepository extends JpaRepository<Availability, Avai
 
     @Query(value = "SELECT availability_string FROM Availability WHERE userID = :id AND tournamentID = :tid ORDER BY day_of_week", nativeQuery = true)
     List<String> findRegistrantAvailability(int id, int tid);
+
+    void deleteAvailabilitiesByTournamentID(Integer id);
+
 }

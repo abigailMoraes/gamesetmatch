@@ -163,7 +163,9 @@ public class TournamentController {
         if (tournament.isPresent()) {
             Tournament tour = tournament.get();
 
-            if (tour.getStatus() == 0 ) {
+            if (tour.getStatus() == 0) {
+                userRegistersTournament.delete(tournamentID);
+                availability.delete(tournamentID);
                 tournamentService.deleteTournamentByID(tournamentID);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)

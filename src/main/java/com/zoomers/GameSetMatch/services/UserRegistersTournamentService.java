@@ -34,4 +34,8 @@ public class UserRegistersTournamentService {
         UserRegistersTournament registration = new UserRegistersTournament(tournamentID, userID, skillLevel);
         userRegistersTournament.save(registration);
     }
+
+    public void delete(Integer id) {
+        userRegistersTournament.deleteUserRegistersTournamentsByTournamentID(id);
+    }
 }
