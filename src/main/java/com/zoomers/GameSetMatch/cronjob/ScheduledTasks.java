@@ -33,14 +33,15 @@ public class ScheduledTasks {
     @Autowired
     private Scheduler scheduler;
 
-    public ScheduledTasks(RoundHasRepository roundHasRepository, TournamentRepository tournamentRepository, Scheduler scheduler) {
+    public ScheduledTasks(RoundHasRepository roundHasRepository, TournamentRepository tournamentRepository, TournamentStatus tournamentStatus, Scheduler scheduler) {
         this.roundHasRepository = roundHasRepository;
         this.tournamentRepository = tournamentRepository;
+        this.tournamentStatus = tournamentStatus;
         this.scheduler = scheduler;
     }
 
-    @Scheduled (initialDelay = 1000, fixedDelay=Long.MAX_VALUE)
-//    @Scheduled(cron = "@midnight", zone="America/Los_Angeles")
+//    @Scheduled (initialDelay = 1000, fixedDelay=Long.MAX_VALUE)
+    @Scheduled(cron = "@midnight", zone="America/Los_Angeles")
     public void RunScheduler(){
         System.out.println("Midnight scheduling");
         Date today = new Date();
@@ -48,17 +49,16 @@ public class ScheduledTasks {
 //        System.out.println(end_date);
 
         ongoing_tournamentIDs = this.roundHasRepository.findNextRoundTournamentId(end_date);
-        System.out.println(ongoing_tournamentIDs);
+//        System.out.println(ongoing_tournamentIDs);
 
         for(Integer tournamentID : ongoing_tournamentIDs){
             this.scheduler.createSchedule(tournamentID);
         }
 
         new_tournamentIDs = this.tournamentRepository.CloseRegistrationDate();
-        System.out.println(new_tournamentIDs);
+//        System.out.println(new_tournamentIDs);
         for(Integer tournamentID : new_tournamentIDs){
-            System.out.println(tournamentStatus.REGISTRATION_CLOSED);
-            this.tournamentRepository.setTournamentStatus(tournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
+            this.tournamentRepository.setTournamentStatus(this.tournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
             this.scheduler.createSchedule(tournamentID);
         }
 
