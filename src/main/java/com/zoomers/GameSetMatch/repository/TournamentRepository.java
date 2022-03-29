@@ -35,14 +35,14 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
             "WHERE tournamentID = :tournamentID", nativeQuery = true)
     void updateTournament(int tournamentID, int status, int roundNumber);
 
-    @Query( value = "SELECT t.tournamentID FROM tournament t WHERE status = 1 OR (close_registration_date = current_date AND status = 0)",
+    @Query( value = "SELECT t.tournamentID FROM Tournament t WHERE status = 1 OR (close_registration_date = current_date AND status = 0)",
             nativeQuery = true
     )
-    List<Integer> findTournamentPastCloseDate();
+    List<Integer> CloseRegistrationDate();
 
     @Transactional
     @Modifying
-    @Query ( value = "UPDATE tournament t SET t.status = :status WHERE t.tournamentID = :tournamentID",
+    @Query ( value = "UPDATE Tournament t SET t.status = :status WHERE t.tournamentID = :tournamentID",
             nativeQuery = true
 
     )

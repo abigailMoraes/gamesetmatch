@@ -73,13 +73,6 @@ public class Tournament {
     @Column(name = "admin_hosts_tournament")
     private int adminHostsTournament;
 
-//    OPEN_FOR_REGISTRATION(0),
-//    REGISTRATION_CLOSED(1),
-//    READY_TO_PUBLISH_SCHEDULE(2),
-//    ONGOING(3),
-//    READY_TO_PUBLISH_NEXT_ROUND(4),
-//    FINAL_ROUND(5),
-//    TOURNAMENT_OVER(6);
     @Column(name = "status")
     private int status;
 
