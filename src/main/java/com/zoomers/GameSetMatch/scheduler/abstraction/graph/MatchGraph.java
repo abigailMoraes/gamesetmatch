@@ -1,4 +1,13 @@
-package com.zoomers.GameSetMatch.scheduler.graph;
+/**
+ * Abstract class for graphs used by different scheduling algorithms
+ *
+ * Graphs are weighted by difference of skill between players, or 0
+ * if matching is done by random instead of skill.
+ *
+ * @since 2022-03-21
+ */
+
+package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
@@ -35,6 +44,8 @@ public abstract class MatchGraph {
     public Set<Timeslot> getTimeslots() {
         return timeslots;
     }
+
+    public Set<Registrant> getRegistrants() { return registrants; }
 
     public abstract void decrementDegree(Match m);
 

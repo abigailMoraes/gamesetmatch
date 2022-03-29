@@ -1,47 +1,85 @@
 package com.zoomers.GameSetMatch.scheduler.domain;
 
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentType;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+
+import java.util.Date;
 
 public class MockTournament {
 
     private final int tournamentID;
-    private final TournamentType tournamentType;
     private final TournamentFormat tournamentFormat;
-    private final boolean matchBySkill;
+    private final TournamentSeries tournamentSeries;
+    private final MatchBy matchBy;
     private final int matchDuration;
+    private final Date startDate;
+    private Date roundEndDate;
+    private int currentRound;
+    private TournamentStatus tournamentStatus;
 
     public MockTournament(
             int tournamentID,
-            TournamentType tournamentType,
-            TournamentFormat tournamentFormat,
-            boolean matchBySkill,
-            int matchDuration
+            int tournamentFormat,
+            int tournamentSeries,
+            int matchBy,
+            int matchDuration,
+            Date startDate,
+            int previousRound
     ) {
-        this.tournamentID = tournamentID;
-        this.tournamentType = tournamentType;
-        this.tournamentFormat = tournamentFormat;
-        this.matchBySkill = matchBySkill;
+         this.tournamentID = tournamentID;
+        this.tournamentFormat = TournamentFormat.values()[tournamentFormat];
+        this.tournamentSeries = TournamentSeries.values()[tournamentSeries];
+        this.matchBy = MatchBy.values()[matchBy];
         this.matchDuration = matchDuration;
+        this.startDate = startDate;
+        this.currentRound = previousRound + 1;
+    }
+
+    public void setRoundEndDate(Date date) {
+
+        this.roundEndDate = date;
+    }
+
+    public void setTournamentStatus(TournamentStatus tournamentStatus) {
+        this.tournamentStatus = tournamentStatus;
     }
 
     public int getTournamentID() {
         return tournamentID;
     }
 
-    public TournamentType getTournamentType() {
-        return tournamentType;
-    }
-
     public TournamentFormat getTournamentFormat() {
         return tournamentFormat;
     }
 
-    public boolean isMatchBySkill() {
-        return matchBySkill;
+    public TournamentSeries getTournamentSeries() {
+        return tournamentSeries;
+    }
+
+    public MatchBy getMatchBy() {
+        return matchBy;
+    }
+
+    public Date getStartDate() {
+
+        return this.startDate;
+    }
+
+    public Date getRoundEndDate() {
+        return this.roundEndDate;
     }
 
     public int getMatchDuration() {
         return matchDuration;
+    }
+
+    public int getCurrentRound() {
+        return currentRound;
+    }
+
+    public TournamentStatus getTournamentStatus() {
+        return tournamentStatus;
     }
 }

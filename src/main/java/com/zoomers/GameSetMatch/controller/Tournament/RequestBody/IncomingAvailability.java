@@ -1,17 +1,15 @@
 package com.zoomers.GameSetMatch.controller.Tournament.RequestBody;
 
-import java.util.Date;
-import java.util.List;
 
 public class IncomingAvailability {
-    private Date date;
-    private List<Boolean> slots;
+    private int dayOfWeek;
+    private String availabilityString; // 24 character string to represent 30 min intervals from 9am -9pm
 
-    public Date getDate() {
-        return date;
+    public int getDayOfWeek() {
+        return dayOfWeek;
     }
 
-    public List<Boolean> getSlots() {
-        return slots;
+    public String getAvailabilityString() {
+        return availabilityString;
     }
 }

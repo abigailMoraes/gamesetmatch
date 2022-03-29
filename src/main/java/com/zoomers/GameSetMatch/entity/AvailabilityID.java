@@ -7,15 +7,15 @@ import java.util.Objects;
 public class AvailabilityID implements Serializable {
     private Integer userID;
     private Integer tournamentID;
-    private Date date;
+    private int dayOfWeek;
 
     public AvailabilityID() {
     }
 
-    public AvailabilityID(Integer userID, Integer tournamentID, Date date) {
+    public AvailabilityID(Integer userID, Integer tournamentID, int dayOfWeek) {
         this.userID = userID;
         this.tournamentID = tournamentID;
-        this.date = date;
+        this.dayOfWeek = dayOfWeek;
     }
 
     @Override
@@ -25,11 +25,11 @@ public class AvailabilityID implements Serializable {
         AvailabilityID that = (AvailabilityID) o;
         return userID.equals(that.userID) &&
                 tournamentID.equals(that.tournamentID) &&
-                date.equals(that.date);
+                dayOfWeek == that.dayOfWeek;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userID, tournamentID, date);
+        return Objects.hash(userID, tournamentID, dayOfWeek);
     }
 }

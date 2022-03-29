@@ -10,8 +10,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
-@Table(name = "user_involves_match")
-
+@Table(name = "User_involves_match")
 
 @IdClass(UserMatchPairingId.class)
 public class UserInvolvesMatch {

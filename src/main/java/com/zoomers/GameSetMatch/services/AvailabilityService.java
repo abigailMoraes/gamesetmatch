@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -19,20 +18,24 @@ public class AvailabilityService {
         List<Availability> availabilities = new ArrayList<>();
 
         for (IncomingAvailability availability : incomingAvailabilities) {
-            int availabilityString = convertToInt(availability.getSlots());
-            Date date = availability.getDate();
-            Availability newAvailability = new Availability(tournamentID, userID, date, availabilityString);
+            String availabilityString = availability.getAvailabilityString();
+            int dayOfWeek = availability.getDayOfWeek();
+            Availability newAvailability = new Availability(tournamentID, userID, dayOfWeek, availabilityString);
             availabilities.add(newAvailability);
         }
 
         availability.saveAll(availabilities);
     }
 
-    private int convertToInt(List<Boolean> booleanList) {
-        String stringAvailabilty = "";
+    private String convertToString(List<Boolean> booleanList) {
+        String stringAvailability = "";
         for (Boolean b : booleanList) {
-            stringAvailabilty += b ? 1 : 0;
+            stringAvailability += b ? 1 : 0;
         }
-        return Integer.parseInt(stringAvailabilty, 2);
+        return stringAvailability;
+    }
+
+    public List<String> getPlayerAvailabilities(int r_id, int t_id) {
+        return availability.findRegistrantAvailability(r_id, t_id);
     }
 }
