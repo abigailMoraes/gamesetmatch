@@ -27,22 +27,22 @@ CREATE TABLE Availability(userID int, tournamentID int, day_of_week int, availab
 
 /*Create table statement for Round*/
 CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, start_date DATETIME, end_date DATETIME, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
---INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
---INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1,'2022/03/05','2022/03/21');
---INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
---INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
---
---ALTER TABLE Round_Has ADD roundNumber int;
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1,'2022/03/05','2022/03/21');
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
+INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
+
+ALTER TABLE Round_Has ADD roundNumber int;
 
 
-/*is_conflict* is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot)
+/*is_conflict is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot) */
 /*Create table statement for Match_Has*/
 CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, roundID int, is_conflict int, userID_1 int, userID_2 int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES User(userID), FOREIGN KEY(userID_2) REFERENCES User(userID));
 
 /*Create table statement for user_involves_match*/
 CREATE TABLE User_involves_match(userID int, matchID int, results int, attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
 
-/*No sample data needed for User_involves_match since it will autopopulate after the trigger below is created*/
+/* No sample data needed for User_involves_match since it will autopopulate after the trigger below is created */
 /* Notes on user_involves_match */
 /* The results field is initialized as the string value, "Pending", this field can be updated by a user with one of the following values: */
 /* "Win" - user has won the match, "Loss" - user lost the match, "Draw" - players tied */
@@ -79,20 +79,22 @@ END$$
 DELIMITER ;
 
 /*Create table statement for Admin_hosts_tournament*/
---CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
---
+CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
+
 
 /*Create table User_registers_tournament*/
 CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
 
 /*Create table statement for Invitation Code*/
-CREATE TABLE Invitation_Code ( invitationCode varchar(10) NOT NULL, isValid tinyint(1) NOT NULL, createdOn varchar(30) NOT NULL, UNIQUE KEY invitationCode (invitationCode));
 
---SET SQL_SAFE_UPDATES = 0;
---
---/* ALL DELETE STATEMENTS */
---
---DELETE FROM Match_has;
---ALTER TABLE match_has auto_increment=1;
---DELETE FROM User;
+CREATE TABLE Invitation_Code (invitation_code varchar(10) NOT NULL, is_valid bit(1) NOT NULL, created_on varchar(30) NOT NULL, UNIQUE KEY invitationCode (invitation_code));
+/*sample data for Invitation Code*/
+INSERT INTO Invitation_Code(invitation_code, is_valid, created_on) VALUES('0M2WTV2J84', 0, '2022-03-10 23:16:05');
+INSERT INTO Invitation_Code(invitation_code, is_valid, created_on) VALUES('L3XAU31X3L', 1, '2022-03-10 23:28:15');
 
+SET SQL_SAFE_UPDATES = 0;
+/* ALL DELETE STATEMENTS */
+
+DELETE FROM Match_has;
+ALTER TABLE match_has auto_increment=1;
+DELETE FROM User;
