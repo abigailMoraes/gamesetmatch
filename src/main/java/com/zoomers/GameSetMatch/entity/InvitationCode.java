@@ -15,10 +15,13 @@ import java.util.Date;
 @Entity
 @Table(name = "Invitation_Code")
 public class InvitationCode {
+    @Column(name = "invitation_code")
     private @Id String invitationCode;
+    @Column(name = "is_valid")
     private boolean isValid;
+    @Column(name = "created_on")
     private String createdOn;
-    private static final int expireDurationInDays = 3;
+    private static final int expireDurationInDays = 7;
 
     public InvitationCode() {
         this.invitationCode = randomString();

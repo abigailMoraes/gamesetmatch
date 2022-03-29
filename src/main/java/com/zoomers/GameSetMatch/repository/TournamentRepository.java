@@ -25,9 +25,14 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
 
     void deleteTournamentByTournamentID(Integer id);
 
+
+    @Query(value ="SELECT Tournament.name FROM Tournament WHERE Tournament.tournamentID = ?1",nativeQuery = true)
+    String getNameByTournamentID(Integer id);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE Tournament SET status = :status, current_round = :roundNumber " +
             "WHERE tournamentID = :tournamentID", nativeQuery = true)
     void updateTournament(int tournamentID, int status, int roundNumber);
+
 }

@@ -37,13 +37,13 @@ import javax.persistence.*;
 
 public class UserInvolvesMatch {
     @Id
-    @Column(name="userID")
     private Integer userID;
 
     @Id
-    @Column(name="matchID")
     private Integer matchID;
 
     Integer results;
+
     String attendance;
+
 }

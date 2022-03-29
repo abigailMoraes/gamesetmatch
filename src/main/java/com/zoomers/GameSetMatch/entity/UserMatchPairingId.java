@@ -6,8 +6,7 @@ public class UserMatchPairingId implements Serializable {
     private Integer userID;
     private Integer matchID;
 
-    public UserMatchPairingId() {
-    }
+    public UserMatchPairingId() {}
 
     public UserMatchPairingId(Integer userID, Integer matchID){
         this.userID = userID;
