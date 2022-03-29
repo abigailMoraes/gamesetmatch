@@ -18,7 +18,6 @@ public class UserController {
         this.repository = repository;
     }
 
-
     @PostMapping("/employee")
     User newEmployee(@RequestBody User newEmployee) {
         return repository.save(newEmployee);
@@ -33,7 +32,7 @@ public class UserController {
     public List<User> getMatchParticipants ( @PathVariable int matchID){
         return repository.findMatchParticipantInfo(matchID);
     }
-    
+
     @PutMapping("/user/{email}")
     @ResponseBody
     ResponseEntity<Object> toAdmin(@PathVariable String email) {
@@ -47,7 +46,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You don't have permission to touch this user!");
         }
         e.setIsAdmin(1);
-        return ResponseEntity.status(HttpStatus.OK).body(repository.save(e));
+        repository.save(e);
+        return ResponseEntity.status(HttpStatus.OK).body(e.getEmail() + " is now an admin!");
     }
-        
 }
