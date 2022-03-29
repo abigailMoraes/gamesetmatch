@@ -15,13 +15,13 @@ import javax.persistence.*;
 @IdClass(UserMatchPairingId.class)
 public class UserInvolvesMatch {
     @Id
-    @Column(name="userID")
     private Integer userID;
 
     @Id
-    @Column(name="matchID")
     private Integer matchID;
 
     String results;
+
     String attendance;
+
 }
