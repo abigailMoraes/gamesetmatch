@@ -21,43 +21,44 @@ import java.util.List;
 @EnableScheduling
 public class ScheduledTasks {
 
-    private final RoundHasRepository roundHasRepository;
-    private final TournamentRepository tournamentRepository;
-    private  List<Integer> ongoing_tournamentIDs;
-    private  List<Integer> new_tournamentIDs;
-    private TournamentStatus tournamentStatus;
+
     private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 
+    @Autowired
+    RoundHasRepository roundHasRepository;
 
     @Autowired
-    private Scheduler scheduler;
+    TournamentRepository tournamentRepository;
 
-    public ScheduledTasks(RoundHasRepository roundHasRepository, TournamentRepository tournamentRepository, Scheduler scheduler) {
-        this.roundHasRepository = roundHasRepository;
-        this.tournamentRepository = tournamentRepository;
-        this.scheduler = scheduler;
+    @Autowired
+    Scheduler scheduler;
+
+    public ScheduledTasks() {
     }
 
 //    @Scheduled (initialDelay = 1000, fixedDelay=Long.MAX_VALUE)
     @Scheduled(cron = "@midnight", zone="America/Los_Angeles")
     public void RunScheduler(){
+
+        List<Integer> ongoing_tournamentIDs;
+        List<Integer> new_tournamentIDs;
         System.out.println("Midnight scheduling");
         Date today = new Date();
         String end_date = dateFormat.format(today);
 //        System.out.println(end_date);
 
-        ongoing_tournamentIDs = this.roundHasRepository.findNextRoundTournamentId(end_date);
-//        System.out.println(ongoing_tournamentIDs);
+        ongoing_tournamentIDs = roundHasRepository.findNextRoundTournamentId(end_date);
+        System.out.println("TournamentIds to schedule next round: " + ongoing_tournamentIDs);
 
         for(Integer tournamentID : ongoing_tournamentIDs){
             this.scheduler.createSchedule(tournamentID);
         }
 
-        new_tournamentIDs = this.tournamentRepository.CloseRegistrationDate();
-//        System.out.println(new_tournamentIDs);
+        new_tournamentIDs = tournamentRepository.CloseRegistrationDate();
+        System.out.println("TournamentIds to schdule first round " + new_tournamentIDs);
         for(Integer tournamentID : new_tournamentIDs){
-            this.tournamentRepository.setTournamentStatus(tournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
+            this.tournamentRepository.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
             this.scheduler.createSchedule(tournamentID);
         }
 
