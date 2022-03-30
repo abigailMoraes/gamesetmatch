@@ -1,6 +1,7 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
+import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
@@ -18,6 +19,8 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -145,15 +148,22 @@ public class TournamentController {
 
     @PutMapping(value = "/{tournamentID}/closeRegistration")
     public ResponseEntity<String> closeRegistration(@PathVariable Integer tournamentID) {
-            boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE);
+            boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.REGISTRATION_CLOSED);
        return  res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament registration is closed") :
                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to close registration");
     }
 
-    @GetMapping(value = "", params = {"status", "createdBy"})
-    public List<Tournament> getTournament(@RequestParam(name = "status") int status,
+    @PostMapping(value = "", params = {"createdBy"})
+    public List<Tournament> getTournament(@RequestBody TournamentByStatuses statuses,
                                                  @RequestParam(name = "createdBy") int user) {
-        return tournamentService.getTournaments(status, user);
+
+        List<Tournament> fullList = new ArrayList<>();
+        for (Integer status : statuses.getStatuses() ) {
+            List<Tournament> t = tournamentService.getTournaments(status, user);
+            fullList = Stream.concat(fullList.stream(), t.stream())
+                    .collect(Collectors.toList());
+        }
+        return fullList;
     }
 
     @DeleteMapping(value = "/{tournamentID}")
@@ -180,6 +190,8 @@ public class TournamentController {
     @PostMapping(value = "/{tournamentID}/runCreateSchedule")
     public ResponseEntity createSchedule(@PathVariable(name = "tournamentID") int tournamentID) {
         scheduler.createSchedule(tournamentID);
-        return ResponseEntity.status(HttpStatus.OK).body("Schedule created");
+        boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE);
+        return  res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Schedule created.") :
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There was an error creating the schedule.");
     }
 }

@@ -12,6 +12,7 @@ import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.services.TournamentService;
+import com.zoomers.GameSetMatch.services.UserInvolvesMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,9 @@ public class MatchController {
     TournamentService tournamentService;
     @Autowired
     UserMatchTournamentRepository userMatchTournamentRepository;
+
+    @Autowired
+    UserInvolvesMatchService userInvolvesMatchService;
 
     @Autowired
     MatchRepository matchRepository;
@@ -55,7 +59,7 @@ public class MatchController {
 
     @GetMapping( "/rounds/{roundID}/matches")
     List<MatchDetailsForCalendar> getMatchesByRoundID(@PathVariable int roundID){
-        return matchRepository.getMatchDetailsForCalendarByRoundID(roundID);
+       return userInvolvesMatchService.getMatchesByRoundForCalendar(roundID);
     }
 
     @PutMapping("/match/userAttendance")
@@ -65,7 +69,7 @@ public class MatchController {
 
     @PutMapping("/match/userResults")
     public void updateMatchResults(@RequestBody IncomingResults results) {
-        userMatchTournamentRepository.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
+        userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
     }
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
@@ -73,10 +77,7 @@ public class MatchController {
                                     @RequestBody List<IncomingMatch> matches) {
         LocalDateTime latestMatchDate =matches.get(0).getEndTime();
         for (IncomingMatch match : matches) {
-            System.out.println(match.getStartTime());
-            System.out.println(match.getEndTime());
             Optional<Match> existingMatch = Optional.of(matchRepository.getById(match.getID()));
-            System.out.println(match);
 
             if (existingMatch.isPresent()) {
                 matchRepository.updateMatchInfo(match.getID(),

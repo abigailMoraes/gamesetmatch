@@ -1,11 +1,9 @@
 package com.zoomers.GameSetMatch.repository;
 
-import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
 import com.zoomers.GameSetMatch.entity.Match;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -40,6 +38,4 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
     @Query(nativeQuery = true, value = "INSERT INTO Match_Has VALUES :startTime, :endTime, :roundID, :isConflict, :userOneID, :userTwoID")
     void addMatch(LocalDateTime startTime, LocalDateTime endTime, int roundID, int isConflict, int userOneID, int userTwoID);
 
-    @Query(nativeQuery = true)
-    List<MatchDetailsForCalendar> getMatchDetailsForCalendarByRoundID(@Param("roundID") Integer roundID);
 }
