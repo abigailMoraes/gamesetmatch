@@ -49,7 +49,7 @@ public class MatchController {
 
     @GetMapping("/match/{id}/{uid}")
     UserMatchTournamentInfo getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
-        return userMatchTournamentRepository.findMatchInfoByMatchID(id, uid);
+        return userMatchTournamentRepository.findMatchInfoByMatchID(id);
     }
 
 
@@ -124,17 +124,12 @@ public class MatchController {
             if(existingRound.isPresent()){
                if (!(existingRound.get().getEndDate().compareTo(latestMatchDate) == 0)){
                    existingRound.get().setEndDate(latestMatchDate);
-                   /* Updates tournament location if it is different from the latest match in the list*/
-                   Optional<Tournament> existingTournament = Optional.of(tournamentRepository.getById(tournamentID));
-                   if(existingTournament.isPresent()){
-                       if(!existingTournament.get().getLocation().equals(match.getLocation())){
-                           existingTournament.get().setLocation(match.getLocation());
-                       }
-                   }else {
+                   }
+               else {
                        ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
                    }
-               }
-            }else {
+            }
+            else {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
             }
         }

@@ -28,6 +28,8 @@ public class User {
     @Column (name = "is_admin")
     private int isAdmin;
 
+    private String picture;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

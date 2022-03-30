@@ -4,7 +4,6 @@ public class IncomingMatch {
     private Integer matchID;
     private String startTime;
     private String endTime;
-    private String location;
     private int duration;
     private int roundID;
 
@@ -15,11 +14,6 @@ public class IncomingMatch {
     public int getRoundID() {
         return roundID;
     }
-
-    public String getLocation() {
-        return location;
-    }
-
 
     public Integer getID() {
         return this.matchID;
@@ -35,7 +29,6 @@ public class IncomingMatch {
     public int getDuration(){
         return this.duration;
     }
-
 
 
 }

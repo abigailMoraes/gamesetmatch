@@ -29,11 +29,14 @@ public class TournamentService {
         return tournament.findTournaments(status, id);
     }
 
-    public void deleteTournamentByID(Integer id) {
-        tournament.deleteTournamentByTournamentID(id);
-    }
 
     public List<Tournament> getCompletedTournamentsForUser(int userID) {
        return tournament.findCompletedTournamentsForUser(userID);
     }
+
+    public void deleteTournamentByID(Integer id) {
+        tournament.deleteTournamentByTournamentID(id);
+    }
 }
+
+
