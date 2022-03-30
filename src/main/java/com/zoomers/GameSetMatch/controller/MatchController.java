@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,6 +58,40 @@ public class MatchController {
         return matchRepository.getMatchesByRound(roundID);
     }
 
+    @GetMapping("/tournament/{tournamentID}/matches")
+    List<Match> getMatchesByTournamentID(@PathVariable int tournamentID){
+        return matchRepository.getMatchesByTournamentID(tournamentID);
+    }
+
+    @GetMapping("/tournament/{matchID}/userMatchInfo")
+    List<UserMatchTournamentRepository.IParticipantInfo>
+    getMatchUserInfoByMatchID(@PathVariable int matchID){
+        return userMatchTournamentRepository.getUserMatchInfoByMatchID(matchID);
+    }
+
+    @GetMapping("/tournament/round/{roundID}/match/{matchID}")
+    Optional<UserMatchTournamentRepository.NumQuery>
+    getNextMatchInBracketSingleElimination(@PathVariable int roundID, @PathVariable int matchID) {
+        UserMatchTournamentRepository.NumQuery num = userMatchTournamentRepository.getNextMatchID(matchID, roundID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(num).isPresent()) {
+            return Optional.ofNullable(userMatchTournamentRepository.getNextMatchID(matchID, roundID));
+        } else {
+            return Optional.of(empty);
+        }
+    }
+
+    @GetMapping("/tournament/{tournamentID}/bracketMatchInfo")
+    List<UserMatchTournamentRepository.IBracketMatchInfo>
+    getBracketMatchInfoByTournamentID(@PathVariable int tournamentID){
+       return  userMatchTournamentRepository.getBracketMatchInfoByTournamentID(tournamentID);
+    }
+
     @PutMapping("/match/userAttendance")
     public void updateAttendance(@RequestBody IncomingAttendance attendance) {
         userMatchTournamentRepository.dropOutForUser(attendance.getMatchID(), attendance.getUserID(), attendance.getAttendance());
@@ -68,6 +101,7 @@ public class MatchController {
     public void updateMatchResults(@RequestBody IncomingResults results) {
         userMatchTournamentRepository.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
     }
+
 
     @PutMapping("/tournament/{tournamentID}/round/{roundID}")
     public void updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,

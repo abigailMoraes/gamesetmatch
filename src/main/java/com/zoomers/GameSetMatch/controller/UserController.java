@@ -27,16 +27,16 @@ public class UserController {
     @GetMapping("/user/{email}")
     public User getEmployeeByEmail(@PathVariable String email) {
         return repository.findByEmail(email);
- 
+    }
 
     @GetMapping("/match/{matchID}/participants")
     public List<User> getMatchParticipants ( @PathVariable int id){
         return repository.findMatchParticipantInfo(id);
     }
-    
+
     @PutMapping("/user/{email}")
     @ResponseBody
-    ResponseEntity<Object> toAdmin(@PathVariable String email) {
+    ResponseEntity<Object> toAdmin (@PathVariable String email){
         User e = repository.findByEmail(email);
         if (e == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find user with this email!");
@@ -49,5 +49,6 @@ public class UserController {
         e.setIsAdmin(1);
         return ResponseEntity.status(HttpStatus.OK).body(repository.save(e));
     }
-        
+
 }
+

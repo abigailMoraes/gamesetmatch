@@ -20,5 +20,12 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
     @Query(value = "SELECT * FROM match_has WHERE roundID = :roundID", nativeQuery = true)
     List<Match> getMatchesByRound(int roundID);
 
+    @Query(value = "SELECT * FROM match_has JOIN (SELECT * FROM round_has WHERE tournamentID = :tournamentID) r ON \n"+
+    "match_has.roundID = r.roundID", nativeQuery = true)
+    List<Match> getMatchesByTournamentID(int tournamentID);
+
+
+
+
 
 }
