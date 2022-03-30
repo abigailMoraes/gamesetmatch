@@ -4,7 +4,7 @@
  * @since 2022-03-21
  */
 
-package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
+package com.zoomers.GameSetMatch.scheduler.graphs;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
@@ -25,9 +25,12 @@ public class BestOfMatchGraph extends MatchGraph {
         this.matchDuration = matchDuration;
     }
 
-    public void addMatch(Match m) {
+    public int getMatchDuration() {
+        return matchDuration;
+    }
 
-        matches.add(m);
+    public int getNumberOfGames() {
+        return numberOfGames;
     }
 
     @Override
@@ -38,13 +41,5 @@ public class BestOfMatchGraph extends MatchGraph {
     @Override
     public void setMatchDegrees() {
 
-    }
-
-    public int getMatchDuration() {
-        return matchDuration;
-    }
-
-    public int getNumberOfGames() {
-        return numberOfGames;
     }
 }
