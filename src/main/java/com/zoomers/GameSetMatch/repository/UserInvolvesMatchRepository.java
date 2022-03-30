@@ -13,9 +13,6 @@ public interface UserInvolvesMatchRepository extends JpaRepository<UserInvolvesM
     @Query(nativeQuery = true)
     List<UsersMatchInfo> getUsersMatchInfoForCalendar(@Param("matchID") Integer matchID);
 
-    @Query(value = "SELECT * FROM User_involves_match WHERE matchID = :matchID", nativeQuery = true)
-    List<UserInvolvesMatch> findByMatchID(int matchID);
-
     List<UserInvolvesMatch> getUserInvolvesMatchByMatchID(int mID);
 
 

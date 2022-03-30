@@ -21,10 +21,10 @@ public class UserInvolvesMatchService {
 
     public void updateMatchResults(int matchID, int userID, int result) {
         // there is a match for each user, set the result to be the same in both i.e tie, player1 or player2 was the winner
-        List<UserInvolvesMatch> matches = userInvolvesMatchRepository.findByMatchID(matchID);
+        List<UserInvolvesMatch> matches = userInvolvesMatchRepository.getUserInvolvesMatchByMatchID(matchID);
         for (UserInvolvesMatch match : matches) {
             // tie
-            if (result == 0) {
+            if (result == 0 || result == -1) {
                 match.setResults(result);
             } else {
                 int opponentsResult = result == 1 ? 2 : 1;
