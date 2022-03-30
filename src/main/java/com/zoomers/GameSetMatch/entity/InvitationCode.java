@@ -5,8 +5,10 @@ import lombok.ToString;
 
 import javax.persistence.*;
 import java.security.SecureRandom;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @Getter
 @Setter
@@ -27,6 +29,14 @@ public class InvitationCode {
         this.invitationCode = randomString();
         this.isValid = true;
         this.createdOn = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+    }
+
+    public boolean isExpired() throws ParseException {
+        Date createDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(this.createdOn);
+        Date today = new Date();
+        long diffInMillies = Math.abs(today.getTime() - createDate.getTime());
+        long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        return diff > 7;
     }
 
     // using code from https://stackoverflow.com/a/157202

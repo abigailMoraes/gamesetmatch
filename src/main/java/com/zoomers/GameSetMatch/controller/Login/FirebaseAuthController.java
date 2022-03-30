@@ -5,9 +5,9 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -21,11 +21,9 @@ public class FirebaseAuthController {
     }
 
     @PostMapping("/verifyIdToken")
-    public UserResponse verifyIdToken(@RequestBody String firebaseIdToken) throws FirebaseAuthException {
+    public ResponseEntity<String> verifyIdToken(@RequestBody String firebaseIdToken) throws FirebaseAuthException {
         UserResponse returnUser = new UserResponse();
-        User user = new User();
         try {
-
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(firebaseIdToken);
             String uid = decodedToken.getUid();
             String name = decodedToken.getName();
@@ -36,23 +34,22 @@ public class FirebaseAuthController {
             User database_user = repository.findByFirebaseId(uid);
 
             if(database_user == null)  {
-                user.setName(name);
-                user.setEmail(email);
-                user.setFirebaseId(uid);
-                user.setIsAdmin(0);
-                repository.save(user);
-            } else {
-                user = database_user;
+                User unregisteredUser = new User();
+                unregisteredUser.setName(name);
+                unregisteredUser.setEmail(email);
+                unregisteredUser.setFirebaseId(uid);
+                unregisteredUser.setIsAdmin(0);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(unregisteredUser.toString());
             }
 
-            returnUser.setId(user.getId());
-            returnUser.setEmail(user.getEmail());
-            returnUser.setName(user.getName());
-            returnUser.setIsAdmin(user.getIsAdmin());
+            returnUser.setId(database_user.getId());
+            returnUser.setEmail(database_user.getEmail());
+            returnUser.setName(database_user.getName());
+            returnUser.setIsAdmin(database_user.getIsAdmin());
             returnUser.setPicture(picture);
         } catch (FirebaseAuthException ex) {
             ex.printStackTrace();
     }
-        return returnUser;
+        return ResponseEntity.status(HttpStatus.OK).body(returnUser.toString());
     }
 }
