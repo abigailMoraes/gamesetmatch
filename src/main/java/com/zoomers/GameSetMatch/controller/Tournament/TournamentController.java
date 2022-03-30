@@ -34,9 +34,6 @@ public class TournamentController {
     AvailabilityService availability;
 
     @Autowired
-    TournamentService tournament;
-
-    @Autowired
     UserRegistersTournamentService userRegistersTournament;
 
     @Autowired
@@ -87,6 +84,7 @@ public class TournamentController {
         if (tournament.getStatus() == TournamentStatus.DEFAULT.getStatus()) {
             tournament.setStatus(TournamentStatus.OPEN_FOR_REGISTRATION.getStatus());
             tournament.setCurrentRound(0);
+            tournament.setMinParticipants(2);
         }
         tournamentService.saveTournament(tournament);
         return tournament;
@@ -178,20 +176,16 @@ public class TournamentController {
         if (tournament.isPresent()) {
             Tournament tour = tournament.get();
 
-            if (tour.getStatus() == TournamentStatus.OPEN_FOR_REGISTRATION.getStatus()) {
-                mailController.sendCancelMail(tournamentID);
-
-                availability.deleteByTournamentID(tournamentID);
-                userRegistersTournament.deleteByTournamentID(tournamentID);
+            if (tour.getStatus() < TournamentStatus.ONGOING.getStatus()) {
                 tournamentService.deleteTournamentByID(tournamentID);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("ID: " + tournamentID + " Tournament is currently active. Cannot delete.");
+                        .body("Tournament is currently active. Cannot delete.");
             }
         } else {
             ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
         }
-        return ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament is deleted.");
+        return ResponseEntity.status(HttpStatus.OK).body(" Tournament is deleted.");
     }
 
     @PostMapping(value = "/{tournamentID}/runCreateSchedule")

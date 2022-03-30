@@ -35,7 +35,9 @@ public class GraphTests {
             1,
             30,
             Calendar.getInstance().getTime(),
-            0
+            0,
+            0,
+            2
     );
 
     private final MockTournament weightedTournament1 = new MockTournament(
@@ -45,7 +47,9 @@ public class GraphTests {
             1,
             30,
             Calendar.getInstance().getTime(),
-            0
+            0,
+            0,
+            2
     );
 
     private final MockTournament StressTournament = new MockTournament(
@@ -55,7 +59,9 @@ public class GraphTests {
             1,
             180,
             Calendar.getInstance().getTime(),
-            0
+            0,
+            0,
+            2
     );
 
     @Rule

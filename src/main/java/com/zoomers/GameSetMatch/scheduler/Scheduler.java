@@ -13,27 +13,22 @@ import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
-import com.zoomers.GameSetMatch.scheduler.graphs.*;
-import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.TypeMatcher;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.MockTournament;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.enumerations.*;
+import com.zoomers.GameSetMatch.scheduler.graphs.*;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.*;
 import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.DoubleKnockoutMatcher;
 import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.RoundRobinMatcher;
 import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.SingleKnockoutMatcher;
+import com.zoomers.GameSetMatch.scheduler.matching.typeMatchers.TypeMatcher;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -165,7 +160,7 @@ public class Scheduler {
         List<Registrant> registrantsToMatch = new ArrayList<>(REGISTRANTS);
         List<Registrant> roundRobinList = new ArrayList<>(REGISTRANTS);
         if (registrantsToMatch.size() % 2 == 0) {
-            roundRobinList.add(new Registrant(-1, -1, MOCK_TOURNAMENT.getTournamentID()));
+            roundRobinList.add(new Registrant(-1, 0, MOCK_TOURNAMENT.getTournamentID()));
         }
 
         Set<Tuple> registrantMatches = new HashSet<>();
