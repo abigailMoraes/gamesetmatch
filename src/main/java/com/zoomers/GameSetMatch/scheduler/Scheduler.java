@@ -159,7 +159,7 @@ public class Scheduler {
 
         List<Registrant> registrantsToMatch = new ArrayList<>(REGISTRANTS);
         List<Registrant> roundRobinList = new ArrayList<>(REGISTRANTS);
-        if (registrantsToMatch.size() % 2 == 0) {
+        if (registrantsToMatch.size() % 2 != 0) {
             roundRobinList.add(new Registrant(-1, 0, MOCK_TOURNAMENT.getTournamentID()));
         }
 
