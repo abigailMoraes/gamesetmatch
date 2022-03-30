@@ -24,7 +24,6 @@ public class FirebaseAuthController {
     public ResponseEntity<String> verifyIdToken(@RequestBody String firebaseIdToken) throws FirebaseAuthException {
         User user = new User();
         try {
-
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(firebaseIdToken);
             String uid = decodedToken.getUid();
             String name = decodedToken.getName();
@@ -34,23 +33,18 @@ public class FirebaseAuthController {
             User database_user = repository.findByFirebaseId(uid);
 
             if(database_user == null)  {
-                if (repository.findByEmail(email) != null) {
-                    User unregisteredUser = repository.findByEmail(email);
-                    unregisteredUser.setName(name);
-                    unregisteredUser.setEmail(email);
-                    unregisteredUser.setFirebaseId(uid);
-                    unregisteredUser.setIsAdmin(0);
-                    repository.save(unregisteredUser);
-                    return ResponseEntity.status(HttpStatus.OK).body(unregisteredUser.toString());
-                }
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(String.format("{\"email\":\"%s\"}", email));
+                User unregisteredUser = new User();
+                unregisteredUser.setName(name);
+                unregisteredUser.setEmail(email);
+                unregisteredUser.setFirebaseId(uid);
+                unregisteredUser.setIsAdmin(0);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(unregisteredUser.toString());
             }
             user = database_user;
 
         } catch (FirebaseAuthException ex) {
             ex.printStackTrace();
     }
-        System.out.println("should be valid user");
         return ResponseEntity.status(HttpStatus.OK).body(user.toString());
     }
 }
