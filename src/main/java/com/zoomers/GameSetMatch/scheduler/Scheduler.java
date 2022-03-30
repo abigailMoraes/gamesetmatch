@@ -147,7 +147,6 @@ public class Scheduler {
             // System.out.println(m);
         }
 
-        System.out.println("originalStatus: " + this.originalStatus);
         TournamentStatus newStatus = this.originalStatus == TournamentStatus.OPEN_FOR_REGISTRATION ||
                 this.originalStatus == TournamentStatus.REGISTRATION_CLOSED ?
                 TournamentStatus.READY_TO_PUBLISH_SCHEDULE : TournamentStatus.READY_TO_PUBLISH_NEXT_ROUND;
