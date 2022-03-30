@@ -38,4 +38,8 @@ public class UserRegistersTournamentService {
     public void deleteByTournamentID(Integer tournamentID) {
         userRegistersTournament.deleteUserRegistersTournamentsByTournamentID(tournamentID);
     }
+
+    public List<UserRegistersTournament> getRegistrantsByTournamentID(Integer tournamentID) {
+        return userRegistersTournament.getUserRegistersTournamentsByTournamentID(tournamentID);
+    }
 }
