@@ -73,12 +73,6 @@ public class Tournament {
     @Column(name = "admin_hosts_tournament")
     private int adminHostsTournament;
 
-    //     -1 = default value in constructor
-    //     0 = open for registration,
-    //     1 = ready to schedule,
-    //     2 = ongoing tournament,
-    //     3 = ready to schedule next round,
-    //     4 = tournament over
     @Column(name = "status")
     private int status;
 
