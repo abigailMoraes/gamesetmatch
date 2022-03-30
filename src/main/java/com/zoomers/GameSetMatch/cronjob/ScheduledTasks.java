@@ -1,6 +1,6 @@
 package com.zoomers.GameSetMatch.cronjob;
 
-import com.zoomers.GameSetMatch.repository.RoundHasRepository;
+import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
@@ -26,7 +26,7 @@ public class ScheduledTasks {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
 
     @Autowired
-    RoundHasRepository roundHasRepository;
+    RoundRepository roundRepository;
 
     @Autowired
     TournamentRepository tournamentRepository;
@@ -48,7 +48,7 @@ public class ScheduledTasks {
         String end_date = dateFormat.format(today);
 //        System.out.println(end_date);
 
-        ongoing_tournamentIDs = roundHasRepository.findNextRoundTournamentId(end_date);
+        ongoing_tournamentIDs = roundRepository.findNextRoundTournamentId(end_date);
         System.out.println("TournamentIds to schedule next round: " + ongoing_tournamentIDs);
 
         for(Integer tournamentID : ongoing_tournamentIDs){
@@ -56,7 +56,7 @@ public class ScheduledTasks {
         }
 
         new_tournamentIDs = tournamentRepository.CloseRegistrationDate();
-        System.out.println("TournamentIds to schdule first round " + new_tournamentIDs);
+        System.out.println("TournamentIds to schedule first round " + new_tournamentIDs);
         for(Integer tournamentID : new_tournamentIDs){
             tournamentRepository.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
             scheduler.createSchedule(tournamentID);
