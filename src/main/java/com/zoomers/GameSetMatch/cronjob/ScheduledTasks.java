@@ -52,14 +52,14 @@ public class ScheduledTasks {
         System.out.println("TournamentIds to schedule next round: " + ongoing_tournamentIDs);
 
         for(Integer tournamentID : ongoing_tournamentIDs){
-            this.scheduler.createSchedule(tournamentID);
+            scheduler.createSchedule(tournamentID);
         }
 
         new_tournamentIDs = tournamentRepository.CloseRegistrationDate();
         System.out.println("TournamentIds to schdule first round " + new_tournamentIDs);
         for(Integer tournamentID : new_tournamentIDs){
-            this.tournamentRepository.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
-            this.scheduler.createSchedule(tournamentID);
+            tournamentRepository.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
+            scheduler.createSchedule(tournamentID);
         }
 
 
