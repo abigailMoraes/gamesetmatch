@@ -18,7 +18,6 @@ public class UserController {
         this.repository = repository;
     }
 
-
     @PostMapping("/employee")
     User newEmployee(@RequestBody User newEmployee) {
         return repository.save(newEmployee);
@@ -30,13 +29,13 @@ public class UserController {
     }
 
     @GetMapping("/match/{matchID}/participants")
-    public List<User> getMatchParticipants ( @PathVariable int id){
-        return repository.findMatchParticipantInfo(id);
+    public List<User> getMatchParticipants ( @PathVariable int matchID){
+        return repository.findMatchParticipantInfo(matchID);
     }
 
     @PutMapping("/user/{email}")
     @ResponseBody
-    ResponseEntity<Object> toAdmin (@PathVariable String email){
+    ResponseEntity<Object> toAdmin(@PathVariable String email) {
         User e = repository.findByEmail(email);
         if (e == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cannot find user with this email!");
@@ -47,8 +46,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("You don't have permission to touch this user!");
         }
         e.setIsAdmin(1);
-        return ResponseEntity.status(HttpStatus.OK).body(repository.save(e));
+        repository.save(e);
+        return ResponseEntity.status(HttpStatus.OK).body(e.getEmail() + " is now an admin!");
     }
+        
 
 }
-

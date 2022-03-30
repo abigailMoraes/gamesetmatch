@@ -2,9 +2,11 @@ package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +17,10 @@ public class TournamentService {
 
     public List<Tournament> getAllTournaments() {
         return tournament.findAll();
+    }
+
+    public List<Tournament> findAllByStatus(int status) {
+        return tournament.findByStatus(status);
     }
 
     public void saveTournament(Tournament tour) {
@@ -36,6 +42,19 @@ public class TournamentService {
 
     public void deleteTournamentByID(Integer id) {
         tournament.deleteTournamentByTournamentID(id);
+    }
+
+    public boolean changeTournamentStatus(Integer id, TournamentStatus status) {
+        Tournament tournament = this.findTournamentByID(id).orElse(null);
+        if (tournament != null) {
+            tournament.setStatus(status.ordinal());
+            if(status == TournamentStatus.REGISTRATION_CLOSED) {
+                tournament.setCloseRegistrationDate(new Date());
+            }
+            this.saveTournament(tournament);
+            return true;
+        }
+        return false;
     }
 }
 

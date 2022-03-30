@@ -3,9 +3,9 @@ package com.zoomers.GameSetMatch.controller.Match.RequestBody;
 public class IncomingResults {
     private int userID;
     private int matchID;
-    private String results;
+    private Integer results;
 
-    public String getResults(){
+    public Integer getResults(){
         return this.results;
     }
     

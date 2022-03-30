@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -13,6 +14,7 @@ import org.springframework.core.io.Resource;
 import java.io.*;
 
 @SpringBootApplication
+@ComponentScan(basePackages= { "com.zoomers" })
 public class GameSetMatchApplication {
 	public static void main(String[] args) throws IOException {
         Resource resource = new ClassPathResource("Firebase_ServiceAccountKey.json");

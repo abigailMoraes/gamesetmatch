@@ -7,14 +7,16 @@ import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query(value = "SELECT user.userID, user.firebase_id, user.name, user.email, user.is_admin \n"+
-            "FROM (SELECT * FROM user_involves_match WHERE matchID = :id) \n" +
-            "u JOIN user ON u.userID = user.userID; ",
+    @Query(value = "SELECT User.userID, User.firebase_id, User.name, User.email, User.is_admin \n"+
+            "FROM (SELECT * FROM User_involves_match WHERE matchID = :id) \n" +
+            "u JOIN User ON u.userID = User.userID; ",
             nativeQuery = true)
     List<User> findMatchParticipantInfo(int id);
 
     User findByEmail(String email);
 
     User findByFirebaseId(String uid);
+
+    User getUserById(int id);
 
 }
