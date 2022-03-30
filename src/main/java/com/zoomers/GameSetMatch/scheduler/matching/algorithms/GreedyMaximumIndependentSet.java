@@ -1,6 +1,6 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graphs.MatchGraph;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 
 import java.util.*;
@@ -8,7 +8,7 @@ import java.util.*;
 public class GreedyMaximumIndependentSet extends GreedyMatchingAlgorithm {
 
 
-    public GreedyMaximumIndependentSet(PrimaryMatchGraph matchGraph) {
+    public GreedyMaximumIndependentSet(MatchGraph matchGraph) {
 
         super(matchGraph);
     }

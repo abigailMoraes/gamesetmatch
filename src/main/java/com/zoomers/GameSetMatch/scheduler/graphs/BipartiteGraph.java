@@ -6,7 +6,7 @@
  * @since 2022-03-21
  */
 
-package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
+package com.zoomers.GameSetMatch.scheduler.graphs;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;

@@ -21,13 +21,16 @@ import java.util.Date;
                         @ColumnResult(name="match_by", type=Integer.class),
                         @ColumnResult(name="match_duration", type=Integer.class),
                         @ColumnResult(name="start_date", type=Date.class),
-                        @ColumnResult(name="current_round", type=Integer.class)
+                        @ColumnResult(name="current_round", type=Integer.class),
+                        @ColumnResult(name="tournamentStatus", type=Integer.class),
+                        @ColumnResult(name="minPlayers", type=Integer.class)
                 }
         )
 )
 @NamedNativeQuery(
         name="Tournament.getMockTournamentByID",
-        query="SELECT tournamentID, format, series, match_by, match_duration, start_date, current_round " +
+        query="SELECT tournamentID, format, series, match_by, match_duration, " +
+                "start_date, current_round, status, min_participants " +
                 "FROM Tournament WHERE tournamentID = :tournamentID",
         resultSetMapping = "MockTournamentMapping"
 )

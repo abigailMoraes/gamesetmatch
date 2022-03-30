@@ -2,8 +2,8 @@ package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BestOfMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.MatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graphs.BestOfMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graphs.MatchGraph;
 
 import java.util.*;
 

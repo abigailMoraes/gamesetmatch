@@ -36,13 +36,14 @@ public class RegistrantService {
         return availability;
     }
 
-    public Set<Integer> initPlayersToPlay(int id, Set<Integer> playersToPlay) {
+    public Set<Integer> initPlayersToPlay(int id, Set<Integer> playersToPlay, int t_id) {
 
-        List<UserMatchTournamentInfo> matchesPlayed = userMatchTournamentRepository.findPastMatchesByUserID(id);
+        // TODO CHANGE TO findPastMatchesByUserID(id);
+        List<Integer> matchesPlayed = userMatchTournamentRepository.findPastTournamentMatchIDsByUserID(id, t_id);
 
-        for (UserMatchTournamentInfo userMatchTournamentInfo : matchesPlayed) {
+        for (Integer m_id : matchesPlayed) {
 
-            List<Match> m = matchRepository.getMatchesByID(userMatchTournamentInfo.getMatchID());
+            List<Match> m = matchRepository.getMatchesByID(m_id);
             assert(m.size() == 1);
 
             Match match = m.get(0);
