@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
+import com.zoomers.GameSetMatch.controller.Error.ApiError;
 import com.zoomers.GameSetMatch.controller.MailController;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
@@ -9,6 +10,8 @@ import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
+import com.zoomers.GameSetMatch.services.Errors.EntityNotFoundError;
+import com.zoomers.GameSetMatch.services.Errors.LessThanRequiredNumOfRegistrantsError;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +69,7 @@ public class TournamentController {
             outgoingTournament.setSeries(tournament.getSeries());
             outgoingTournament.setCloseRegistrationDate(tournament.getCloseRegistrationDate());
             outgoingTournament.setMatchDuration(tournament.getMatchDuration());
+            outgoingTournament.setMinParticipants(tournament.getMinParticipants());
             boolean registeredInTournament = registeredTournaments.contains(tournament.getTournamentID());
             outgoingTournament.setRegistered(registeredInTournament);
 
@@ -141,6 +145,9 @@ public class TournamentController {
             if (incoming.getStatus() != TournamentStatus.DEFAULT.getStatus()) {
                 tour.setStatus(incoming.getStatus());
             }
+            if (incoming.getMinParticipants() != null) {
+                tour.setMinParticipants(incoming.getMinParticipants());
+            }
 
             tournamentService.saveTournament(tour);
         } else {
@@ -150,10 +157,17 @@ public class TournamentController {
     }
 
     @PutMapping(value = "/{tournamentID}/closeRegistration")
-    public ResponseEntity<String> closeRegistration(@PathVariable Integer tournamentID) {
-            boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.REGISTRATION_CLOSED);
-       return  res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament registration is closed") :
-               ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to close registration");
+    public ResponseEntity<Object> closeRegistration(@PathVariable Integer tournamentID) {
+        try {
+            tournamentService.closeRegistration(tournamentID);
+        } catch (LessThanRequiredNumOfRegistrantsError e) {
+            ApiError error = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (EntityNotFoundError e) {
+            ApiError error = new ApiError(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Registration successfully closed.");
     }
 
     @PostMapping(value = "", params = {"createdBy"})

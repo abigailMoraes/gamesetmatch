@@ -3,6 +3,8 @@ package com.zoomers.GameSetMatch.services;
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.services.Errors.EntityNotFoundError;
+import com.zoomers.GameSetMatch.services.Errors.LessThanRequiredNumOfRegistrantsError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -64,6 +66,25 @@ public class TournamentService {
             return true;
         }
         return false;
+    }
+
+    public void closeRegistration(Integer id) throws LessThanRequiredNumOfRegistrantsError, EntityNotFoundError {
+        Tournament tournament = this.findTournamentByID(id).orElse(null);
+        Integer numRegistrants = userRegistersTournament.getNumberOfRegistrantsForATournament(id);
+        if (tournament == null) {
+            throw new EntityNotFoundError(String.format("Unable to find the tournament with id %d", tournament.getTournamentID()));
+
+        } else if (numRegistrants < tournament.getMinParticipants()) {
+            throw new LessThanRequiredNumOfRegistrantsError(
+                    String.format("Minimum of %d players not reached. %d %s currently registered.",
+                            tournament.getMinParticipants(),
+                            numRegistrants,
+                            numRegistrants == 1 ? "player is" : "players are"
+                    ));
+
+        }
+        this.changeTournamentStatus(id, TournamentStatus.REGISTRATION_CLOSED);
+
     }
 }
 
