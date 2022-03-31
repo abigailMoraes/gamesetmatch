@@ -85,8 +85,8 @@ public class Tournament {
     @Column(name="current_round")
     private int currentRound;
 
-    @Column(name = "round_start_time")
-    private Date roundStartTime;
+    @Column(name = "round_start_Date")
+    private Date roundStartDate;
 
 
     public Tournament() {

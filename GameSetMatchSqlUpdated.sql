@@ -21,7 +21,7 @@ CREATE TABLE User(userID int NOT NULL AUTO_INCREMENT, firebase_id varchar(100), 
 CREATE TABLE Tournament(tournamentID int NOT NULL AUTO_INCREMENT, name varchar(128),  description varchar(150), start_date  DATE,  close_registration_date DATE, location varchar(60), max_participants int, min_participants int,  end_date DATE, prize varchar(60), format int, series int, match_by int, match_duration int, admin_hosts_tournament int, status int, current_round int, PRIMARY KEY(tournamentID),
                         FOREIGN KEY (admin_hosts_tournament) REFERENCES User(userID));
 
-ALTER TABLE Tournament ADD round_start_time DATE;
+ALTER TABLE Tournament ADD round_start_date DATE;
 
 /*Create table statement for Availability*/
 CREATE TABLE Availability(userID int, tournamentID int, day_of_week int, availability_string varchar(24), PRIMARY KEY(userID, tournamentID, day_of_week), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
