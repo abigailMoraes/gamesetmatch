@@ -21,4 +21,10 @@ public class UserResponse {
     }
 
     public UserResponse() { }
+
+    @Override
+    public String toString() {
+        return String.format("{\"id\":%d,\"email\":\"%s\",\"name\":\"%s\",\"isAdmin\":%d,\"picture\":\"%s\"}",
+                this.id, this.email, this.name, this.isAdmin, this.picture);
+    }
 }

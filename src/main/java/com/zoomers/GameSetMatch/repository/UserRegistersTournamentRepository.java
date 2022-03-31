@@ -38,4 +38,6 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
     }
 
     void deleteUserRegistersTournamentsByTournamentID(Integer tournamentID);
+
+    List<UserRegistersTournament> getUserRegistersTournamentsByTournamentID(Integer tournamentID);
 }
