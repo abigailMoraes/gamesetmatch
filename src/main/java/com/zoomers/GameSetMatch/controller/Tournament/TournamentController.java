@@ -7,6 +7,7 @@ import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
@@ -189,7 +190,14 @@ public class TournamentController {
 
     @PostMapping(value = "/{tournamentID}/runCreateSchedule")
     public ResponseEntity createSchedule(@PathVariable(name = "tournamentID") int tournamentID) {
-        scheduler.createSchedule(tournamentID);
+        try {
+
+            scheduler.createSchedule(tournamentID);
+        }
+        catch (ScheduleException e) {
+
+            System.out.println(e.getMessage());
+        }
         boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE);
         return  res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Schedule created.") :
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There was an error creating the schedule.");

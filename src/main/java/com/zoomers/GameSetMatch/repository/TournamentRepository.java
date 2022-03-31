@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Repository
@@ -38,7 +39,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
     @Query( value = "SELECT t.tournamentID FROM Tournament t WHERE status = 1 OR (close_registration_date = current_date AND status = 0)",
             nativeQuery = true
     )
-    List<Integer> CloseRegistrationDate();
+    LinkedHashSet<Integer> getTournamentsPastCloseRegistrationDate();
 
     @Transactional
     @Modifying

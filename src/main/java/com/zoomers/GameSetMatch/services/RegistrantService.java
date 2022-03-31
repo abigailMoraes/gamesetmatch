@@ -4,6 +4,7 @@ import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
+import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.SpringConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,13 @@ public class RegistrantService {
     private UserMatchTournamentRepository userMatchTournamentRepository;
     @Autowired
     private MatchRepository matchRepository;
+    @Autowired
+    private UserRegistersTournamentRepository userRegistersTournamentRepository;
 
     public String initAvailability(int r_id, int t_id) {
 
         AvailabilityService availabilityService = SpringConfig.getBean(AvailabilityService.class);
         List<String> availabilityList = availabilityService.getPlayerAvailabilities(r_id, t_id);
-        StringBuilder sb = new StringBuilder();
         String availability = "";
 
         assert(availabilityList.size() == 7);
@@ -59,9 +61,15 @@ public class RegistrantService {
         return playersToPlay;
     }
 
-    public int initLosses(int id) {
+    public int initStatus(int id, int t_id) {
 
-        List<UserMatchTournamentInfo> matchesPlayed = userMatchTournamentRepository.findPastMatchesByUserID(id);
+        List<Integer> status = userRegistersTournamentRepository.getPlayerStatusByTournamentID(id, t_id);
+        return status.get(0);
+    }
+
+    public int initLosses(int id, int t_id) {
+
+        List<UserMatchTournamentInfo> matchesPlayed = userMatchTournamentRepository.findPastMatchesInTournamentByUserID(id, t_id);
 
         int losses = 0;
 
@@ -72,10 +80,10 @@ public class RegistrantService {
 
             Match match = m.get(0);
 
-            if (match.getUserID_1() == id && userMatchTournamentInfo.getResults().equals("Loss")) {//== 2) {
+            if (match.getUserID_1() == id && userMatchTournamentInfo.getResults() == 2) {
                 losses++;
             }
-            else if (match.getUserID_2() == id && userMatchTournamentInfo.getResults().equals("Loss")) {// == 1) {
+            else if (match.getUserID_2() == id && userMatchTournamentInfo.getResults() == 1) {
                 losses++;
             }
         }

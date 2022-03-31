@@ -22,8 +22,8 @@ import java.util.Date;
                         @ColumnResult(name="match_duration", type=Integer.class),
                         @ColumnResult(name="start_date", type=Date.class),
                         @ColumnResult(name="current_round", type=Integer.class),
-                        @ColumnResult(name="tournamentStatus", type=Integer.class),
-                        @ColumnResult(name="minPlayers", type=Integer.class)
+                        @ColumnResult(name="status", type=Integer.class),
+                        @ColumnResult(name="min_participants", type=Integer.class)
                 }
         )
 )
@@ -82,6 +82,8 @@ public class Tournament {
     @Column(name="current_round")
     private int currentRound;
 
+    @Column(name="round_start_date")
+    private Date roundStartDate;
 
     public Tournament() {
         this.status = -1;

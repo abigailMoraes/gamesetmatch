@@ -14,6 +14,8 @@ import static java.util.Objects.isNull;
 
 public abstract class TypeMatcher {
 
+    private MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
+
     public RoundRobinGraph createRoundRobinMatches(
             List<Registrant> registrantsToMatch,
             Set<Tuple> registrantMatches,
@@ -192,6 +194,46 @@ public abstract class TypeMatcher {
         return bestOfMatchGraph;
     }
 
+    public BracketMatchGraph createPossibleBracketMatches(
+            List<Registrant> registrants,
+            List<Timeslot> timeslots,
+            List<Tuple> matchedPlayers,
+            int matchDuration
+    ) {
+
+        BracketMatchGraph bracketMatchGraph = new BracketMatchGraph(registrants, timeslots);
+
+        for (Tuple pair : matchedPlayers) {
+
+            for (Timeslot t : timeslots) {
+
+                if (invalidTimeslot(t, matchDuration)) {
+                    continue;
+                }
+
+                Registrant r1 = registrants.stream().filter(r -> r.getID() == pair.getFirst()).findFirst().get();
+                Registrant r2 = registrants.stream().filter(r -> r.getID() == pair.getSecond()).findFirst().get();
+
+                if (!isMatchValid(r1, r2, t)) {
+                    continue;
+                }
+
+                Match bracketMatch = new Match(
+                        pair.getFirst(),
+                        pair.getSecond(),
+                        t,
+                        matchDuration,
+                        Math.abs(r1.getSkill() - r1.getSkill())
+                );
+
+                bracketMatch.setMatchScore(calculateMatchScore(r1, r2, t, matchDuration));
+                bracketMatchGraph.addMatch(bracketMatch);
+            }
+        }
+
+        return bracketMatchGraph;
+    }
+
     private boolean isMatchValid(Registrant r1, Registrant r2, Timeslot t) {
 
         return areMatchConditionsSatisfied(r1, r2, t) &&
@@ -205,8 +247,6 @@ public abstract class TypeMatcher {
     }
 
     private boolean alreadyHasMatchInDifferentTournament(int id, Timeslot t) {
-
-        MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
 
         com.zoomers.GameSetMatch.entity.Match conflictingMatch = matchRepository.getMatchByUserIDAndTime(id, t.getLocalStartDateTime());
 

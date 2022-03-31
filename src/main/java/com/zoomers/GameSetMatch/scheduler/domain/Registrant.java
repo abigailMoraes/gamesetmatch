@@ -31,7 +31,6 @@ public class Registrant {
     private String availability; // 24 * 7 character string
     private Skill skillLevel;
     private Set<Integer> playersToPlay;
-    private int losses = 0;
     private int gamesToSchedule;
     private PlayerStatus status = PlayerStatus.SAFE;
 
@@ -58,7 +57,6 @@ public class Registrant {
         }
 
         this.playersToPlay = registrantService.initPlayersToPlay(this.id, this.playersToPlay, tournamentId);
-        this.losses = registrantService.initLosses(this.id);
 
         switch(format) {
             case ROUND_ROBIN:
@@ -69,21 +67,10 @@ public class Registrant {
             }
             break;
             case SINGLE_KNOCKOUT:
-            {
-                if (this.losses >= 1) {
-                    this.status = PlayerStatus.ELIMINATED;
-                }
+            case DOUBLE_KNOCKOUT: {
+                this.status = PlayerStatus.values()[registrantService.initStatus(this.id, tournamentId)];
             }
             break;
-            case DOUBLE_KNOCKOUT:
-            {
-                if (this.losses >= 2) {
-                    this.status = PlayerStatus.ELIMINATED;
-                }
-                else if (this.losses == 1) {
-                    this.status = PlayerStatus.ONE_LOSS;
-                }
-            }
         }
     }
 
@@ -114,10 +101,6 @@ public class Registrant {
 
     public String getAvailability() {
         return availability;
-    }
-
-    public int getLosses() {
-        return losses;
     }
 
     public int getGamesToSchedule() { return gamesToSchedule; }
