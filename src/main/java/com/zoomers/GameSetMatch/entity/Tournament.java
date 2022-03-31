@@ -85,6 +85,9 @@ public class Tournament {
     @Column(name="current_round")
     private int currentRound;
 
+    @Column(name = "round_start_time")
+    private Date roundStartTime;
+
 
     public Tournament() {
         this.status = -1;

@@ -119,9 +119,6 @@ public class TournamentController {
             if (incoming.getLocation() != null) {
                 tour.setLocation(incoming.getLocation());
             }
-            if (incoming.getEndDate() != null) {
-                tour.setEndDate(incoming.getEndDate());
-            }
             if (incoming.getPrize() != null) {
                 tour.setPrize(incoming.getPrize());
             }
@@ -134,13 +131,14 @@ public class TournamentController {
             if (incoming.getMatchDuration() != null) {
                 tour.setMatchDuration(incoming.getMatchDuration());
             }
-            if (incoming.getAdminHostsTournament() != 0) {
-                tour.setAdminHostsTournament(incoming.getAdminHostsTournament());
-            }
-            if (incoming.getStatus() != TournamentStatus.DEFAULT.getStatus()) {
-                tour.setStatus(incoming.getStatus());
-            }
-
+            // given that admin can only modify the tournaments he/she created,
+            // update admin_host_tournament will be useless.
+//            if (incoming.getAdminHostsTournament() != 0) {
+//                tour.setAdminHostsTournament(incoming.getAdminHostsTournament());
+//            }
+//            if (incoming.getStatus() != TournamentStatus.DEFAULT.getStatus()) {
+//                tour.setStatus(incoming.getStatus());
+//            }
             tournamentService.saveTournament(tour);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
