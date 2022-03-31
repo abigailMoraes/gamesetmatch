@@ -50,8 +50,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(e.getEmail() + " is now an admin!");
     }
 
+
+
     @DeleteMapping("/user/{id}")
     public void deleteUser(@PathVariable int id) {
         repository.delete(repository.findById(id));
     }
 }
+
