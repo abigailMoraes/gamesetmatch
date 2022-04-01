@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.controller;
 
+import com.zoomers.GameSetMatch.controller.Error.ApiError;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingAttendance;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
@@ -11,6 +12,7 @@ import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.services.Errors.EntityNotFoundError;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserInvolvesMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +70,15 @@ public class MatchController {
     }
 
     @PutMapping("/match/userResults")
-    public void updateMatchResults(@RequestBody IncomingResults results) {
-        userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
+    public ResponseEntity updateMatchResults(@RequestBody IncomingResults results) {
+        try {
+            userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
+
+        } catch (EntityNotFoundError e){
+            ApiError error = new ApiError(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+        return ResponseEntity.ok("Update successful.");
     }
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
