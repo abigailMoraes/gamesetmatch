@@ -9,27 +9,27 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ApiError {
+public class ApiException {
 
     private HttpStatus httpStatus;
     private String message;
     private List<String> errors;
 
-    public ApiError(HttpStatus httpStatus, String message, List<String> errors) {
+    public ApiException(HttpStatus httpStatus, String message, List<String> errors) {
         super();
         this.httpStatus = httpStatus;
         this.message = message;
         this.errors = errors;
     }
 
-    public ApiError(HttpStatus httpStatus, String message, String error) {
+    public ApiException(HttpStatus httpStatus, String message, String error) {
         super();
         this.httpStatus = httpStatus;
         this.message = message;
         errors = Arrays.asList(error);
     }
 
-    public ApiError(HttpStatus httpStatus, String message) {
+    public ApiException(HttpStatus httpStatus, String message) {
         super();
         this.httpStatus = httpStatus;
         this.message = message;

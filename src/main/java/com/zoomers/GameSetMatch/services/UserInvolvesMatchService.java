@@ -6,10 +6,10 @@ import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.UserInvolvesMatchRepository;
-import com.zoomers.GameSetMatch.services.Errors.EntityNotFoundError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +20,11 @@ public class UserInvolvesMatchService {
     @Autowired
     MatchRepository matchRepository;
 
-    public void updateMatchResults(int matchID, int userID, int result) throws EntityNotFoundError {
+    public void updateMatchResults(int matchID, int userID, int result) throws EntityNotFoundException {
         // there is a match for each user, set the result to be the same in both i.e tie, player1 or player2 was the winner
         List<UserInvolvesMatch> matches = userInvolvesMatchRepository.getUserInvolvesMatchByMatchID(matchID);
         if(matches.size() == 0) {
-            throw new EntityNotFoundError("Match not found in our records. Unable to update.");
+            throw new EntityNotFoundException("Match not found in our records. Unable to update.");
         }
         for (UserInvolvesMatch match : matches) {
             // tie

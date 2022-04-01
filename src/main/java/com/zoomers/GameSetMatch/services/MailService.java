@@ -3,11 +3,7 @@ package com.zoomers.GameSetMatch.services;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
-import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
-import com.zoomers.GameSetMatch.repository.RoundRepository;
-import com.zoomers.GameSetMatch.repository.TournamentRepository;
-import com.zoomers.GameSetMatch.repository.UserInvolvesMatchRepository;
-import com.zoomers.GameSetMatch.repository.UserRepository;
+import com.zoomers.GameSetMatch.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -87,22 +83,17 @@ public class MailService {
         }
     }
 
-    public void sendCancelMail(Integer tournamentID) throws MessagingException {
-        List<UserRegistersTournament> registrants = userRegistersTournamentService.getRegistrantsByTournamentID(tournamentID);
-        String tournamentName = tournamentRepository.getNameByTournamentID(tournamentID);
-
-        for (UserRegistersTournament registrant : registrants) {
-            User user = userRepository.getUserById(registrant.getUserID());
-
+    public void sendCancelMail(List<UserRegistersTournamentRepository.IRegistrant> registrants, String tournamentName) throws MessagingException {
+        for (UserRegistersTournamentRepository.IRegistrant registrant : registrants) {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message);
 
             helper.setSubject("[GameSetMatch]Tournament Cancellation");
 
-            String to = user.getEmail();
+            String to = registrant.getEmail();
             helper.setTo(to);
 
-            String firstName = user.getName().split("\\s+")[0];
+            String firstName = registrant.getName().split("\\s+")[0];
 
             boolean html = true;
             helper.setText("<p>Dear " + firstName + ",</p><br>"

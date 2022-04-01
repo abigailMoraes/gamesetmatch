@@ -10,6 +10,8 @@ import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.*;
 
+import static java.util.Objects.isNull;
+
 public abstract class TypeMatcher {
 
     public RoundRobinGraph createRoundRobinMatches(
@@ -205,9 +207,9 @@ public abstract class TypeMatcher {
 
         MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
 
-        List<com.zoomers.GameSetMatch.entity.Match> conflictingMatch = matchRepository.getMatchByUserIDAndTime(id, t.getLocalStartDateTime());
+        com.zoomers.GameSetMatch.entity.Match conflictingMatch = matchRepository.getMatchByUserIDAndTime(id, t.getLocalStartDateTime());
 
-        return conflictingMatch.size() > 0;
+        return  !isNull(conflictingMatch);;
     }
 
     protected abstract boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t);

@@ -1,6 +1,6 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
-import com.zoomers.GameSetMatch.controller.Error.ApiError;
+import com.zoomers.GameSetMatch.controller.Error.ApiException;
 import com.zoomers.GameSetMatch.controller.MailController;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
@@ -10,16 +10,18 @@ import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
-import com.zoomers.GameSetMatch.services.Errors.EntityNotFoundError;
-import com.zoomers.GameSetMatch.services.Errors.LessThanRequiredNumOfRegistrantsError;
+import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
+import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -160,14 +162,14 @@ public class TournamentController {
     public ResponseEntity<Object> closeRegistration(@PathVariable Integer tournamentID) {
         try {
             tournamentService.closeRegistration(tournamentID);
-        } catch (LessThanRequiredNumOfRegistrantsError e) {
-            ApiError error = new ApiError(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (MinRegistrantsNotMetException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
-        } catch (EntityNotFoundError e) {
-            ApiError error = new ApiError(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (EntityNotFoundException e) {
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
-        return ResponseEntity.status(HttpStatus.OK).body("Registration successfully closed.");
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PostMapping(value = "", params = {"createdBy"})
@@ -184,22 +186,27 @@ public class TournamentController {
     }
 
     @DeleteMapping(value = "/{tournamentID}")
-    public ResponseEntity<String> deleteInactiveTournament(@PathVariable Integer tournamentID) throws MessagingException {
-        Optional<Tournament> tournament = tournamentService.findTournamentByID(tournamentID);
-
-        if (tournament.isPresent()) {
-            Tournament tour = tournament.get();
-
-            if (tour.getStatus() < TournamentStatus.ONGOING.getStatus()) {
-                tournamentService.deleteTournamentByID(tournamentID);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("Tournament is currently active. Cannot delete.");
-            }
-        } else {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
+    public ResponseEntity<Object> deleteInactiveTournament(@PathVariable Integer tournamentID){
+        try {
+            tournamentService.deleteTournamentByID(tournamentID);
+        } catch (InvalidActionForTournamentStatusException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (EntityNotFoundException e) {
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (MailException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST,
+                    "SEND_EMAIL_ERROR_MAIL",
+                    e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (MessagingException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST,
+                    "SEND_EMAIL_ERROR_MESSAGING",
+                    e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
-        return ResponseEntity.status(HttpStatus.OK).body(" Tournament is deleted.");
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PostMapping(value = "/{tournamentID}/runCreateSchedule")
