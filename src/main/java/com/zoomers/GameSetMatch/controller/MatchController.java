@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.controller;
 
+import com.zoomers.GameSetMatch.controller.Error.ApiException;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingAttendance;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingCheckNewMatchTime;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
