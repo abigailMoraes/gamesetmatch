@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
+import com.zoomers.GameSetMatch.controller.MailController;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +49,9 @@ public class TournamentController {
     Scheduler scheduler;
 
     UserMatchTournamentRepository userMatchTournamentRepository;
+
+    @Autowired
+    MailController mailController;
 
     @GetMapping()
     public List<OutgoingTournament> getAllTournaments(@RequestParam int registeredUser, @RequestParam int status) {
@@ -178,13 +183,15 @@ public class TournamentController {
     }
 
     @DeleteMapping(value = "/{tournamentID}")
-    public ResponseEntity<String> deleteInactiveTournament(@PathVariable Integer tournamentID) {
+    public ResponseEntity<String> deleteInactiveTournament(@PathVariable Integer tournamentID) throws MessagingException {
         Optional<Tournament> tournament = tournamentService.findTournamentByID(tournamentID);
 
         if (tournament.isPresent()) {
             Tournament tour = tournament.get();
 
             if (tour.getStatus() == TournamentStatus.OPEN_FOR_REGISTRATION.getStatus()) {
+                mailController.sendCancelMail(tournamentID);
+
                 availability.deleteByTournamentID(tournamentID);
                 userRegistersTournament.deleteByTournamentID(tournamentID);
                 tournamentService.deleteTournamentByID(tournamentID);

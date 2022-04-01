@@ -4,6 +4,7 @@ import com.zoomers.GameSetMatch.repository.AvailabilityRepository;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.SpringConfig;
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
 import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
@@ -38,7 +39,6 @@ public class Registrant {
         this.id = id;
         this.skillLevel = Skill.values()[skillLevel];
         this.tournamentId = tournamentId;
-        // assert(this.availability.length() == 24);// * 7);
     }
 
     public boolean checkAvailability(int timeID) {
@@ -51,9 +51,13 @@ public class Registrant {
         this.availability = registrantService.initAvailability(this.id, this.tournamentId);
     }
 
-    public void initCurrentStatus(TournamentFormat format) {
+    public void initCurrentStatus(TournamentFormat format, MatchBy matchBy, int tournamentId) {
 
-        this.playersToPlay = registrantService.initPlayersToPlay(this.id, this.playersToPlay);
+        if (matchBy == MatchBy.MATCH_BY_RANDOM) {
+            this.skillLevel = Skill.INTERMEDIATE;
+        }
+
+        this.playersToPlay = registrantService.initPlayersToPlay(this.id, this.playersToPlay, tournamentId);
         this.losses = registrantService.initLosses(this.id);
 
         switch(format) {

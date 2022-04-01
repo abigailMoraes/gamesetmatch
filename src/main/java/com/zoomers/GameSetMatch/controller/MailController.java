@@ -4,10 +4,12 @@ package com.zoomers.GameSetMatch.controller;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
+import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserInvolvesMatchRepository;
 import com.zoomers.GameSetMatch.repository.UserRepository;
+import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -36,6 +38,9 @@ public class MailController {
 
     @Autowired
     private TournamentRepository tournamentRepository;
+
+    @Autowired
+    UserRegistersTournamentService userRegistersTournamentService;
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -81,6 +86,33 @@ public class MailController {
 
                 mailSender.send(message);
             }
+        }
+    }
+
+    public void sendCancelMail(Integer tournamentID) throws MessagingException {
+        List<UserRegistersTournament> registrants = userRegistersTournamentService.getRegistrantsByTournamentID(tournamentID);
+        String tournamentName = tournamentRepository.getNameByTournamentID(tournamentID);
+
+        for (UserRegistersTournament registrant : registrants) {
+            User user = userRepository.getUserById(registrant.getUserID());
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message);
+
+            helper.setSubject("[GameSetMatch]Tournament Cancellation");
+
+            String to = user.getEmail();
+            helper.setTo(to);
+
+            String firstName = user.getName().split("\\s+")[0];
+
+            boolean html = true;
+            helper.setText("<p>Dear " + firstName + ",</p><br>"
+                    + "<p>We are sorry to inform you that the tournament <b><i>" + tournamentName + "</i></b> has been canceled!</p><br>"
+                    + "<p> But don't worry, you can go to GameSetMatch and explore other interesting tournaments!</p><br>" +
+                    "<p>Best,</p><p>GameSetMatch</p>", html);
+
+            mailSender.send(message);
         }
     }
 }

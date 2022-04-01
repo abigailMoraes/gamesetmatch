@@ -1,20 +1,57 @@
-package com.zoomers.GameSetMatch.scheduler.abstraction;
+package com.zoomers.GameSetMatch.scheduler.matching.typeMatchers;
 
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.scheduler.SpringConfig;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BestOfMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BipartiteGraph;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.SecondaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graphs.*;
+import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.*;
 
 import static java.util.Objects.isNull;
 
 public abstract class TypeMatcher {
+
+    public RoundRobinGraph createRoundRobinMatches(
+            List<Registrant> registrantsToMatch,
+            Set<Tuple> registrantMatches,
+            List<Timeslot> timeslots,
+            int matchDuration
+    ) {
+        RoundRobinGraph roundRobinGraph = new RoundRobinGraph(registrantsToMatch, timeslots);
+
+        for (Tuple pair : registrantMatches) {
+
+            Registrant r1 = registrantsToMatch.stream().filter(r -> r.getID() == pair.getFirst()).findFirst().get();
+            Registrant r2 = registrantsToMatch.stream().filter(r -> r.getID() == pair.getSecond()).findFirst().get();
+
+            for (Timeslot t : timeslots) {
+
+                if (invalidTimeslot(t, matchDuration)) {
+                    continue;
+                }
+
+                if (!isMatchValid(r1, r2, t)) {
+                    continue;
+                }
+
+                Match m = new Match(
+                        r1.getID(),
+                        r2.getID(),
+                        t,
+                        matchDuration,
+                        Math.abs(r1.getSkill() - r1.getSkill())
+                );
+                m.setMatchScore(calculateMatchScore(r1, r2, t, matchDuration));
+
+                roundRobinGraph.addMatch(m);
+            }
+        }
+
+        return roundRobinGraph;
+    }
 
     public PrimaryMatchGraph createPossiblePrimaryMatches(BipartiteGraph bipartiteGraph) {
 
@@ -33,12 +70,7 @@ public abstract class TypeMatcher {
 
                     Registrant r2 = registrants.get(j);
 
-                    if (!areMatchConditionsSatisfied(r1, r2, t)) {
-                        continue;
-                    }
-
-                    if (alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
-                            alreadyHasMatchInDifferentTournament(r2.getID(), t)) {
+                    if (!isMatchValid(r1, r2, t)) {
                         continue;
                     }
 
@@ -66,8 +98,7 @@ public abstract class TypeMatcher {
 
         SecondaryMatchGraph secondaryMatchGraph = new SecondaryMatchGraph(
                 registrantsToBeMatched,
-                availableTimeslots,
-                matchDuration
+                availableTimeslots
         );
 
         for (Timeslot t : availableTimeslots) {
@@ -84,12 +115,7 @@ public abstract class TypeMatcher {
 
                     Registrant r2 = registrantsToBeMatched.get(j);
 
-                    if (!areMatchConditionsSatisfied(r1, r2, t)) {
-                        continue;
-                    }
-
-                    if (alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
-                            alreadyHasMatchInDifferentTournament(r2.getID(), t)) {
+                    if (!isMatchValid(r1, r2, t)) {
                         continue;
                     }
 
@@ -100,7 +126,7 @@ public abstract class TypeMatcher {
                             matchDuration,
                             Math.abs(r1.getSkill() - r1.getSkill())
                     );
-                    m.setMatchScore(calculateMatchScore(r1, r2, t));
+                    m.setMatchScore(calculateMatchScore(r1, r2, t, matchDuration));
 
                     secondaryMatchGraph.addMatch(m);
                 }
@@ -146,8 +172,7 @@ public abstract class TypeMatcher {
                     continue;
                 }
 
-                if (alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
-                    alreadyHasMatchInDifferentTournament(r2.getID(), t)) {
+                if (!isMatchValid(r1, r2, t)) {
                     continue;
                 }
 
@@ -159,7 +184,7 @@ public abstract class TypeMatcher {
                         1
                 );
 
-                seriesMatch.setMatchScore(calculateMatchScore(r1, r2, t));
+                seriesMatch.setMatchScore(calculateMatchScore(r1, r2, t, matchDuration));
                 bestOfMatchGraph.addMatch(seriesMatch);
             }
         }
@@ -167,25 +192,11 @@ public abstract class TypeMatcher {
         return bestOfMatchGraph;
     }
 
-    private int calculateMatchScore(Registrant r1, Registrant r2, Timeslot t) {
+    private boolean isMatchValid(Registrant r1, Registrant r2, Timeslot t) {
 
-        int matchScore = 0;
-        if (r1.checkAvailability(t.getID()) &&
-                r2.checkAvailability(t.getID())) {
-            matchScore += 2;
-        }
-        else if (r1.checkAvailability(t.getID()) ||
-                r2.checkAvailability(t.getID())) {
-            matchScore++;
-        }
-
-        if (r1.hasNotPlayed(r2)) {
-            matchScore += 2;
-        }
-
-        matchScore -= Math.abs(r1.getSkill() - r2.getSkill());
-
-        return matchScore;
+        return areMatchConditionsSatisfied(r1, r2, t) &&
+                !(alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
+                alreadyHasMatchInDifferentTournament(r2.getID(), t));
     }
 
     private boolean invalidTimeslot(Timeslot t, int matchDuration) {
@@ -204,5 +215,27 @@ public abstract class TypeMatcher {
 
     protected abstract boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t);
 
-    protected abstract int calculateMatchScore(Match match);
+    protected int calculateMatchScore(Registrant r1, Registrant r2, Timeslot t, int matchDuration) {
+
+        int availabilityMultiplier = 2;
+        int skillMultiplier = 1;
+
+        int availabilityScore = 0;
+        int skillScore = 0;
+
+        int matchIndex = (int) Math.ceil(matchDuration / 30.0);
+        for (int i = t.getID(); i < t.getID() + matchIndex; i++) {
+            if (r1.checkAvailability(i)) {
+                availabilityScore++;
+            }
+
+            if (r2.checkAvailability(i)) {
+                availabilityScore++;
+            }
+        }
+
+        skillScore = Math.abs(r1.getSkill() - r2.getSkill());
+
+        return availabilityMultiplier * availabilityScore + skillMultiplier * skillScore;
+    }
 }

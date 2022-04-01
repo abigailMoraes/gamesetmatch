@@ -16,7 +16,7 @@
  * @since 2022-03-21
  */
 
-package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
+package com.zoomers.GameSetMatch.scheduler.graphs;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
@@ -43,6 +43,7 @@ public class PrimaryMatchGraph extends MatchGraph {
         initializeTimeDegrees();
     }
 
+    @Override
     public void addMatch(Match m) {
 
         if (!matches.contains(m)) {

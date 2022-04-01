@@ -36,6 +36,13 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             nativeQuery = true)
     List<UserMatchTournamentInfo> findPastMatchesByUserID(int id);
 
+    @Query(  value ="SELECT m.matchID \n" +
+            "FROM (SELECT * FROM User_involves_match WHERE userID = :id) u \n" +
+            "JOIN (SELECT * FROM Match_Has WHERE end_time <= NOW()) m ON m.matchID = u.matchID LEFT JOIN \n" +
+            " Round_Has ON m.roundID = Round_Has.roundID WHERE Round_Has.tournamentID = :t_id",
+            nativeQuery = true)
+    List<Integer> findPastTournamentMatchIDsByUserID(int id, int t_id);
+
     @Query(  value ="SELECT m.matchID, m.start_time, m.end_time, Round_Has.roundNumber, \n" +
             " Tournament.name, Tournament.location, Tournament.description \n" +
             "FROM (SELECT * FROM Match_Has WHERE matchID = :id) m JOIN Round_Has ON m.roundID = Round_Has.roundID \n" +
@@ -65,8 +72,8 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
     @Transactional
     @Modifying
     @Query( value = "UPDATE user_involves_match SET user_involves_match.results = :results \n" +
-       "user_involves_match.attendance = :attendance WHERE user_involves_match.matchID = :mid \n " +
-            "AND user_involves_match.userID = :uid", nativeQuery = true)
+       "User_involves_match.attendance = :attendance WHERE User_involves_match.matchID = :mid \n " +
+            "AND User_involves_match.userID = :uid", nativeQuery = true)
     void updateMatchUserInformation(int mid, int uid, String results, String attendance);
 
     @Query(value ="SELECT u.userID as id, u.results as resultText, u.attendance as status, p.name\n " +

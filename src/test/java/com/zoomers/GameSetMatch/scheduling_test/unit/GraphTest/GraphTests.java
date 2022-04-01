@@ -51,7 +51,7 @@ public class GraphTests {
     private final MockTournament StressTournament = new MockTournament(
             0,
             1,
-            4,
+            3,
             1,
             180,
             Calendar.getInstance().getTime(),
@@ -271,5 +271,22 @@ public class GraphTests {
         for (int i = 0; i < 5; i++) {
             scheduler.createSchedule(1);
         }
+    }
+
+    @Test
+    public void DBIntegrationPriorityRoundRobinTest() {
+        scheduler.createSchedule(5);
+    }
+
+    @Test
+    public void BackToBackScheduling() {
+        for (int i = 1; i <=2; i++) {
+            scheduler.createSchedule(i);
+        }
+    }
+
+    @Test
+    public void BasicTest() {
+        scheduler.createSchedule(4);
     }
 }
