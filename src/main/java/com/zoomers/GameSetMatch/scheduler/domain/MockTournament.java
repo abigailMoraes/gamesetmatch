@@ -87,4 +87,6 @@ public class MockTournament {
     public TournamentStatus getTournamentStatus() {
         return tournamentStatus;
     }
+
+    public int getMinPlayers() { return minPlayers; }
 }

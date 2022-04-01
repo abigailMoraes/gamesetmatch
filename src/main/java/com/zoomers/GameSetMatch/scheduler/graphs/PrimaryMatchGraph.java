@@ -24,6 +24,7 @@ import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 public class PrimaryMatchGraph extends MatchGraph {
@@ -35,9 +36,9 @@ public class PrimaryMatchGraph extends MatchGraph {
 
     public PrimaryMatchGraph(BipartiteGraph bipartiteGraph) {
 
-        super(new LinkedHashSet<>(bipartiteGraph.getPlayers()),
+        super(new HashSet<>(bipartiteGraph.getPlayers()),
                 new LinkedHashSet<>(bipartiteGraph.getTimeslots()),
-                new LinkedHashSet<>()
+                new HashSet<>()
         );
 
         initializeTimeDegrees();

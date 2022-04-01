@@ -73,6 +73,19 @@ public class GraphTests {
     }
 
     @Test
+    public void IntegrationErrorRRTest() {
+
+        try {
+
+            scheduler.createSchedule(5);
+        }
+        catch (ScheduleException e) {
+
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
     public void DBIntegrationPriorityRoundRobinTest() {
 
         try {

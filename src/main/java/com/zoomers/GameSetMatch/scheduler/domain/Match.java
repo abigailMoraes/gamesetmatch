@@ -13,9 +13,9 @@ public class Match {
     private int degrees = 0;
     private final Tuple players;
     private Timeslot timeslot;
-    private int skillWeight = 0;
+    private int skillWeight;
     private int matchScore = 0;
-    private int matchDuration = 0;
+    private final int matchDuration;
     private float matchIndex = 0;
 
     public Match(int p1, int p2, Timeslot timeslot, int matchDuration, int skillWeight) {

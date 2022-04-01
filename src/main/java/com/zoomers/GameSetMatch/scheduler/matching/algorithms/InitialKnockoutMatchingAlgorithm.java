@@ -3,6 +3,7 @@ package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.graphs.MatchGraph;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -20,7 +21,7 @@ public class InitialKnockoutMatchingAlgorithm extends MatchingAlgorithm{
     @Override
     public Set<Match> findMatches() {
 
-        Set<Match> initialKnockoutMatches = new LinkedHashSet<>();
+        Set<Match> initialKnockoutMatches = new HashSet<>();
 
         buildPriorityQueue();
 
@@ -44,7 +45,7 @@ public class InitialKnockoutMatchingAlgorithm extends MatchingAlgorithm{
                 return m2.getMatchScore() - m1.getMatchScore();
             }
 
-            return (int)((m2.getTimeslot().getTime() - m1.getTimeslot().getTime()) * 2);
+            return (int)((m1.getTimeslot().getTime() - m2.getTimeslot().getTime()) * 2);
         });
 
         priorityQueue.addAll(this.matchGraph.getMatches());

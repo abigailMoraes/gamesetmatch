@@ -1,4 +1,4 @@
-package com.zoomers.GameSetMatch.scheduler.matching.typeMatchers;
+package com.zoomers.GameSetMatch.scheduler.matching.formatMatchers;
 
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.scheduler.SpringConfig;
@@ -7,14 +7,20 @@ import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import com.zoomers.GameSetMatch.scheduler.graphs.*;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
+import com.zoomers.GameSetMatch.scheduler.scorers.Scorer;
 
 import java.util.*;
 
 import static java.util.Objects.isNull;
 
-public abstract class TypeMatcher {
+public abstract class FormatMatcher {
 
     private MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
+    private Scorer scorer;
+
+    public void initScorer(Scorer scorer) {
+        this.scorer = scorer;
+    }
 
     public RoundRobinGraph createRoundRobinMatches(
             List<Registrant> registrantsToMatch,
@@ -46,7 +52,7 @@ public abstract class TypeMatcher {
                         matchDuration,
                         Math.abs(r1.getSkill() - r1.getSkill())
                 );
-                m.setMatchScore(calculateMatchScore(r1, r2, t, matchDuration));
+                m.setMatchScore(scorer.calculateMatchByScore(r1, r2, t, matchDuration));
 
                 roundRobinGraph.addMatch(m);
             }
@@ -128,7 +134,10 @@ public abstract class TypeMatcher {
                             matchDuration,
                             Math.abs(r1.getSkill() - r1.getSkill())
                     );
-                    m.setMatchScore(calculateMatchScore(r1, r2, t, matchDuration));
+                    m.setMatchScore(
+                            scorer.calculateMatchByScore(r1, r2, t, matchDuration) +
+                            calculateMatchFormatScore(r1, r2)
+                    );
 
                     secondaryMatchGraph.addMatch(m);
                 }
@@ -186,7 +195,7 @@ public abstract class TypeMatcher {
                         1
                 );
 
-                seriesMatch.setMatchScore(calculateMatchScore(r1, r2, t, matchDuration));
+                seriesMatch.setMatchScore(scorer.calculateMatchByScore(r1, r2, t, matchDuration));
                 bestOfMatchGraph.addMatch(seriesMatch);
             }
         }
@@ -226,7 +235,7 @@ public abstract class TypeMatcher {
                         Math.abs(r1.getSkill() - r1.getSkill())
                 );
 
-                bracketMatch.setMatchScore(calculateMatchScore(r1, r2, t, matchDuration));
+                bracketMatch.setMatchScore(scorer.calculateMatchByScore(r1, r2, t, matchDuration));
                 bracketMatchGraph.addMatch(bracketMatch);
             }
         }
@@ -255,27 +264,5 @@ public abstract class TypeMatcher {
 
     protected abstract boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t);
 
-    protected int calculateMatchScore(Registrant r1, Registrant r2, Timeslot t, int matchDuration) {
-
-        int availabilityMultiplier = 2;
-        int skillMultiplier = 1;
-
-        int availabilityScore = 0;
-        int skillScore = 0;
-
-        int matchIndex = (int) Math.ceil(matchDuration / 30.0);
-        for (int i = t.getID(); i < t.getID() + matchIndex; i++) {
-            if (r1.checkAvailability(i)) {
-                availabilityScore++;
-            }
-
-            if (r2.checkAvailability(i)) {
-                availabilityScore++;
-            }
-        }
-
-        skillScore = Math.abs(r1.getSkill() - r2.getSkill());
-
-        return availabilityMultiplier * availabilityScore + skillMultiplier * skillScore;
-    }
+    protected abstract int calculateMatchFormatScore(Registrant r1, Registrant r2);
 }

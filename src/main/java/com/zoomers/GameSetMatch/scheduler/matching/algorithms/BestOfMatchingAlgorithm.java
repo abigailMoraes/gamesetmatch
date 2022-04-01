@@ -21,7 +21,7 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
     @Override
     public Set<Match> findMatches() {
 
-        Set<Match> seriesMatches = new LinkedHashSet<>();
+        Set<Match> seriesMatches = new HashSet<>();
 
         for (int i = 0; i < bestOfMatchGraph.getNumberOfGames() - 1; i++) {
 

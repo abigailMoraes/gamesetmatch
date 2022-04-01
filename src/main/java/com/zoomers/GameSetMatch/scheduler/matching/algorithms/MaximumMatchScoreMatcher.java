@@ -22,7 +22,7 @@ public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
                 return m2.getMatchScore() - m1.getMatchScore();
             }
 
-            return (int)((m2.getTimeslot().getTime() - m1.getTimeslot().getTime()) * 2);
+            return (int)((m1.getTimeslot().getTime() - m2.getTimeslot().getTime()) * 2);
         }
         );
 

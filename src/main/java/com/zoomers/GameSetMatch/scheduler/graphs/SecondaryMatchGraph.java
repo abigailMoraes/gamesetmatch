@@ -10,6 +10,7 @@ import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -17,9 +18,9 @@ public class SecondaryMatchGraph extends MatchGraph {
 
     public SecondaryMatchGraph(List<Registrant> registrants, List<Timeslot> timeslots) {
 
-        super(new LinkedHashSet<>(registrants),
+        super(new HashSet<>(registrants),
                 new LinkedHashSet<>(timeslots),
-                new LinkedHashSet<>()
+                new HashSet<>()
         );
     }
 
