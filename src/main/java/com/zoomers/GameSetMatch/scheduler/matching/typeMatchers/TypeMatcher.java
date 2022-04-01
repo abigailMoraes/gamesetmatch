@@ -209,7 +209,7 @@ public abstract class TypeMatcher {
 
         com.zoomers.GameSetMatch.entity.Match conflictingMatch = matchRepository.getMatchByUserIDAndTime(id, t.getLocalStartDateTime());
 
-        return  !isNull(conflictingMatch);;
+        return  !isNull(conflictingMatch);
     }
 
     protected abstract boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t);
