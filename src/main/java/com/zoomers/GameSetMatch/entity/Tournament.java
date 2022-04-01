@@ -85,6 +85,9 @@ public class Tournament {
     @Column(name="min_participants")
     private Integer minParticipants;
 
+    @Column(name = "round_start_date")
+    private Date roundStartDate;
+
 
     public Tournament() {
         this.status = -1;

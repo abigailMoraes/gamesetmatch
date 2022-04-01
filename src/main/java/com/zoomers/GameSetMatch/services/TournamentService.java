@@ -73,6 +73,10 @@ public class TournamentService {
         mailService.sendCancelMail(participants, tournamentName);
 
     }
+  
+    public List<Tournament> getCompletedTournamentsForUser(int userID) {
+       return tournament.findCompletedTournamentsForUser(userID);
+    }
 
     public boolean changeTournamentStatus(Integer id, TournamentStatus status) {
         Tournament tournament = this.findTournamentByID(id).orElse(null);
