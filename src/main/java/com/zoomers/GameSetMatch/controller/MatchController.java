@@ -1,6 +1,7 @@
 package com.zoomers.GameSetMatch.controller;
 
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingAttendance;
+import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingCheckNewMatchTime;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
@@ -11,6 +12,8 @@ import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.services.Errors.ProposedMatchChangeConflictException;
+import com.zoomers.GameSetMatch.services.MatchService;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserInvolvesMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,9 @@ public class MatchController {
 
     @Autowired
     RoundRepository roundRepository;
+
+    @Autowired
+    MatchService matchService;
 
     @GetMapping("/match/involves/user/{id}")
     List<UserMatchTournamentInfo> getMatchesForUser(@PathVariable int id) {
@@ -122,13 +128,28 @@ public class MatchController {
             Optional<Round> existingRound = Optional.of(roundRepository.getById(roundID));
             /* Update end date for existing round if date for match end time is later than the corresponding
             round end date */
-            if(latestMatchDate.isBefore(match.getEndTime())){
+            if (latestMatchDate.isBefore(match.getEndTime())) {
                 latestMatchDate = match.getEndTime();
-            }
-            else {
+            } else {
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
             }
         }
         tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.ONGOING);
+    }
+
+    @PostMapping("/tournaments/{tournamentID}/match/{matchID}/checkNewTime")
+    public ResponseEntity<Object> checkNewMatchTime(@PathVariable int tournamentID, @PathVariable int matchID,
+                                                    @RequestBody IncomingCheckNewMatchTime newMatchTime) {
+        try {
+
+            matchService.checkNewMatchTime(tournamentID, matchID, newMatchTime.getNewMatchAsAvailabilityString(), newMatchTime.getDayOfWeek());
+
+        } catch (ProposedMatchChangeConflictException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST,
+                    e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }
