@@ -9,6 +9,14 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTournamentInfo, Long> {
+
+
+    @Query(value = "SELECT * FROM Tournament WHERE status = 5 AND + \n"
+            +"EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
+            " AND Tournament.tournamentID = user_registers_tournament.tournamentID)",
+            nativeQuery = true)
+    List<UserMatchTournamentInfo> getCompletedTournamentsForUser(int userID);
+
     @Query(
            value ="SELECT u.results, u.attendance, Match_Has.matchID, Match_Has.start_time, Match_Has.end_time,\n" +
                    "Round_Has.roundNumber,Tournament.name,Tournament.location,Tournament.description \n" +
@@ -74,7 +82,8 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             "tournament.tournamentID = :tournamentID) t on t.tournamentID = r.tournamentID", nativeQuery = true)
     List<UserMatchTournamentRepository.IBracketMatchInfo> getBracketMatchInfoByTournamentID(int tournamentID);
 
-    @Query(value ="SELECT matchID as next from match_has where roundID = (SELECT roundID FROM round_has WHERE roundNumber = \n"
+    @Query(value ="SELECT matchID as next from match_has where roundID = (SELECT roundID FROM round_has WHERE " +
+            "roundNumber = \n"
             + "(SELECT roundNumber from round_has where roundID = :oldRoundID) + 1\n" +
             " AND tournamentID = (SELECT tournamentID from round_has where roundID = :oldRoundID)) \n" +
             " AND ((userID_1 in ((select userID_1 from match_has where matchID = :oldMatchID),\n " +
@@ -84,9 +93,58 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             " matchID = :oldMatchID))));", nativeQuery = true)
     NumQuery getNextMatchID(int oldMatchID, int oldRoundID);
 
+
+    @Query(value = "SELECT userID AS winner FROM user_involves_match WHERE matchID = :oldMatchID \n" +
+            " AND results = 'Win'", nativeQuery = true)
+    WinnerID getWinnerUserID(int oldMatchID);
+
+    @Query(value = "SELECT u.name AS winner FROM User u JOIN ( SELECT userID From user_involves_match \n " +
+            "WHERE matchID = :oldMatchID \n" +
+            " AND results = 'Win') m ON u.userID = m.userID", nativeQuery = true)
+    WinnerName getWinnerName(int oldMatchID);
+
+    @Query(value = "SELECT roundNumber AS roundNumber FROM round_has where roundID = :roundID", nativeQuery = true)
+    RoundNumber getRoundNumber(int roundID);
+
+    @Query(value = "SELECT userID AS loser FROM user_involves_match WHERE matchID = :oldMatchID \n" +
+            " AND results = 'Loss'", nativeQuery = true)
+    LoserID getLoserUserID(int oldMatchID);
+
+    @Query(value = "SELECT MIN(matchID) as next from (SELECT roundID FROM round_has \n"+
+            "WHERE tournamentID = (SELECT tournamentID from round_has \n"+
+            "where roundID = :oldRoundID)) r JOIN (select * from match_has \n" +
+            "WHERE (:winnerID in (userID_1, userID_2)) \n"+
+            "and matchID > :oldMatchID) m ON r.roundID = m.roundID;", nativeQuery = true)
+    NumQuery getNextWinnerMatchID( int oldRoundID, int winnerID, int oldMatchID);
+
+    @Query(value = "SELECT MIN(matchID) as next from (SELECT roundID FROM round_has \n"+
+            "WHERE tournamentID = (SELECT tournamentID from round_has \n"+
+            "where roundID = :oldRoundID)) r JOIN (select * from match_has \n" +
+            "WHERE (:LoserID in (userID_1, userID_2)) \n"+
+            "and matchID > :oldMatchID) m ON r.roundID = m.roundID;", nativeQuery = true)
+    NumQuery getNextLoserMatchID( int oldRoundID, int LoserID, int oldMatchID);
+
+
     interface NumQuery{
         Integer getNext();
     }
+
+    interface WinnerID{
+        Integer getWinner();
+    }
+
+    interface WinnerName{
+        String getWinner();
+    }
+
+    interface RoundNumber{
+        Integer getRoundNumber();
+    }
+
+    interface LoserID{
+        Integer getLoser();
+    }
+
 
     interface IParticipantInfo{
         String getID();
@@ -103,6 +161,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
         String  getTournamentRoundText();
         String  getStartTime();
     }
+
 
 
 

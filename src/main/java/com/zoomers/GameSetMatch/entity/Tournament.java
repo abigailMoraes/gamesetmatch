@@ -58,13 +58,16 @@ public class Tournament {
     private String prize;
 
     @Column(name = "format")
-    private Integer format;
+    private String format;
 
     @Column(name = "series")
     private Integer series;
 
     @Column(name = "match_by")
     private Integer matchBySkill;
+
+    @Column(name = "type")
+    private Integer type;
 
     @Column(name = "match_duration")
     private Integer matchDuration;
