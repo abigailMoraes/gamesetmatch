@@ -38,4 +38,12 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
     @Query(nativeQuery = true, value = "INSERT INTO Match_Has VALUES :startTime, :endTime, :roundID, :isConflict, :userOneID, :userTwoID")
     void addMatch(LocalDateTime startTime, LocalDateTime endTime, int roundID, int isConflict, int userOneID, int userTwoID);
 
+    @Query(value = "SELECT * FROM match_has JOIN (SELECT * FROM round_has WHERE tournamentID = :tournamentID) r ON \n"+
+    "match_has.roundID = r.roundID", nativeQuery = true)
+    List<Match> getMatchesByTournamentID(int tournamentID);
+
+
+
+
+
 }
