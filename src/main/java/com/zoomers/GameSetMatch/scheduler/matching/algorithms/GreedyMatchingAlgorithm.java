@@ -38,7 +38,7 @@ public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
 
         this.matchGraph.removeAll(matchesToRemove);
 
-        // System.out.println("    Matches left to check " + this.matches);
+        // System.out.println("    Matches left to check " + this.matchGraph.getMatches());
     }
 
     protected abstract void buildPriorityQueue();

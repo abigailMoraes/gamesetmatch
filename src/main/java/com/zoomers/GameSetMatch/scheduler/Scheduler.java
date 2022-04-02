@@ -313,7 +313,12 @@ public class Scheduler {
             System.out.println("Primary: " + this.CALENDAR.getTime());
 
             BipartiteGraph bg = new BipartiteGraph(TIMESLOTS, registrantsToMatch, MOCK_TOURNAMENT.getMatchDuration());
+
+            System.out.println("Created Bipartite Graph");
+
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
+
+            System.out.println("Created Possible Matches");
 
             if (matchGraph.getMatches().size() == 0) {
                 CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
@@ -325,6 +330,8 @@ public class Scheduler {
             MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(MOCK_TOURNAMENT.getMatchBy(), matchGraph);
 
             matches.addAll(greedyMaximumIndependentSet.findMatches());
+
+            System.out.println("Find Matches");
 
             for (Match m : matches) {
                 registrantsToMatch.removeIf(registrant ->

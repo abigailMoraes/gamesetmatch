@@ -245,9 +245,9 @@ public abstract class FormatMatcher {
 
     private boolean isMatchValid(Registrant r1, Registrant r2, Timeslot t) {
 
-        return areMatchConditionsSatisfied(r1, r2, t) &&
+        return areMatchConditionsSatisfied(r1, r2, t); /* &&
                 !(alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
-                alreadyHasMatchInDifferentTournament(r2.getID(), t));
+                alreadyHasMatchInDifferentTournament(r2.getID(), t));*/
     }
 
     private boolean invalidTimeslot(Timeslot t, int matchDuration) {
