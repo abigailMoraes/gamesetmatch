@@ -5,10 +5,7 @@ import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
 import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
-import com.zoomers.GameSetMatch.repository.RoundRepository;
-import com.zoomers.GameSetMatch.repository.TournamentRepository;
-import com.zoomers.GameSetMatch.repository.UserInvolvesMatchRepository;
-import com.zoomers.GameSetMatch.repository.UserRepository;
+import com.zoomers.GameSetMatch.repository.*;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -42,6 +39,9 @@ public class MailController {
     @Autowired
     UserRegistersTournamentService userRegistersTournamentService;
 
+    @Autowired
+    MatchRepository matchRepository;
+
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @PostMapping(value = "/publish")
@@ -57,6 +57,8 @@ public class MailController {
             Integer roundNumber = repository.getRoundNumberByRoundID(match.getRoundID());
             Integer tournamentID = repository.getTournamentIDByRoundID(match.getRoundID());
             String tournamentName = tournamentRepository.getNameByTournamentID(tournamentID);
+
+            matchRepository.updateMatchPublishStatus(match.getMatchID());
 
             for (UserInvolvesMatch participant : participants) {
 

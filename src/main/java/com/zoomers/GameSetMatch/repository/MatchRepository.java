@@ -20,6 +20,11 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
          nativeQuery = true)
     void updateMatchInfo( int matchID, LocalDateTime startTime, LocalDateTime endTime);
 
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE Match_Has SET Match_Has.publishedOrNot = 1 WHERE Match_Has.matchID = :matchID", nativeQuery = true)
+    void updateMatchPublishStatus(int matchID);
+
     @Query(value = "SELECT * FROM Match_Has WHERE roundID = :roundID", nativeQuery = true)
     List<Match> getMatchesByRound(int roundID);
 
