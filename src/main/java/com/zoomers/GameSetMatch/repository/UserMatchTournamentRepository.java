@@ -104,19 +104,19 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
 
 
     @Query(value = "SELECT userID AS winner FROM user_involves_match WHERE matchID = :oldMatchID \n" +
-            " AND results = 'Win'", nativeQuery = true)
+            " AND results = 1", nativeQuery = true)
     WinnerID getWinnerUserID(int oldMatchID);
 
     @Query(value = "SELECT u.name AS winner FROM User u JOIN ( SELECT userID From user_involves_match \n " +
             "WHERE matchID = :oldMatchID \n" +
-            " AND results = 'Win') m ON u.userID = m.userID", nativeQuery = true)
+            " AND results = 1) m ON u.userID = m.userID", nativeQuery = true)
     WinnerName getWinnerName(int oldMatchID);
 
     @Query(value = "SELECT roundNumber AS roundNumber FROM round_has where roundID = :roundID", nativeQuery = true)
     RoundNumber getRoundNumber(int roundID);
 
     @Query(value = "SELECT userID AS loser FROM user_involves_match WHERE matchID = :oldMatchID \n" +
-            " AND results = 'Loss'", nativeQuery = true)
+            " AND results = 0", nativeQuery = true)
     LoserID getLoserUserID(int oldMatchID);
 
     @Query(value = "SELECT MIN(matchID) as next from (SELECT roundID FROM round_has \n"+
