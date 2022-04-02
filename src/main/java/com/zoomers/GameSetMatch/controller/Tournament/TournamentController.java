@@ -1,6 +1,6 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
-import com.zoomers.GameSetMatch.controller.MailController;
+import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.AvailabilityDTO;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
@@ -32,9 +32,6 @@ public class TournamentController {
 
     @Autowired
     AvailabilityService availability;
-
-    @Autowired
-    TournamentService tournament;
 
     @Autowired
     UserRegistersTournamentService userRegistersTournament;
@@ -98,6 +95,21 @@ public class TournamentController {
         userRegistersTournament.saveRegistration(tournamentID, userID, newRegistrtation.getSkillLevel());
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
 
+    }
+
+    @GetMapping(value="/{tournamentID}/availabilities/{userID}")
+    public List<AvailabilityDTO> getPlayerAvailabilities(@PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        return availability.getUsersAvailabilityForTournament(userID, tournamentID);
+    }
+
+    @PutMapping(value="/{tournamentID}/availabilities/{userID}")
+    public void  updatePlayerAvailabilities(@RequestBody List<AvailabilityDTO> updatedAvailability, @PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        availability.updateUsersAvailabilityForTournament(tournamentID, userID, updatedAvailability);
+    }
+
+    @PostMapping(value = "/{tournamentID}/deregister/{userID}")
+    public void registerForTournament(@PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        userRegistersTournament.undoRegistration(tournamentID, userID);
     }
 
 
