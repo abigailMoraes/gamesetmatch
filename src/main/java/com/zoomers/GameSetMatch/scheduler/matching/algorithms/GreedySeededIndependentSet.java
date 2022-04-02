@@ -20,7 +20,7 @@ public class GreedySeededIndependentSet extends GreedyMatchingAlgorithm {
                 return m2.getSkillWeight() - m1.getSkillWeight();
             }
 
-            return (int) ((m2.getTimeslot().getTime() - m1.getTimeslot().getTime()) * 2);
+            return m1.getTimeslot().getDate().before(m2.getTimeslot().getDate()) ? -1 : 1;
         });
 
         this.matchGraph.setMatchDegrees();

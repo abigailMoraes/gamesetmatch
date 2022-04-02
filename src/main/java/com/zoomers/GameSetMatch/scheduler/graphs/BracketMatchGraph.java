@@ -15,7 +15,7 @@ public class BracketMatchGraph extends MatchGraph {
         super(
                 new HashSet<>(registrants),
                 new LinkedHashSet<>(timeslots),
-                new HashSet<>());
+                new LinkedHashSet<>());
     }
 
     @Override

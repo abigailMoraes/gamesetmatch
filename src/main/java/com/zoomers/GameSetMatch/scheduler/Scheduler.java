@@ -3,7 +3,7 @@
  * the algorithm will produce a schedule for all players registered
  * in the tournament.
  *
- * @since 2022-03-21
+ * @since 2022-03-31
  */
 
 package com.zoomers.GameSetMatch.scheduler;
@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,6 +59,7 @@ public class Scheduler {
 
         this.MOCK_TOURNAMENT = tournamentRepository.getMockTournamentByID(tournamentID);
         if (MOCK_TOURNAMENT == null) throw new NullPointerException("Failed to get Mock Tournament");
+        if (MOCK_TOURNAMENT.getMatchDuration() > 720) throw new ScheduleException("Match Duration is too long!");
         this.originalStatus = MOCK_TOURNAMENT.getTournamentStatus();
 
         initTypeMatcher(this.MOCK_TOURNAMENT.getTournamentFormat(), this.MOCK_TOURNAMENT.getMatchBy());
@@ -65,7 +67,7 @@ public class Scheduler {
         this.CALENDAR.setTime(this.MOCK_TOURNAMENT.getStartDate());
         initTimeslots();
 
-        checkIfLastRound();
+        // checkIfLastRound();
 
         schedule();
     }
@@ -74,6 +76,7 @@ public class Scheduler {
 
         switch (type) {
             case SINGLE_KNOCKOUT:
+            case SINGLE_BRACKET:
                 typeMatcher = new SingleKnockoutMatcher();
                 break;
             case DOUBLE_KNOCKOUT:
@@ -98,17 +101,22 @@ public class Scheduler {
     }
 
     /**
-     * Creates matches built on 3 scheduling variations:
-     * - Primary Scheduling: Selects matches for which both players are available and match conditions are satisfied
-     * - Secondary Scheduling: Schedules all players who were not matched in Primary Scheduling to a match
-     * - Best-Of Scheduling: Scheduling matches that occur in series, e.g. Best-of-5
+     * Creates matches built on multiple scheduling formats:
+     * - Round Robin --> All players will play each other once
+     * - Single Elimination --> If a player loses, they are eliminated (Opponent not known ahead of time)
+     * - Double Elimination --> Players must lose twice to be eliminated (Opponent not known ahead of time)
+     * - Bracket --> Single Elimination Tournament, but players are sorted (Opponents are predetermined)
      *
-     * @return set of scheduled matches
+     * Updates Database with relevant tournament information
+     * - Round Table --> Add New Round for the Tournament
+     * - Match Table --> All Matches Scheduled
+     * - Tournament Table --> Update Tournament Status to Ready To Publish
+     *
      */
     @Transactional
-    private Set<Match> schedule() throws ScheduleException {
+    protected void schedule() throws ScheduleException {
 
-        Set<Match> returnedMatches = new HashSet<>();
+        Set<Match> returnedMatches = new LinkedHashSet<>();
 
         switch (MOCK_TOURNAMENT.getTournamentFormat()) {
             case ROUND_ROBIN:
@@ -153,7 +161,6 @@ public class Scheduler {
             matchEntity.setUserID_1(m.getPlayers().getFirst());
             matchEntity.setUserID_2(m.getPlayers().getSecond());
             matchEntities.add(matchEntity);
-            // System.out.println(m);
         }
 
         TournamentStatus newStatus = this.originalStatus == TournamentStatus.OPEN_FOR_REGISTRATION ||
@@ -167,12 +174,11 @@ public class Scheduler {
             );
 
         matchRepository.saveAll(matchEntities);
-        return returnedMatches;
     }
 
     private Set<Match> scheduleRoundRobin() {
 
-        Set<Match> matches = new HashSet<>();
+        Set<Match> matches = new LinkedHashSet<>();
 
         List<Registrant> registrantsToMatch = new ArrayList<>(REGISTRANTS);
         List<Registrant> roundRobinList = new ArrayList<>(REGISTRANTS);
@@ -180,7 +186,7 @@ public class Scheduler {
             roundRobinList.add(new Registrant(-1, 0, MOCK_TOURNAMENT.getTournamentID()));
         }
 
-        Set<Tuple> registrantMatches = new HashSet<>();
+        Set<Tuple> registrantMatches = new LinkedHashSet<>();
 
         Registrant firstRegistrant = roundRobinList.remove(0);
         int index = MOCK_TOURNAMENT.getCurrentRound() % roundRobinList.size();
@@ -336,7 +342,7 @@ public class Scheduler {
         return matches;
     }
 
-    private MatchingAlgorithm getMatchingAlgorithm(MatchBy matchBy, PrimaryMatchGraph matchGraph) throws InvalidMatchByException {
+    private MatchingAlgorithm getMatchingAlgorithm(MatchBy matchBy, PrimaryMatchGraph matchGraph) throws ScheduleException {
 
         switch (matchBy) {
             case MATCH_BY_SKILL:
@@ -346,14 +352,14 @@ public class Scheduler {
             case MATCH_BY_SEED:
                 return new GreedySeededIndependentSet(matchGraph);
             default:
-                throw new InvalidMatchByException("Invalid tournament match-by value");
+                throw new ScheduleException("Invalid tournament match-by value");
         }
     }
 
     private Set<Match> scheduleSecondaryMatches(Set<Match> matches) {
 
         List<Registrant> registrantsToMatch = findRegistrantsToBeMatched(matches);
-        List<Timeslot> availableTimeslots = findAvailableTimeslots(matches);
+        List<Timeslot> availableTimeslots = findAvailableTimeslots(matches, MOCK_TOURNAMENT.getMatchDuration());
         Set<Match> newMatches = new HashSet<>();
 
         while (registrantsToMatch.size() > 1) {
@@ -378,7 +384,7 @@ public class Scheduler {
             }
 
             addWeek();
-            availableTimeslots = TIMESLOTS;
+            availableTimeslots = findAvailableTimeslots(matches, MOCK_TOURNAMENT.getMatchDuration());
         }
 
         decreaseWeek();
@@ -435,7 +441,7 @@ public class Scheduler {
 
     private Set<Match> scheduleBracket() throws ScheduleException {
 
-        Set<Match> returnedMatches = new HashSet<>();
+        Set<Match> returnedMatches = new LinkedHashSet<>();
 
         if (MOCK_TOURNAMENT.getCurrentRound() == 1 &&
                 !((REGISTRANTS.size() & (REGISTRANTS.size() - 1)) == 0)) {
@@ -450,9 +456,15 @@ public class Scheduler {
 
     private Set<Match> scheduleBracketMatches() throws ScheduleException {
 
-        int previousRoundID = roundRepository.getLastTournamentRound(MOCK_TOURNAMENT.getTournamentID());
-        List<com.zoomers.GameSetMatch.entity.Match> previousRoundMatches = matchRepository.getMatchesByRound(previousRoundID);
+        int previousRoundID = 0;
+        List<com.zoomers.GameSetMatch.entity.Match> previousRoundMatches = new ArrayList<>();
         Set<Match> matches;
+
+        if (MOCK_TOURNAMENT.getCurrentRound() != 1) {
+
+            previousRoundID = roundRepository.getLastTournamentRound(MOCK_TOURNAMENT.getTournamentID());
+            previousRoundMatches = matchRepository.getMatchesByRound(previousRoundID);
+        }
 
         if (previousRoundMatches.size() < REGISTRANTS.size()) {
 
@@ -461,8 +473,8 @@ public class Scheduler {
         }
         else {
 
-            matches = new HashSet<>();
-            int expectedMatches = previousRoundMatches.size() / 2;
+            matches = new LinkedHashSet<>();
+            int expectedMatches = REGISTRANTS.size();
             List<Tuple> matchedPlayers = new ArrayList<>();
 
             int i = 0;
@@ -528,7 +540,8 @@ public class Scheduler {
 
     private Set<Match> scheduleBestOfMatches(Set<Match> matches, int expectedMatches) {
 
-        Set<Match> matchesToSchedule = new HashSet<>(matches);
+        Set<Match> matchesToSchedule = new LinkedHashSet<>(matches);
+        List<Timeslot> availableTimeslots = findAvailableTimeslots(matchesToSchedule, MOCK_TOURNAMENT.getMatchDuration());
 
         while (matches.size() < expectedMatches) {
 
@@ -536,7 +549,7 @@ public class Scheduler {
 
             BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
                     new LinkedHashSet<>(REGISTRANTS),
-                    new LinkedHashSet<>(TIMESLOTS),
+                    new LinkedHashSet<>(availableTimeslots),
                     matchesToSchedule,
                     this.MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames(),
                     this.MOCK_TOURNAMENT.getMatchDuration()
@@ -558,6 +571,7 @@ public class Scheduler {
             }
 
             addWeek();
+            availableTimeslots = TIMESLOTS;
             matches.addAll(bestOfMatches);
         }
 
@@ -610,12 +624,26 @@ public class Scheduler {
      * @param returnedMatches, the list of matches already scheduled by Primary Scheduling
      * @return list of timeslots that are still available for matching
      */
-    private List<Timeslot> findAvailableTimeslots(Set<Match> returnedMatches) {
+    private List<Timeslot> findAvailableTimeslots(Set<Match> returnedMatches, int matchDuration) {
 
+        float matchIndex = (float) Math.ceil(matchDuration / 30.f) / 2;
         List<Timeslot> availableTimeslots = new ArrayList<>(this.TIMESLOTS);
         availableTimeslots.removeIf(timeslot -> {
             for (Match m : returnedMatches) {
-                if (timeslot.getID() == m.getTimeslot().getID()) {
+
+                if (!timeslot.getDateString().equals(m.getTimeslot().getDateString())) {
+                    continue;
+                }
+
+                if (timeslot.getTime() == m.getTimeslot().getTime()) {
+                    return true;
+                }
+                else if (timeslot.getTime() < m.getTimeslot().getTime() &&
+                        timeslot.getTime() + matchIndex > m.getTimeslot().getTime()) {
+                    return true;
+                }
+                else if (m.getTimeslot().getTime() < timeslot.getTime() &&
+                            m.getTimeslot().getTime() + matchIndex > timeslot.getTime()) {
                     return true;
                 }
             }
@@ -630,7 +658,7 @@ public class Scheduler {
         REGISTRANTS = userRegistersTournamentRepository.getSchedulerRegistrantsByTournamentID(tournamentID);
 
         if (REGISTRANTS.size() < MOCK_TOURNAMENT.getMinPlayers()) {
-            throw new NotEnoughPlayersException("Not Enough Players Registered for Tournament");
+            throw new ScheduleException("Not Enough Players Registered for Tournament");
         }
 
         Set<Integer> registrantIDs = REGISTRANTS.stream().map(Registrant::getID).collect(Collectors.toSet());
@@ -670,6 +698,11 @@ public class Scheduler {
         CALENDAR.setTime(date);
     }
 
+    /**
+     * Tournament Status Update Code:
+     * - Round Robin --> all players must have only one player left to play
+     * - Else --> Only 1 match should be left (Bracket, Single, Double Knockout)
+     */
     private void checkIfLastRound() {
 
         if (this.MOCK_TOURNAMENT.getTournamentFormat() == TournamentFormat.ROUND_ROBIN) {

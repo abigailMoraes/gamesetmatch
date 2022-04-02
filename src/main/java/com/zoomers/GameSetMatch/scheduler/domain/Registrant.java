@@ -76,7 +76,8 @@ public class Registrant {
             }
             break;
             case SINGLE_KNOCKOUT:
-            case DOUBLE_KNOCKOUT: {
+            case DOUBLE_KNOCKOUT:
+            case SINGLE_BRACKET: {
                 this.status = PlayerStatus.values()[registrantService.initStatus(this.id, tournamentId)];
             }
             break;

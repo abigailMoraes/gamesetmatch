@@ -23,7 +23,7 @@ public abstract class MatchingAlgorithm {
 
     public Set<Match> findMatches() {
 
-        Set<Match> s = new HashSet<>();
+        Set<Match> s = new LinkedHashSet<>();
 
         while (!this.matchGraph.getMatches().isEmpty()) {
 

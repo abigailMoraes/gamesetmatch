@@ -54,7 +54,7 @@ public class ScheduledTasks {
         String end_date = dateFormat.format(today);
 //        System.out.println(end_date);
 
-        ongoing_tournamentIDs = roundRepository.findNextRoundTournamentId(end_date);
+        ongoing_tournamentIDs = roundRepository.findNextRoundTournamentId(end_date, TournamentStatus.ONGOING.getStatus());
         System.out.println("TournamentIds to schedule next round: " + ongoing_tournamentIDs);
 
         for(Integer tournamentID : ongoing_tournamentIDs){
@@ -68,7 +68,7 @@ public class ScheduledTasks {
             }
         }
 
-        new_tournamentIDs = tournamentRepository.getTournamentsPastCloseRegistrationDate();
+        new_tournamentIDs = tournamentRepository.getTournamentsPastCloseRegistrationDate(TournamentStatus.REGISTRATION_CLOSED.getStatus(), TournamentStatus.OPEN_FOR_REGISTRATION.getStatus());
         System.out.println("TournamentIds to schedule first round " + new_tournamentIDs);
         for(Integer tournamentID : new_tournamentIDs){
             tournamentRepository.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);

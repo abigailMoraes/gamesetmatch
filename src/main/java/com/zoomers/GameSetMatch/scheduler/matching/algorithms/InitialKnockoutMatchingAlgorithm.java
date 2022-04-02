@@ -45,7 +45,7 @@ public class InitialKnockoutMatchingAlgorithm extends MatchingAlgorithm{
                 return m2.getMatchScore() - m1.getMatchScore();
             }
 
-            return (int)((m1.getTimeslot().getTime() - m2.getTimeslot().getTime()) * 2);
+            return m1.getTimeslot().getDate().before(m2.getTimeslot().getDate()) ? -1 : 1;
         });
 
         priorityQueue.addAll(this.matchGraph.getMatches());
