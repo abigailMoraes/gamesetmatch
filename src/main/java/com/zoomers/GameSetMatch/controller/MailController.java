@@ -2,7 +2,7 @@ package com.zoomers.GameSetMatch.controller;
 
 
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
-import com.zoomers.GameSetMatch.services.MailService;
+import com.zoomers.GameSetMatch.services.SendEMailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,10 +15,10 @@ import java.util.List;
 public class MailController {
 
     @Autowired
-    MailService mailService;
+    SendEMailService sendEMailService;
 
     @PostMapping(value = "/publish")
-    public void sendMails(@RequestBody List<IncomingMatch> schedule) throws MessagingException {
-        mailService.sendSchedulePublishedEmails(schedule);
+    public void sendEMails(@RequestBody List<IncomingMatch> schedule) throws MessagingException {
+        sendEMailService.sendSchedulePublishedEmails(schedule);
     }
 }

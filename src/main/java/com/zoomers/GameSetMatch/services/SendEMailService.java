@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class MailService {
+public class SendEMailService {
     @Autowired
     private JavaMailSender mailSender;
 
@@ -75,7 +75,7 @@ public class MailService {
                         + "<p>Round <i>" + roundNumber + "</i> for the tournament <b><i>" + tournamentName + "</i></b> has been scheduled!</p><br>"
                         + "<p>You have a match scheduled on <b>" + date + "</b> from " +
                         "<b>" + startTime + "</b>" + " to " + "<b>" + endTime + "</b>"
-                        + ". Be prepared and hope you can have fun.</p><br>" +
+                        + ". Good luck and have fun!.</p><br>" +
                         "<p>Best,</p><p>GameSetMatch</p>", html);
 
                 mailSender.send(message);

@@ -6,6 +6,7 @@ import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.UserInvolvesMatchRepository;
+import com.zoomers.GameSetMatch.entity.EnumsForColumns.MatchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,10 +29,10 @@ public class UserInvolvesMatchService {
         }
         for (UserInvolvesMatch match : matches) {
             // tie
-            if (result == 0 || result == -1) {
+            if (result == MatchResult.TIE.getResult() || result == MatchResult.PENDING.getResult()) {
                 match.setResults(result);
             } else {
-                int opponentsResult = result == 1 ? 2 : 1;
+                int opponentsResult = result == MatchResult.WIN.getResult() ? MatchResult.LOSS.getResult() : MatchResult.WIN.getResult();
                 match.setResults(match.getUserID() == userID ? result : opponentsResult);
             }
 

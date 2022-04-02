@@ -29,7 +29,7 @@ public class TournamentService {
     private UserRegistersTournamentService userRegistersTournament;
 
     @Autowired
-    private MailService mailService;
+    private SendEMailService sendEMailService;
 
     public List<Tournament> getAllTournaments() {
         return tournament.findAll();
@@ -70,7 +70,7 @@ public class TournamentService {
         userRegistersTournament.deleteByTournamentID(id);
         tournament.deleteTournamentByTournamentID(id);
 
-        mailService.sendCancelMail(participants, tournamentName);
+        sendEMailService.sendCancelMail(participants, tournamentName);
 
     }
   
