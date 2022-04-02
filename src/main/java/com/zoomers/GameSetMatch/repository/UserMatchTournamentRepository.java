@@ -121,7 +121,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             " match_has m JOIN user_involves_match u ON m.matchID = u.matchID \n" +
             " WHERE roundID = :oldRoundID and userID in ((select userID_1 from match_has where \n" +
             "matchID = :oldMatchID),(select userID_2 from match_has where matchID = :oldMatchID)) \n" +
-            "and results = 0 group by userID) \n " +
+            "and results = 2 group by userID) \n " +
             "w order by count desc LIMIT 1;", nativeQuery = true)
     LoserID getLoserUserID(int oldMatchID, int oldRoundID);
 
