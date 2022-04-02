@@ -92,14 +92,14 @@ public class TournamentController {
 
     @GetMapping(value = "/user/{userID}/completed")
     public List<Tournament> getCompletedTournamentsByUser(@PathVariable int userID){
-        return tournamentService.getCompletedTournamentsForUser(userID, TournamentStatus.TOURNAMENT_OVER.getStatus());
+        return tournamentService.getCompletedTournamentsForUser(userID);
     }
 
     @GetMapping(value="/user/{userID}/number/completed")
     public Optional<UserMatchTournamentRepository.NumQuery>
     getNumberOfCompletedTournamentsByUser(@PathVariable int userID){
         UserMatchTournamentRepository.NumQuery completed =
-                tournament.getNumberOfTournamentsPlayed(userID);
+                tournamentService.getNumberOfTournamentsPlayed(userID);
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
             public Integer getNext() {
@@ -117,7 +117,7 @@ public class TournamentController {
     public Optional<UserMatchTournamentRepository.NumQuery>
     getNumberOfTournamentsWonByUser(@PathVariable int userID){
         UserMatchTournamentRepository.NumQuery won =
-                tournament.getNumberOfTournamentsWon(userID);
+                tournamentService.getNumberOfTournamentsWon(userID);
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
             public Integer getNext() {
