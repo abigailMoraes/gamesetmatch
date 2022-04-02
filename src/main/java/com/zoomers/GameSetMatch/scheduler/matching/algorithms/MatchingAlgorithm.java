@@ -5,16 +5,14 @@ import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.graphs.MatchGraph;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.PriorityQueue;
-import java.util.Set;
+import java.util.*;
 
 public abstract class MatchingAlgorithm {
 
     protected MatchGraph matchGraph;
     protected PriorityQueue<Match> priorityQueue;
     protected Set<Registrant> registrants;
+    protected Date lastMatchDate = new Date();
 
     public MatchingAlgorithm(MatchGraph matchGraph) {
         this.matchGraph = matchGraph;
@@ -23,13 +21,14 @@ public abstract class MatchingAlgorithm {
 
     public Set<Match> findMatches() {
 
-        Set<Match> s = new LinkedHashSet<>();
+        Set<Match> s = new HashSet<>();
 
         while (!this.matchGraph.getMatches().isEmpty()) {
 
             // System.out.println("Matches left: " + this.matchGraph.getMatches().size());
             Match match = this.priorityQueue.poll();
             s.add(match);
+            setLastMatchDate(match);
             visitMatches(match);
             buildPriorityQueue();
         }
@@ -60,6 +59,14 @@ public abstract class MatchingAlgorithm {
         }
 
         match.setMatchStatus(status);
+    }
+
+    public Date getLastMatchDate() {
+        return lastMatchDate;
+    }
+
+    protected void setLastMatchDate(Match match) {
+        this.lastMatchDate = match.getTimeslot().getDate();
     }
 
     protected abstract void buildPriorityQueue();

@@ -15,7 +15,7 @@ import static java.util.Objects.isNull;
 
 public abstract class FormatMatcher {
 
-    private MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
+    private final MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
     private Scorer scorer;
 
     public void initScorer(Scorer scorer) {

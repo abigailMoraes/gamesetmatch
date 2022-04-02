@@ -29,6 +29,7 @@ public class InitialKnockoutMatchingAlgorithm extends MatchingAlgorithm{
 
             Match match = this.priorityQueue.poll();
             initialKnockoutMatches.add(match);
+            setLastMatchDate(match);
             visitMatches(match);
             buildPriorityQueue();
         }

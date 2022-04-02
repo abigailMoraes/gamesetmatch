@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +49,7 @@ public class Scheduler {
     private FormatMatcher typeMatcher;
     private Calendar CALENDAR;
     private TournamentStatus originalStatus;
+    private Date currentLastMatchDate;
 
     public void createSchedule(int tournamentID) throws ScheduleException {
 
@@ -116,7 +116,7 @@ public class Scheduler {
     @Transactional
     protected void schedule() throws ScheduleException {
 
-        Set<Match> returnedMatches = new LinkedHashSet<>();
+        Set<Match> returnedMatches = new HashSet<>();
 
         switch (MOCK_TOURNAMENT.getTournamentFormat()) {
             case ROUND_ROBIN:
@@ -178,7 +178,7 @@ public class Scheduler {
 
     private Set<Match> scheduleRoundRobin() {
 
-        Set<Match> matches = new LinkedHashSet<>();
+        Set<Match> matches = new HashSet<>();
 
         List<Registrant> registrantsToMatch = new ArrayList<>(REGISTRANTS);
         List<Registrant> roundRobinList = new ArrayList<>(REGISTRANTS);
@@ -186,7 +186,7 @@ public class Scheduler {
             roundRobinList.add(new Registrant(-1, 0, MOCK_TOURNAMENT.getTournamentID()));
         }
 
-        Set<Tuple> registrantMatches = new LinkedHashSet<>();
+        Set<Tuple> registrantMatches = new HashSet<>();
 
         Registrant firstRegistrant = roundRobinList.remove(0);
         int index = MOCK_TOURNAMENT.getCurrentRound() % roundRobinList.size();
@@ -237,12 +237,13 @@ public class Scheduler {
                         tuple.getSecond() == m.getPlayers().getSecond());
             }
 
+            addWeek();
+
             if (registrantsToMatch.isEmpty()) {
+                currentLastMatchDate = maximumMatchScoreMatcher.getLastMatchDate();
                 CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
                 break;
             }
-
-            addWeek();
         }
 
         return matches;
@@ -294,6 +295,7 @@ public class Scheduler {
             }
 
             addWeek();
+            currentLastMatchDate = initialKnockoutAlgorithm.getLastMatchDate();
         }
 
         CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
@@ -332,6 +334,7 @@ public class Scheduler {
             }
 
             addWeek();
+            currentLastMatchDate = greedyMaximumIndependentSet.getLastMatchDate();
         }
 
         for (Match match : matches) {
@@ -456,13 +459,12 @@ public class Scheduler {
 
     private Set<Match> scheduleBracketMatches() throws ScheduleException {
 
-        int previousRoundID = 0;
         List<com.zoomers.GameSetMatch.entity.Match> previousRoundMatches = new ArrayList<>();
         Set<Match> matches;
 
         if (MOCK_TOURNAMENT.getCurrentRound() != 1) {
 
-            previousRoundID = roundRepository.getLastTournamentRound(MOCK_TOURNAMENT.getTournamentID());
+            int previousRoundID = roundRepository.getLastTournamentRound(MOCK_TOURNAMENT.getTournamentID());
             previousRoundMatches = matchRepository.getMatchesByRound(previousRoundID);
         }
 
@@ -530,6 +532,7 @@ public class Scheduler {
                 }
 
                 addWeek();
+                currentLastMatchDate = matchingAlgorithm.getLastMatchDate();
             }
 
             decreaseWeek();
@@ -540,7 +543,7 @@ public class Scheduler {
 
     private Set<Match> scheduleBestOfMatches(Set<Match> matches, int expectedMatches) {
 
-        Set<Match> matchesToSchedule = new LinkedHashSet<>(matches);
+        Set<Match> matchesToSchedule = new HashSet<>(matches);
         List<Timeslot> availableTimeslots = findAvailableTimeslots(matchesToSchedule, MOCK_TOURNAMENT.getMatchDuration());
 
         while (matches.size() < expectedMatches) {
@@ -571,7 +574,13 @@ public class Scheduler {
             }
 
             addWeek();
-            availableTimeslots = TIMESLOTS;
+            if (CALENDAR.getTime().after(currentLastMatchDate)) {
+                availableTimeslots = TIMESLOTS;
+            }
+            else {
+                availableTimeslots = findAvailableTimeslots(matchesToSchedule, MOCK_TOURNAMENT.getMatchDuration());
+            }
+
             matches.addAll(bestOfMatches);
         }
 

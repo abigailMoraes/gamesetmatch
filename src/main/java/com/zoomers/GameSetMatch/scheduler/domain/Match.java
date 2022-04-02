@@ -42,15 +42,15 @@ public class Match {
 
     public boolean shareTimeslot(Match m2) {
 
-        if (this.timeslot == m2.getTimeslot()) {
+        if (this.timeslot.getTime() == m2.getTimeslot().getTime()) {
             return true;
         }
-        else if (this.timeslot.getTime() <= m2.getTimeslot().getTime() &&
+        else if (this.timeslot.getTime() < m2.getTimeslot().getTime() &&
                 this.timeslot.getTime() + matchIndex > m2.getTimeslot().getTime()) {
             return true;
         }
         else {
-            return m2.getTimeslot().getTime() <= this.timeslot.getTime() &&
+            return m2.getTimeslot().getTime() < this.timeslot.getTime() &&
                     m2.getTimeslot().getTime() + matchIndex > this.timeslot.getTime();
         }
     }

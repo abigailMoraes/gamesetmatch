@@ -30,7 +30,7 @@ public class GraphTests {
     private Scheduler scheduler;
 
     @Rule
-    public Timeout globalTime = Timeout.seconds(300);
+    public Timeout globalTime = Timeout.seconds(600);
 
     @Test
     public void BasicDBIntegration() {
@@ -134,6 +134,27 @@ public class GraphTests {
         }
         catch (ScheduleException e) {
 
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void BracketMatchingTest() {
+        try {
+            scheduler.createSchedule(9);
+        }
+        catch (ScheduleException e) {
+
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void StressTest() {
+        try{
+            scheduler.createSchedule(10);
+        }
+        catch (ScheduleException e) {
             System.out.println(e.getMessage());
         }
     }
