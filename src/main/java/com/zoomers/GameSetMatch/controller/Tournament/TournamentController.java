@@ -90,11 +90,17 @@ public class TournamentController {
     }
 
     @PostMapping(value = "/{tournamentID}/register")
-    public void registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Integer tournamentID) {
-        Integer userID = newRegistrtation.getUserID();
-        userRegistersTournament.saveRegistration(tournamentID, userID, newRegistrtation.getSkillLevel());
-        availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
+    public ResponseEntity<String> registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Integer tournamentID) {
+        Tournament tournament = tournamentService.findTournamentByID(tournamentID).get();
 
+        if (tournament.getStatus() == TournamentStatus.OPEN_FOR_REGISTRATION.getStatus()) {
+            Integer userID = newRegistrtation.getUserID();
+            userRegistersTournament.saveRegistration(tournamentID, userID, newRegistrtation.getSkillLevel());
+            availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tournament registration is closed. Cannot register.");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Successfully registered!");
     }
 
 
