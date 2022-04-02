@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.controller;
 
+import com.zoomers.GameSetMatch.controller.Login.InvitationValidatedResponse;
 import com.zoomers.GameSetMatch.entity.InvitationCode;
 import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.repository.InvitationCodeRepository;
@@ -37,17 +38,12 @@ public class InvitationCodeController {
 
             // user already in database
             if (registeredUser != null) {
-                return ResponseEntity.status(HttpStatus.OK).body("You have been registered.");
+                return ResponseEntity.status(HttpStatus.OK).body(new InvitationValidatedResponse(registeredUser.getId(), "You have been registered.").toString());
             }
 
-            User unregisteredUser = new User();
-            unregisteredUser.setName(user.getName());
-            unregisteredUser.setEmail(user.getEmail());
-            unregisteredUser.setFirebaseId(user.getFirebaseId());
-            unregisteredUser.setIsAdmin(0);
-            userRepository.save(unregisteredUser);
+            User unregisteredUser = userRepository.save(user);
 
-            return ResponseEntity.status(HttpStatus.OK).body("You have now been registered.");
+            return ResponseEntity.status(HttpStatus.OK).body(new InvitationValidatedResponse(unregisteredUser.getId(), "You have now been registered.").toString());
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid code or code has expired.");
     }

@@ -47,7 +47,7 @@ public class UserRegistersTournament {
     private Integer skillLevel;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(name = "player_status")
+    @Column(name="player_status")
     private PlayerStatus playerStatus;
 
     public Integer getTournamentID() {
@@ -73,4 +73,6 @@ public class UserRegistersTournament {
     public void setSkillLevel(Integer skillLevel) {
         this.skillLevel = skillLevel;
     }
+
+    public PlayerStatus getPlayerStatus() { return playerStatus; }
 }

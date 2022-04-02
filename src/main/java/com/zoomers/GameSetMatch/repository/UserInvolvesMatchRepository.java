@@ -15,5 +15,5 @@ public interface UserInvolvesMatchRepository extends JpaRepository<UserInvolvesM
 
     List<UserInvolvesMatch> getUserInvolvesMatchByMatchID(int mID);
 
-
+    List<UserInvolvesMatch> getUserInvolvesMatchByUserID(int uID);
 }

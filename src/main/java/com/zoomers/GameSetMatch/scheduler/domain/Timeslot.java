@@ -72,6 +72,11 @@ public class Timeslot {
         return this.date;
     }
 
+    public String getDateString() {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        return sdfDate.format(this.date);
+    }
+
     public LocalDateTime getLocalStartDateTime() {
 
         LocalDate localDate = this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
