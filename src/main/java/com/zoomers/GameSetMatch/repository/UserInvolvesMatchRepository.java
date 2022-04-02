@@ -22,4 +22,5 @@ public interface UserInvolvesMatchRepository extends JpaRepository<UserInvolvesM
             nativeQuery = true)
     List<Integer> getPendingMatches(int roundID);
 
+    List<UserInvolvesMatch> getUserInvolvesMatchByUserID(int uID);
 }

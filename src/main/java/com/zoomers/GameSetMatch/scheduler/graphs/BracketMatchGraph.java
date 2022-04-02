@@ -1,9 +1,3 @@
-/**
- * Undirected (Weighted) Graph for Secondary Scheduling
- *
- * @since 2022-03-21
- */
-
 package com.zoomers.GameSetMatch.scheduler.graphs;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
@@ -13,15 +7,15 @@ import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
-public class SecondaryMatchGraph extends MatchGraph {
+public class BracketMatchGraph extends MatchGraph {
 
-    public SecondaryMatchGraph(List<Registrant> registrants, List<Timeslot> timeslots) {
-
-        super(new HashSet<>(registrants),
+    public BracketMatchGraph(List<Registrant> registrants, List<Timeslot> timeslots) {
+        super(
+                new HashSet<>(registrants),
                 new LinkedHashSet<>(timeslots),
-                new HashSet<>()
-        );
+                new LinkedHashSet<>());
     }
 
     @Override

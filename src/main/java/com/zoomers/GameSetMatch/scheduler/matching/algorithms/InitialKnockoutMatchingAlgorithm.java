@@ -2,29 +2,52 @@ package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.graphs.MatchGraph;
-import com.zoomers.GameSetMatch.scheduler.graphs.SecondaryMatchGraph;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.PriorityQueue;
+import java.util.Set;
 
-public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
+public class InitialKnockoutMatchingAlgorithm extends MatchingAlgorithm{
 
-    public MaximumMatchScoreMatcher(MatchGraph matchGraph) {
+    private int expectedMatches;
+
+    public InitialKnockoutMatchingAlgorithm(MatchGraph matchGraph, int expectedMatches) {
 
         super(matchGraph);
+        this.expectedMatches = expectedMatches;
+    }
+
+    @Override
+    public Set<Match> findMatches() {
+
+        Set<Match> initialKnockoutMatches = new HashSet<>();
+
         buildPriorityQueue();
+
+        while (initialKnockoutMatches.size() < this.expectedMatches && !matchGraph.getMatches().isEmpty()) {
+
+            Match match = this.priorityQueue.poll();
+            initialKnockoutMatches.add(match);
+            setLastMatchDate(match);
+            visitMatches(match);
+            buildPriorityQueue();
+        }
+
+        return initialKnockoutMatches;
     }
 
     @Override
     protected void buildPriorityQueue() {
-        this.priorityQueue = new PriorityQueue<Match>((m1, m2) -> {
+
+        this.priorityQueue = new PriorityQueue<>((m1, m2) -> {
 
             if (m1.getMatchScore() != m2.getMatchScore()) {
                 return m2.getMatchScore() - m1.getMatchScore();
             }
 
             return m1.getTimeslot().getDate().before(m2.getTimeslot().getDate()) ? -1 : 1;
-        }
-        );
+        });
 
         priorityQueue.addAll(this.matchGraph.getMatches());
     }
@@ -35,8 +58,6 @@ public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
         markMatch(match);
-
-        System.out.println("Adding " + match + " to matches with score " + match.getMatchScore());
 
         for (Match m2 : this.matchGraph.getMatches()) {
 

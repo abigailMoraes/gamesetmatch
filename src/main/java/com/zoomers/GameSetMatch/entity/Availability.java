@@ -1,7 +1,30 @@
 package com.zoomers.GameSetMatch.entity;
 
+import com.zoomers.GameSetMatch.services.DTO.ParticipantAvailabilityForADayInfo;
+
 import javax.persistence.*;
-import java.util.Date;
+
+
+@SqlResultSetMapping(name = "ParticipantAvailabilityForDayMapping",
+        classes = @ConstructorResult(
+                targetClass = ParticipantAvailabilityForADayInfo.class,
+                columns = {
+                        @ColumnResult(name = "userID", type = Integer.class),
+                        @ColumnResult(name = "name", type = String.class),
+                        @ColumnResult(name = "availability_string", type = String.class)
+                }
+        )
+)
+@NamedNativeQuery(
+        name = "Availability.getParticipantsAvailabilityForADay",
+        query = "SELECT User.userID, User.name, a.availability_string FROM Availability a " +
+                "INNER JOIN User_involves_match u ON  a.userID = u.userID " +
+                "INNER JOIN User on User.userID = u.userID " +
+                "WHERE a.day_of_week = :dayOfWeek AND " +
+                "u.matchID = :matchID AND " +
+                "a.tournamentID = :tournamentID",
+        resultSetMapping = "ParticipantAvailabilityForDayMapping"
+)
 
 @Entity
 @IdClass(AvailabilityID.class)
