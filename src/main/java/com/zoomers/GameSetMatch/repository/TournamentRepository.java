@@ -49,7 +49,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
     void setTournamentStatus (int status, int tournamentID);
 
 
-    @Query(value = "SELECT * FROM Tournament WHERE status = TournamentStatus.TOURNAMENT_OVER.getStatus() AND + \n"
+    @Query(value = "SELECT * FROM Tournament WHERE status = :status AND + \n"
             +"EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
             " AND Tournament.tournamentID = user_registers_tournament.tournamentID)",
     nativeQuery = true)
