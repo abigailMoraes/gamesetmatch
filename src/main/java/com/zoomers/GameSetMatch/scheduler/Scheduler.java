@@ -18,10 +18,8 @@ import com.zoomers.GameSetMatch.scheduler.enumerations.*;
 import com.zoomers.GameSetMatch.scheduler.matching.algorithms.*;
 import com.zoomers.GameSetMatch.scheduler.matching.formatMatchers.*;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
+import com.zoomers.GameSetMatch.scheduler.scorers.*;
 
-import com.zoomers.GameSetMatch.scheduler.scorers.RandomMatchByScorer;
-import com.zoomers.GameSetMatch.scheduler.scorers.SeedMatchByScorer;
-import com.zoomers.GameSetMatch.scheduler.scorers.SkillMatchByScorer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

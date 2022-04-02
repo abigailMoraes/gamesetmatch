@@ -42,4 +42,8 @@ public class UserRegistersTournamentService {
     public List<UserRegistersTournament> getRegistrantsByTournamentID(Integer tournamentID) {
         return userRegistersTournament.getUserRegistersTournamentsByTournamentID(tournamentID);
     }
+
+    public Integer getNumberOfRegistrantsForATournament(int tournamentID) {
+        return userRegistersTournament.getNumberOfRegistrantsForATournament(tournamentID);
+    }
 }

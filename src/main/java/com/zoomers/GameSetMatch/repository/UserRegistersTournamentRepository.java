@@ -34,10 +34,16 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
         Integer getUserID();
         String getName();
         String getEmail();
-        String getSkillLevel();
+        Integer getSkillLevel();
     }
 
     void deleteUserRegistersTournamentsByTournamentID(Integer tournamentID);
 
     List<UserRegistersTournament> getUserRegistersTournamentsByTournamentID(Integer tournamentID);
+
+    @Query(value = "SELECT COUNT(*) FROM " +
+            "User_registers_tournament r " +
+            "WHERE (r.tournamentID = :tournamentID)",
+            nativeQuery = true)
+    Integer getNumberOfRegistrantsForATournament(Integer tournamentID);
 }

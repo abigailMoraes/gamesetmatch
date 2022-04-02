@@ -11,11 +11,8 @@ import com.zoomers.GameSetMatch.scheduler.scorers.Scorer;
 
 import java.util.*;
 
-import static java.util.Objects.isNull;
-
 public abstract class FormatMatcher {
 
-    private final MatchRepository matchRepository = SpringConfig.getBean(MatchRepository.class);
     private Scorer scorer;
 
     public void initScorer(Scorer scorer) {
@@ -34,7 +31,6 @@ public abstract class FormatMatcher {
 
             Registrant r1 = registrantsToMatch.stream().filter(r -> r.getID() == pair.getFirst()).findFirst().get();
             Registrant r2 = registrantsToMatch.stream().filter(r -> r.getID() == pair.getSecond()).findFirst().get();
-
             for (Timeslot t : timeslots) {
 
                 if (invalidTimeslot(t, matchDuration)) {
@@ -245,21 +241,12 @@ public abstract class FormatMatcher {
 
     private boolean isMatchValid(Registrant r1, Registrant r2, Timeslot t) {
 
-        return areMatchConditionsSatisfied(r1, r2, t); /* &&
-                !(alreadyHasMatchInDifferentTournament(r1.getID(), t) ||
-                alreadyHasMatchInDifferentTournament(r2.getID(), t));*/
+        return areMatchConditionsSatisfied(r1, r2, t);
     }
 
     private boolean invalidTimeslot(Timeslot t, int matchDuration) {
 
         return t.getTime() + matchDuration / 30.0 > 21.0;
-    }
-
-    private boolean alreadyHasMatchInDifferentTournament(int id, Timeslot t) {
-
-        com.zoomers.GameSetMatch.entity.Match conflictingMatch = matchRepository.getMatchByUserIDAndTime(id, t.getLocalStartDateTime());
-
-        return !isNull(conflictingMatch);
     }
 
     protected abstract boolean areMatchConditionsSatisfied(Registrant r1, Registrant r2, Timeslot t);

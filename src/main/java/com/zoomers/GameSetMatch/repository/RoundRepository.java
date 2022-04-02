@@ -30,7 +30,7 @@ public interface RoundRepository extends JpaRepository<Round, Integer>{
 
     @Query (
             value = "SELECT DISTINCT r.tournamentID \n" +
-                    "FROM Round_has r \n" +
+                    "FROM Round_Has r \n" +
                     "right join Tournament t\n" +
                     "ON r.tournamentID = t.tournamentID \n" +
                     "WHERE t.status = :ongoingStatus and r.end_date = STR_TO_DATE(:date, '%Y-%m-%d %T')",

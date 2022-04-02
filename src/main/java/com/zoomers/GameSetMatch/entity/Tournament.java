@@ -67,7 +67,7 @@ public class Tournament {
     private Integer series;
 
     @Column(name = "match_by")
-    private Integer matchBySkill;
+    private Integer matchBy;
 
     @Column(name = "match_duration")
     private Integer matchDuration;
@@ -82,7 +82,10 @@ public class Tournament {
     @Column(name="current_round")
     private int currentRound;
 
-    @Column(name="round_start_date")
+    @Column(name="min_participants")
+    private Integer minParticipants;
+
+    @Column(name = "round_start_date")
     private Date roundStartDate;
 
     public Tournament() {
