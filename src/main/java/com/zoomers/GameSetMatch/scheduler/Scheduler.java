@@ -139,8 +139,8 @@ public class Scheduler {
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
         }
 
-        Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
-        MOCK_TOURNAMENT.setRoundEndDate(roundEndDate);
+        // Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
+        MOCK_TOURNAMENT.setRoundEndDate(currentLastMatchDate);
 
         Round newRound = new Round();
 
@@ -314,11 +314,7 @@ public class Scheduler {
 
             BipartiteGraph bg = new BipartiteGraph(TIMESLOTS, registrantsToMatch, MOCK_TOURNAMENT.getMatchDuration());
 
-            System.out.println("Created Bipartite Graph");
-
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
-
-            System.out.println("Created Possible Matches");
 
             if (matchGraph.getMatches().size() == 0) {
                 CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
@@ -330,8 +326,6 @@ public class Scheduler {
             MatchingAlgorithm greedyMaximumIndependentSet = getMatchingAlgorithm(MOCK_TOURNAMENT.getMatchBy(), matchGraph);
 
             matches.addAll(greedyMaximumIndependentSet.findMatches());
-
-            System.out.println("Find Matches");
 
             for (Match m : matches) {
                 registrantsToMatch.removeIf(registrant ->
@@ -394,6 +388,7 @@ public class Scheduler {
             }
 
             addWeek();
+            currentLastMatchDate = maximumMatchScoreMatcher.getLastMatchDate();
             availableTimeslots = findAvailableTimeslots(matches, MOCK_TOURNAMENT.getMatchDuration());
         }
 
@@ -588,6 +583,7 @@ public class Scheduler {
                 availableTimeslots = findAvailableTimeslots(matchesToSchedule, MOCK_TOURNAMENT.getMatchDuration());
             }
 
+            currentLastMatchDate = bestOfMatching.getLastMatchDate();
             matches.addAll(bestOfMatches);
         }
 
