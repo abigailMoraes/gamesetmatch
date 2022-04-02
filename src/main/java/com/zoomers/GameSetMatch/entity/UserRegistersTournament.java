@@ -26,10 +26,11 @@ import javax.persistence.*;
         resultSetMapping = "RegistrantMapping"
 )
 public class UserRegistersTournament {
-    public UserRegistersTournament(Integer tournamentID, Integer userID, Integer skillLevel) {
+    public UserRegistersTournament(Integer tournamentID, Integer userID, Integer skillLevel, PlayerStatus playerStatus) {
         this.tournamentID = tournamentID;
         this.userID = userID;
         this.skillLevel = skillLevel;
+        this.playerStatus = playerStatus;
     }
 
     public UserRegistersTournament() {
