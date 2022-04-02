@@ -1,3 +1,4 @@
+
 package com.zoomers.GameSetMatch.controller.Tournament;
 
 import com.zoomers.GameSetMatch.controller.Error.ApiException;
@@ -86,6 +87,48 @@ public class TournamentController {
         return userRegistersTournament.getRegistrants(tournamentID);
     }
 
+  
+    @GetMapping(value = "/user/{userID}/completed")
+    public List<Tournament> getCompletedTournamentsByUser(@PathVariable int userID){
+        return tournamentService.getCompletedTournamentsForUser(userID);
+    }
+
+    @GetMapping(value="/user/{userID}/number/completed")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfCompletedTournamentsByUser(@PathVariable int userID){
+        UserMatchTournamentRepository.NumQuery completed =
+                tournamentService.getNumberOfTournamentsPlayed(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(completed).isPresent()) {
+            return Optional.of(completed);
+        } else {
+            return Optional.of(empty);
+        }
+    }
+
+    @GetMapping(value="/user/{userID}/number/won")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfTournamentsWonByUser(@PathVariable int userID){
+        UserMatchTournamentRepository.NumQuery won =
+                tournamentService.getNumberOfTournamentsWon(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(won).isPresent()) {
+            return Optional.of(won);
+        } else {
+            return Optional.of(empty);
+        }
+    }
+  
     @PostMapping()
     public Tournament createTournament(@RequestBody Tournament tournament)  {
         if (tournament.getStatus() == TournamentStatus.DEFAULT.getStatus()) {

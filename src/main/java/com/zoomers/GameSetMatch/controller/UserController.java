@@ -18,6 +18,7 @@ public class UserController {
         this.repository = repository;
     }
 
+
     @PostMapping("/employee")
     User newEmployee(@RequestBody User newEmployee) {
         return repository.save(newEmployee);
