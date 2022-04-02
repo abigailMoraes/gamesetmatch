@@ -89,7 +89,7 @@ public class TournamentController {
 
     @GetMapping(value = "/user/{userID}/completed")
     public List<Tournament> getCompletedTournamentsByUser(@PathVariable int userID){
-        return tournamentService.getCompletedTournamentsForUser(userID);
+        return tournamentService.getCompletedTournamentsForUser(userID, TournamentStatus.TOURNAMENT_OVER.getStatus());
     }
 
 
