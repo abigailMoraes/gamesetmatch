@@ -77,7 +77,7 @@ public class TournamentService {
     }
 
     public List<Tournament> getCompletedTournamentsForUser(int userID) {
-       return tournament.findCompletedTournamentsForUser(userID);
+       return tournament.findCompletedTournamentsForUser(userID,TournamentStatus.TOURNAMENT_OVER.getStatus() );
     }
 
     public boolean changeTournamentStatus(Integer id, TournamentStatus status) {
