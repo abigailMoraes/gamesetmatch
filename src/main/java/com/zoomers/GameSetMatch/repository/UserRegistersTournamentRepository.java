@@ -24,16 +24,18 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
             nativeQuery = true)
     List<IRegistrant> findRegistrantsByTournamentID(Integer tournamentID);
 
-    @Query(nativeQuery = true)
-    List<Registrant> getSchedulerRegistrantsByTournamentID(@Param("tournamentID") Integer tournamentID);
-
     //TODO: add skill level table that maps value to meaning e.g. skill 1 = beginner, 2 = intermediate...
     interface IRegistrant {
         Integer getUserID();
         String getName();
         String getEmail();
-        String getSkillLevel();
+        Integer getSkillLevel();
     }
+
+    @Query(nativeQuery = true)
+    List<Registrant> getSchedulerRegistrantsByTournamentID(@Param("tournamentID") Integer tournamentID);
+
+
 
     void deleteUserRegistersTournamentsByTournamentID(Integer tournamentID);
 
@@ -43,4 +45,10 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
     @Modifying
     @Query(value = "DELETE FROM User_registers_tournament WHERE userID = :userID AND tournamentID = :tournamentID", nativeQuery = true)
     void removeRegistrationForUser(Integer tournamentID, Integer userID);
+
+    @Query(value = "SELECT COUNT(*) FROM " +
+            "User_registers_tournament r " +
+            "WHERE (r.tournamentID = :tournamentID)",
+            nativeQuery = true)
+    Integer getNumberOfRegistrantsForATournament(Integer tournamentID);
 }
