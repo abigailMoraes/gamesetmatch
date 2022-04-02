@@ -43,12 +43,12 @@ public class MatchController {
 
     @GetMapping("/match/involves/user/{id}")
     List<UserMatchTournamentInfo> getMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findMatchesByUserID(id);
+        return userMatchTournamentRepository.findMatchesByUserID(id,TournamentStatus.ONGOING.getStatus());
     }
 
     @GetMapping("/match/history/involves/user/{id}")
     List<UserMatchTournamentInfo> getPastMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findPastMatchesByUserID(id);
+        return userMatchTournamentRepository.findPastMatchesByUserID(id,TournamentStatus.ONGOING.getStatus());
     }
 
     @GetMapping("/match/{id}/{uid}")
