@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Entity
 
 public class UserMatchTournamentInfo {
-    private String results;
+    private Integer results;
     private String attendance;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
