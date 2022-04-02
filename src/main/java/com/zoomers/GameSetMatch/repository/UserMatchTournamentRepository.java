@@ -10,12 +10,7 @@ import java.util.List;
 
 public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTournamentInfo, Long> {
 
-
-    @Query(value = "SELECT * FROM Tournament WHERE status = 5 AND + \n"
-            +"EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
-            " AND Tournament.tournamentID = user_registers_tournament.tournamentID)",
-            nativeQuery = true)
-    List<UserMatchTournamentInfo> getCompletedTournamentsForUser(int userID);
+    
 
     @Query(
            value ="SELECT u.results, u.attendance, Match_Has.matchID, Match_Has.start_time, Match_Has.end_time,\n" +
@@ -110,14 +105,15 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             " match_has m JOIN user_involves_match u ON m.matchID = u.matchID \n" +
             " WHERE roundID = :oldRoundID and userID in ((select userID_1 from match_has where \n" +
             "matchID = :oldMatchID),(select userID_2 from match_has where matchID = :oldMatchID)) \n" +
-            "and results = 'Win' group by userID) \n " +
+            "and results = 1 \n" +
+            " group by userID) \n " +
             "w order by count desc LIMIT 1;", nativeQuery = true)
     WinnerID getWinnerUserID(int oldMatchID, int oldRoundID);
 
 
     @Query(value = "SELECT u.name AS winner FROM User u JOIN ( SELECT userID From user_involves_match \n " +
             "WHERE matchID = :oldMatchID \n" +
-            " AND results = 'Win') m ON u.userID = m.userID", nativeQuery = true)
+            " AND results = 1) m ON u.userID = m.userID", nativeQuery = true)
     WinnerName getWinnerName(int oldMatchID);
 
     @Query(value = "SELECT roundNumber AS roundNumber FROM round_has where roundID = :roundID", nativeQuery = true)
@@ -127,7 +123,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             " match_has m JOIN user_involves_match u ON m.matchID = u.matchID \n" +
             " WHERE roundID = :oldRoundID and userID in ((select userID_1 from match_has where \n" +
             "matchID = :oldMatchID),(select userID_2 from match_has where matchID = :oldMatchID)) \n" +
-            "and results = 'Loss' group by userID) \n " +
+            "and results = 0 group by userID) \n " +
             "w order by count desc LIMIT 1;", nativeQuery = true)
     LoserID getLoserUserID(int oldMatchID, int oldRoundID);
 
