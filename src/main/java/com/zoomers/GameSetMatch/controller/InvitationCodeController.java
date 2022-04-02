@@ -16,14 +16,11 @@ import java.util.Optional;
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class InvitationCodeController {
-    private final InvitationCodeRepository codeRepository;
-    private final UserRepository userRepository;
+    @Autowired
+    private InvitationCodeRepository codeRepository;
 
     @Autowired
-    public InvitationCodeController(InvitationCodeRepository repository, UserRepository userRepository) {
-        this.codeRepository = repository;
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
 
     @PostMapping("/inviteCode")
     InvitationCode newInvitationCode() {

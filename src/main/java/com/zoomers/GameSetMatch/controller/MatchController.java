@@ -1,5 +1,6 @@
 package com.zoomers.GameSetMatch.controller;
 
+import com.zoomers.GameSetMatch.controller.Error.ApiException;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingAttendance;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -184,8 +186,15 @@ public class MatchController {
     }
 
     @PutMapping("/match/userResults")
-    public void updateMatchResults(@RequestBody IncomingResults results) {
-        userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
+    public ResponseEntity updateMatchResults(@RequestBody IncomingResults results) {
+        try {
+            userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
+
+        } catch (EntityNotFoundException e){
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+        return ResponseEntity.ok("Update successful.");
     }
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")

@@ -22,8 +22,8 @@ import java.util.Date;
                         @ColumnResult(name="match_duration", type=Integer.class),
                         @ColumnResult(name="start_date", type=Date.class),
                         @ColumnResult(name="current_round", type=Integer.class),
-                        @ColumnResult(name="tournamentStatus", type=Integer.class),
-                        @ColumnResult(name="minPlayers", type=Integer.class)
+                        @ColumnResult(name="status", type=Integer.class),
+                        @ColumnResult(name="min_participants", type=Integer.class)
                 }
         )
 )
@@ -67,7 +67,7 @@ public class Tournament {
     private Integer series;
 
     @Column(name = "match_by")
-    private Integer matchBySkill;
+    private Integer matchBy;
 
     @Column(name = "match_duration")
     private Integer matchDuration;
@@ -81,6 +81,12 @@ public class Tournament {
 
     @Column(name="current_round")
     private int currentRound;
+
+    @Column(name="min_participants")
+    private Integer minParticipants;
+
+    @Column(name = "round_start_date")
+    private Date roundStartDate;
 
 
     public Tournament() {
