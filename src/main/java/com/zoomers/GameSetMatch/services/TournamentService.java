@@ -2,6 +2,8 @@ package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
+import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,8 +38,8 @@ public class TournamentService {
     }
 
 
-    public List<Tournament> getCompletedTournamentsForUser(int userID) {
-       return tournament.findCompletedTournamentsForUser(userID);
+    public List<Tournament> getCompletedTournamentsForUser(int userID, int status) {
+       return tournament.findCompletedTournamentsForUser(userID,status);
     }
 
     public void deleteTournamentByID(Integer id) {
@@ -55,6 +57,15 @@ public class TournamentService {
             return true;
         }
         return false;
+    }
+
+    public UserMatchTournamentRepository.NumQuery getNumberOfTournamentsPlayed(Integer userID){
+        return tournament.getNumberOfCompletedTournamentsForUser(userID,TournamentStatus.TOURNAMENT_OVER.getStatus());
+    }
+
+    public UserMatchTournamentRepository.NumQuery getNumberOfTournamentsWon(Integer userID){
+        return tournament.getNumberOfTournamentsWonByUser(userID,TournamentStatus.TOURNAMENT_OVER.getStatus(),
+                PlayerStatus.SAFE.getStatus());
     }
 }
 

@@ -89,7 +89,43 @@ public class TournamentController {
 
     @GetMapping(value = "/user/{userID}/completed")
     public List<Tournament> getCompletedTournamentsByUser(@PathVariable int userID){
-        return tournamentService.getCompletedTournamentsForUser(userID);
+        return tournamentService.getCompletedTournamentsForUser(userID,TournamentStatus.TOURNAMENT_OVER.getStatus());
+    }
+
+    @GetMapping(value="/user/{userID}/number/completed")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfCompletedTournamentsByUser(@PathVariable int userID){
+        UserMatchTournamentRepository.NumQuery completed =
+                tournament.getNumberOfTournamentsPlayed(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(completed).isPresent()) {
+            return Optional.of(completed);
+        } else {
+            return Optional.of(empty);
+        }
+    }
+
+    @GetMapping(value="/user/{userID}/number/won")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfTournamentsWonByUser(@PathVariable int userID){
+        UserMatchTournamentRepository.NumQuery won =
+                tournament.getNumberOfTournamentsWon(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(won).isPresent()) {
+            return Optional.of(won);
+        } else {
+            return Optional.of(empty);
+        }
     }
 
 
