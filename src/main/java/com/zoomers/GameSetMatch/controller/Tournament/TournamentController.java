@@ -12,6 +12,7 @@ import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
 import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
+import com.zoomers.GameSetMatch.services.Errors.MissingMatchResultsException;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -166,6 +167,20 @@ public class TournamentController {
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         } catch (EntityNotFoundException e) {
             ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @PutMapping(value = "/{tournamentID}/endCurrentRound")
+    public ResponseEntity<Object> endCurrentRound(@PathVariable Integer tournamentID) {
+        try {
+            tournamentService.endCurrentRound(tournamentID);
+        }catch (EntityNotFoundException e) {
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (MissingMatchResultsException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
         return ResponseEntity.status(HttpStatus.OK).body(null);

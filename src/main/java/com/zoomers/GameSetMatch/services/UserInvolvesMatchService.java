@@ -56,4 +56,8 @@ public class UserInvolvesMatchService {
         return returnList;
     }
 
+    public List<Integer> findMatchesForRoundWithPendingResults(int roundID) {
+        return userInvolvesMatchRepository.getPendingMatches(roundID);
+    }
+
 }

@@ -1,11 +1,13 @@
 package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
 import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
+import com.zoomers.GameSetMatch.services.Errors.MissingMatchResultsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,13 @@ public class TournamentService {
     private UserRegistersTournamentService userRegistersTournament;
 
     @Autowired
+    private UserInvolvesMatchService userInvolvesMatchService;
+
+    @Autowired
     private SendEMailService sendEMailService;
+
+    @Autowired
+    private RoundRepository roundRepository;
 
     public List<Tournament> getAllTournaments() {
         return tournament.findAll();
@@ -73,9 +81,9 @@ public class TournamentService {
         sendEMailService.sendCancelMail(participants, tournamentName);
 
     }
-  
+
     public List<Tournament> getCompletedTournamentsForUser(int userID) {
-       return tournament.findCompletedTournamentsForUser(userID);
+        return tournament.findCompletedTournamentsForUser(userID);
     }
 
     public boolean changeTournamentStatus(Integer id, TournamentStatus status) {
@@ -109,6 +117,30 @@ public class TournamentService {
         this.changeTournamentStatus(id, TournamentStatus.REGISTRATION_CLOSED);
 
     }
+
+    public void endCurrentRound(Integer id) throws MissingMatchResultsException, EntityNotFoundException {
+        Tournament tournament = this.findTournamentByID(id).orElse(null);
+        if (tournament == null) {
+            throw new EntityNotFoundException(String.format("Unable to find the tournament with id %d", tournament.getTournamentID()));
+
+        }
+
+        List<Integer> roundID = roundRepository.findIDByTournamentCurrentRound(tournament.getTournamentID(), tournament.getCurrentRound());
+
+        if(roundID.size() != 1) {
+          throw new EntityNotFoundException(String.format("Unable to locate the round resource to close", tournament.getTournamentID()));
+        }
+
+        List<Integer> pendingMatches = userInvolvesMatchService.findMatchesForRoundWithPendingResults(roundID.get(0));
+
+        if (pendingMatches.size() > 0) {
+            throw new MissingMatchResultsException("Match results need to be updated before ending the round");
+
+        }
+        this.changeTournamentStatus(id, TournamentStatus.REGISTRATION_CLOSED);
+
+    }
+
 }
 
 

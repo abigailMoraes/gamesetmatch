@@ -15,5 +15,11 @@ public interface UserInvolvesMatchRepository extends JpaRepository<UserInvolvesM
 
     List<UserInvolvesMatch> getUserInvolvesMatchByMatchID(int mID);
 
+    @Query(value = "SELECT uim.matchID FROM" +
+            "User_involves_match uim" +
+            "INNER JOIN Match_has m ON m.matchID = uim.matchID" +
+            "WHERE m.roundID = :roundID",
+            nativeQuery = true)
+    List<Integer> getPendingMatches(int roundID);
 
 }
