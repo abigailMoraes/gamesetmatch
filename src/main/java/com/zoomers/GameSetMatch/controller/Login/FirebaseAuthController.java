@@ -34,15 +34,17 @@ public class FirebaseAuthController {
             User database_user = repository.findByFirebaseId(uid);
 
             if(database_user == null)  {
-                User unregisteredUser = new User();
+                UserResponse unregisteredUser = new UserResponse();
                 unregisteredUser.setName(name);
                 unregisteredUser.setEmail(email);
                 unregisteredUser.setFirebaseId(uid);
                 unregisteredUser.setIsAdmin(0);
+                unregisteredUser.setPicture(picture);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(unregisteredUser.toString());
             }
 
             returnUser.setId(database_user.getId());
+            returnUser.setFirebaseId(database_user.getFirebaseId());
             returnUser.setEmail(database_user.getEmail());
             returnUser.setName(database_user.getName());
             returnUser.setIsAdmin(database_user.getIsAdmin());
