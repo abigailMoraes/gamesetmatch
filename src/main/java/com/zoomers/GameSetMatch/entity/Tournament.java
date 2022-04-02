@@ -61,7 +61,7 @@ public class Tournament {
     private String prize;
 
     @Column(name = "format")
-    private String format;
+    private Integer format;
 
     @Column(name = "series")
     private Integer series;
