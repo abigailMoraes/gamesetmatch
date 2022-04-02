@@ -8,6 +8,7 @@ import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
 import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import com.zoomers.GameSetMatch.scheduler.enumerations.Skill;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.RegistrantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -31,7 +32,6 @@ public class Registrant {
     private String availability; // 24 * 7 character string
     private Skill skillLevel;
     private Set<Integer> playersToPlay;
-    private int losses = 0;
     private int gamesToSchedule;
     private PlayerStatus status = PlayerStatus.SAFE;
 
@@ -41,11 +41,19 @@ public class Registrant {
         this.tournamentId = tournamentId;
     }
 
-    public boolean checkAvailability(int timeID) {
-        return this.availability.charAt(timeID) == '1';
+    public boolean checkAvailability(int timeID, int matchDuration) {
+
+        int matchIndex = (int) Math.ceil(matchDuration / 30.0);
+        for (int i = timeID; i < timeID + matchIndex; i++) {
+            if (this.availability.charAt(i) == '0') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    public void initAvailability() {
+    public void initAvailability() throws ScheduleException {
 
         this.registrantService = SpringConfig.getBean(RegistrantService.class);
         this.availability = registrantService.initAvailability(this.id, this.tournamentId);
@@ -58,7 +66,6 @@ public class Registrant {
         }
 
         this.playersToPlay = registrantService.initPlayersToPlay(this.id, this.playersToPlay, tournamentId);
-        this.losses = registrantService.initLosses(this.id);
 
         switch(format) {
             case ROUND_ROBIN:
@@ -69,21 +76,11 @@ public class Registrant {
             }
             break;
             case SINGLE_KNOCKOUT:
-            {
-                if (this.losses >= 1) {
-                    this.status = PlayerStatus.ELIMINATED;
-                }
+            case DOUBLE_KNOCKOUT:
+            case SINGLE_BRACKET: {
+                this.status = PlayerStatus.values()[registrantService.initStatus(this.id, tournamentId)];
             }
             break;
-            case DOUBLE_KNOCKOUT:
-            {
-                if (this.losses >= 2) {
-                    this.status = PlayerStatus.ELIMINATED;
-                }
-                else if (this.losses == 1) {
-                    this.status = PlayerStatus.ONE_LOSS;
-                }
-            }
         }
     }
 
@@ -114,10 +111,6 @@ public class Registrant {
 
     public String getAvailability() {
         return availability;
-    }
-
-    public int getLosses() {
-        return losses;
     }
 
     public int getGamesToSchedule() { return gamesToSchedule; }

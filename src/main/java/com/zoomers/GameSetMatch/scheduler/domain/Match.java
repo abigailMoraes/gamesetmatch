@@ -13,9 +13,9 @@ public class Match {
     private int degrees = 0;
     private final Tuple players;
     private Timeslot timeslot;
-    private int skillWeight = 0;
+    private int skillWeight;
     private int matchScore = 0;
-    private int matchDuration = 0;
+    private final int matchDuration;
     private float matchIndex = 0;
 
     public Match(int p1, int p2, Timeslot timeslot, int matchDuration, int skillWeight) {
@@ -42,15 +42,15 @@ public class Match {
 
     public boolean shareTimeslot(Match m2) {
 
-        if (this.timeslot == m2.getTimeslot()) {
+        if (this.timeslot.getTime() == m2.getTimeslot().getTime()) {
             return true;
         }
-        else if (this.timeslot.getTime() <= m2.getTimeslot().getTime() &&
+        else if (this.timeslot.getTime() < m2.getTimeslot().getTime() &&
                 this.timeslot.getTime() + matchIndex > m2.getTimeslot().getTime()) {
             return true;
         }
         else {
-            return m2.getTimeslot().getTime() <= this.timeslot.getTime() &&
+            return m2.getTimeslot().getTime() < this.timeslot.getTime() &&
                     m2.getTimeslot().getTime() + matchIndex > this.timeslot.getTime();
         }
     }

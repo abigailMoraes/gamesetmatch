@@ -1,3 +1,4 @@
+
 package com.zoomers.GameSetMatch.controller.Tournament;
 
 import com.zoomers.GameSetMatch.controller.Error.ApiException;
@@ -6,12 +7,10 @@ import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegist
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
-import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
-import com.zoomers.GameSetMatch.repository.TournamentRepository;
-import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
 import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
@@ -49,8 +48,6 @@ public class TournamentController {
 
     @Autowired
     Scheduler scheduler;
-
-    UserMatchTournamentRepository userMatchTournamentRepository;
 
     @Autowired
     MailController mailController;
@@ -90,6 +87,7 @@ public class TournamentController {
         return userRegistersTournament.getRegistrants(tournamentID);
     }
 
+  
     @GetMapping(value = "/user/{userID}/completed")
     public List<Tournament> getCompletedTournamentsByUser(@PathVariable int userID){
         return tournamentService.getCompletedTournamentsForUser(userID);
@@ -130,8 +128,7 @@ public class TournamentController {
             return Optional.of(empty);
         }
     }
-
-
+  
     @PostMapping()
     public Tournament createTournament(@RequestBody Tournament tournament)  {
         if (tournament.getStatus() == TournamentStatus.DEFAULT.getStatus()) {
@@ -220,7 +217,7 @@ public class TournamentController {
 
     @PostMapping(value = "", params = {"createdBy"})
     public List<Tournament> getTournament(@RequestBody TournamentByStatuses statuses,
-                                          @RequestParam(name = "createdBy") int user) {
+                                                 @RequestParam(name = "createdBy") int user) {
 
         List<Tournament> fullList = new ArrayList<>();
         for (Integer status : statuses.getStatuses() ) {
@@ -257,12 +254,16 @@ public class TournamentController {
 
     @PostMapping(value = "/{tournamentID}/runCreateSchedule")
     public ResponseEntity createSchedule(@PathVariable(name = "tournamentID") int tournamentID) {
-        scheduler.createSchedule(tournamentID);
+        try {
+
+            scheduler.createSchedule(tournamentID);
+        }
+        catch (ScheduleException e) {
+
+            System.out.println(e.getMessage());
+        }
         boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE);
         return  res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Schedule created.") :
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There was an error creating the schedule.");
     }
-
-
-
 }
