@@ -15,6 +15,7 @@ public class MockTournament {
     private final MatchBy matchBy;
     private final int matchDuration;
     private final Date startDate;
+    private final Date roundStartDate;
     private Date roundEndDate;
     private final int currentRound;
     private TournamentStatus tournamentStatus;
@@ -37,6 +38,7 @@ public class MockTournament {
         this.matchBy = MatchBy.values()[matchBy];
         this.matchDuration = matchDuration;
         this.startDate = startDate;
+        this.roundStartDate = startDate;
         this.currentRound = previousRound + 1;
         this.tournamentStatus = TournamentStatus.values()[tournamentStatus];
         this.minPlayers = minPlayers;
@@ -87,4 +89,6 @@ public class MockTournament {
     public TournamentStatus getTournamentStatus() {
         return tournamentStatus;
     }
+
+    public int getMinPlayers() { return minPlayers; }
 }
