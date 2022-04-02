@@ -90,7 +90,6 @@ public class TournamentController {
         if (tournament.getStatus() == TournamentStatus.DEFAULT.getStatus()) {
             tournament.setStatus(TournamentStatus.OPEN_FOR_REGISTRATION.getStatus());
             tournament.setCurrentRound(0);
-            tournament.setMinParticipants(2);
         }
         tournamentService.saveTournament(tournament);
         return tournament;
