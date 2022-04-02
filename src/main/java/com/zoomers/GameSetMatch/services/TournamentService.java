@@ -36,8 +36,8 @@ public class TournamentService {
     }
 
 
-    public List<Tournament> getCompletedTournamentsForUser(int userID) {
-       return tournament.findCompletedTournamentsForUser(userID);
+    public List<Tournament> getCompletedTournamentsForUser(int userID, int status) {
+       return tournament.findCompletedTournamentsForUser(userID, status);
     }
 
     public void deleteTournamentByID(Integer id) {
