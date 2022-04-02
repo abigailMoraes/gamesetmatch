@@ -69,9 +69,6 @@ public class Tournament {
     @Column(name = "match_by")
     private Integer matchBySkill;
 
-    @Column(name = "type")
-    private Integer type;
-
     @Column(name = "match_duration")
     private Integer matchDuration;
 
