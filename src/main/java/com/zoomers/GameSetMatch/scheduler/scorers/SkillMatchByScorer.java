@@ -20,8 +20,8 @@ public class SkillMatchByScorer extends Scorer {
             availabilityScore++;
         }
 
-        int skillScore = Math.abs(r1.getSkill() - r2.getSkill());
+        int skillScore = r1.getSkill() + r2.getSkill();
 
-        return availabilityMultiplier * availabilityScore - skillMultiplier * skillScore;
+        return availabilityMultiplier * availabilityScore + skillMultiplier * skillScore;
     }
 }

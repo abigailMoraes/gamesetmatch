@@ -3,7 +3,7 @@
  * the algorithm will produce a schedule for all players registered
  * in the tournament.
  *
- * @since 2022-03-31
+ * @since 2022-04-02
  */
 
 package com.zoomers.GameSetMatch.scheduler;
@@ -44,7 +44,7 @@ public class Scheduler {
     private List<Registrant> REGISTRANTS;
     private List<Timeslot> TIMESLOTS;
     private MockTournament MOCK_TOURNAMENT;
-    private FormatMatcher typeMatcher;
+    private FormatMatcher formatMatcher;
     private Calendar CALENDAR;
     private TournamentStatus originalStatus;
     private Date currentLastMatchDate;
@@ -60,7 +60,7 @@ public class Scheduler {
         if (MOCK_TOURNAMENT.getMatchDuration() > 720) throw new ScheduleException("Match Duration is too long!");
         this.originalStatus = MOCK_TOURNAMENT.getTournamentStatus();
 
-        initTypeMatcher(this.MOCK_TOURNAMENT.getTournamentFormat(), this.MOCK_TOURNAMENT.getMatchBy());
+        initFormatMatcher(this.MOCK_TOURNAMENT.getTournamentFormat(), this.MOCK_TOURNAMENT.getMatchBy());
         initTournamentPlayers(tournamentID);
         this.CALENDAR.setTime(this.MOCK_TOURNAMENT.getRoundStartDate());
         initTimeslots();
@@ -70,30 +70,32 @@ public class Scheduler {
         schedule();
     }
 
-    private void initTypeMatcher(TournamentFormat type, MatchBy matchBy) {
+    private void initFormatMatcher(TournamentFormat format, MatchBy matchBy) {
 
-        switch (type) {
+        switch (format) {
             case SINGLE_KNOCKOUT:
             case SINGLE_BRACKET:
-                typeMatcher = new SingleKnockoutMatcher();
+                formatMatcher = new SingleKnockoutMatcher();
                 break;
             case DOUBLE_KNOCKOUT:
-                typeMatcher = new DoubleKnockoutMatcher();
+                formatMatcher = new DoubleKnockoutMatcher();
                 break;
             case ROUND_ROBIN:
-                typeMatcher = new RoundRobinMatcher();
+                formatMatcher = new RoundRobinMatcher();
                 break;
         }
 
+        formatMatcher.initFormat(format);
+
         switch (matchBy) {
             case MATCH_BY_RANDOM:
-                typeMatcher.initScorer(new RandomMatchByScorer());
+                formatMatcher.initScorer(new RandomMatchByScorer());
                 break;
             case MATCH_BY_SKILL:
-                typeMatcher.initScorer(new SkillMatchByScorer());
+                formatMatcher.initScorer(new SkillMatchByScorer());
                 break;
             case MATCH_BY_SEED:
-                typeMatcher.initScorer(new SeedMatchByScorer());
+                formatMatcher.initScorer(new SeedMatchByScorer());
                 break;
         }
     }
@@ -133,11 +135,10 @@ public class Scheduler {
 
         if (MOCK_TOURNAMENT.getTournamentSeries() != TournamentSeries.BEST_OF_1) {
 
-            int expectedMatches = (this.REGISTRANTS.size() / 2) * MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames();
+            int expectedMatches = returnedMatches.size() * MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames();
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
         }
 
-        // Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
         MOCK_TOURNAMENT.setRoundEndDate(currentLastMatchDate);
 
         Round newRound = new Round();
@@ -210,7 +211,7 @@ public class Scheduler {
 
         while (matches.size() < expectedMatches) {
 
-            RoundRobinGraph roundRobinGraph = typeMatcher.createRoundRobinMatches(
+            RoundRobinGraph roundRobinGraph = formatMatcher.createRoundRobinMatches(
                     registrantsToMatch,
                     registrantMatches,
                     TIMESLOTS,
@@ -275,7 +276,7 @@ public class Scheduler {
 
             System.out.println("Initial Single Knockout : " + this.CALENDAR.getTime());
 
-            SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
+            SecondaryMatchGraph secondaryMatchGraph = formatMatcher.createPossibleSecondaryMatches(
                     registrantsToMatch,
                     TIMESLOTS,
                     MOCK_TOURNAMENT.getMatchDuration()
@@ -312,7 +313,7 @@ public class Scheduler {
 
             BipartiteGraph bg = new BipartiteGraph(TIMESLOTS, registrantsToMatch, MOCK_TOURNAMENT.getMatchDuration());
 
-            PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
+            PrimaryMatchGraph matchGraph = formatMatcher.createPossiblePrimaryMatches(bg);
 
             if (matchGraph.getMatches().size() == 0) {
                 CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
@@ -335,6 +336,8 @@ public class Scheduler {
             addWeek();
             currentLastMatchDate = greedyMaximumIndependentSet.getLastMatchDate();
         }
+
+        // CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
 
         for (Match match : matches) {
 
@@ -368,7 +371,7 @@ public class Scheduler {
 
             System.out.println("Secondary: " + this.CALENDAR.getTime());
 
-            SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
+            SecondaryMatchGraph secondaryMatchGraph = formatMatcher.createPossibleSecondaryMatches(
                     registrantsToMatch,
                     availableTimeslots,
                     MOCK_TOURNAMENT.getMatchDuration()
@@ -390,7 +393,9 @@ public class Scheduler {
             availableTimeslots = findAvailableTimeslots(matches, MOCK_TOURNAMENT.getMatchDuration());
         }
 
-        decreaseWeek();
+        if (!newMatches.isEmpty()) {
+            decreaseWeek();
+        }
 
         for (Match match : newMatches) {
 
@@ -409,9 +414,13 @@ public class Scheduler {
 
             returnedMatches.addAll(scheduleFirstKnockoutRound());
         }
-        else {
+        else if (REGISTRANTS.size() > 2) {
             returnedMatches.addAll(scheduleNoLossMatches());
             returnedMatches.addAll(scheduleOneLossMatches());
+        }
+        else {
+            returnedMatches.addAll(schedulePrimaryMatches());
+            returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
         }
         return returnedMatches;
     }
@@ -512,7 +521,7 @@ public class Scheduler {
 
                 System.out.println("Bracket Match: " + this.CALENDAR.getTime());
 
-                BracketMatchGraph bracketMatchGraph = typeMatcher.createPossibleBracketMatches(
+                BracketMatchGraph bracketMatchGraph = formatMatcher.createPossibleBracketMatches(
                         REGISTRANTS,
                         TIMESLOTS,
                         matchedPlayers,
@@ -550,7 +559,7 @@ public class Scheduler {
 
             System.out.println("Best-Of: " + this.CALENDAR.getTime());
 
-            BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
+            BestOfMatchGraph bestOfMatchGraph = formatMatcher.createPossibleBestOfMatches(
                     new LinkedHashSet<>(REGISTRANTS),
                     new LinkedHashSet<>(availableTimeslots),
                     matchesToSchedule,
@@ -583,11 +592,6 @@ public class Scheduler {
 
             currentLastMatchDate = bestOfMatching.getLastMatchDate();
             matches.addAll(bestOfMatches);
-        }
-
-        for (Match match : matches) {
-
-            System.out.println("Best-Of Match: " + match);
         }
 
         return matches;
@@ -750,9 +754,9 @@ public class Scheduler {
         for (com.zoomers.GameSetMatch.entity.Match m : previousRoundMatches) {
 
             List<Integer> matchResult = userInvolvesMatchRepository.getMatchResultByMatchID(m.getMatchID());
-            if (matchResult.size() != 1) { throw new ScheduleException("Invalid Match Result"); }
+            if (matchResult.size() != 2) { throw new ScheduleException("Invalid Match Result"); }
 
-            if (matchResult.get(0) == 0) { throw new ScheduleException("Previous Match Result cannot be Pending"); }
+            if (matchResult.get(0) == 0 || matchResult.get(1) == 0) { throw new ScheduleException("Previous Match Result cannot be Pending"); }
         }
     }
 }
