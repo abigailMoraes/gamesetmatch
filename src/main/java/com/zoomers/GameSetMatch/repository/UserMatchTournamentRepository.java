@@ -9,9 +9,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTournamentInfo, Long> {
-
-
-
+    
     @Query(
            value ="SELECT u.results, u.attendance, Match_Has.matchID, Match_Has.start_time, Match_Has.end_time,\n" +
                    "Round_Has.roundNumber, Tournament.name, Tournament.location, Tournament.description \n" +

@@ -24,4 +24,8 @@ public interface UserInvolvesMatchRepository extends JpaRepository<UserInvolvesM
     List<Integer> getPendingMatches(int roundID, int pendingStatus);
 
     List<UserInvolvesMatch> getUserInvolvesMatchByUserID(int uID);
+
+    @Query(value = "SELECT User_involves_match.results FROM User_involves_match WHERE User_involves_match .matchID = :mID",
+    nativeQuery = true)
+    List<Integer> getMatchResultByMatchID(int mID);
 }

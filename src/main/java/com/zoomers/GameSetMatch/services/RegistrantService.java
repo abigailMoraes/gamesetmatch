@@ -57,10 +57,10 @@ public class RegistrantService {
         return playersToPlay;
     }
 
-    public int initStatus(int id, int t_id) {
+    public int initStatus(int id, int t_id) throws ScheduleException {
 
         List<Integer> status = userRegistersTournamentRepository.getPlayerStatusByTournamentID(id, t_id);
-        if (status.get(0) == null) { throw new NullPointerException("Status is null"); }
+        if (status.get(0) == null) { throw new ScheduleException("Player Status is null"); }
         return status.get(0);
     }
 }

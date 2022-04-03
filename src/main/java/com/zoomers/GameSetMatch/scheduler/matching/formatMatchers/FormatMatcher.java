@@ -1,10 +1,9 @@
 package com.zoomers.GameSetMatch.scheduler.matching.formatMatchers;
 
-import com.zoomers.GameSetMatch.repository.MatchRepository;
-import com.zoomers.GameSetMatch.scheduler.SpringConfig;
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
 import com.zoomers.GameSetMatch.scheduler.graphs.*;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 import com.zoomers.GameSetMatch.scheduler.scorers.Scorer;
@@ -14,10 +13,13 @@ import java.util.*;
 public abstract class FormatMatcher {
 
     private Scorer scorer;
+    private TournamentFormat format;
 
     public void initScorer(Scorer scorer) {
         this.scorer = scorer;
     }
+
+    public void initFormat(TournamentFormat format) { this.format = format; }
 
     public RoundRobinGraph createRoundRobinMatches(
             List<Registrant> registrantsToMatch,
@@ -74,8 +76,10 @@ public abstract class FormatMatcher {
 
                     Registrant r2 = registrants.get(j);
 
-                    if (!isMatchValid(r1, r2, t)) {
-                        continue;
+                    if (!(format == TournamentFormat.DOUBLE_KNOCKOUT && registrants.size() == 2)) {
+                        if (!isMatchValid(r1, r2, t)) {
+                            continue;
+                        }
                     }
 
                     Match m = new Match(
@@ -119,8 +123,10 @@ public abstract class FormatMatcher {
 
                     Registrant r2 = registrantsToBeMatched.get(j);
 
-                    if (!isMatchValid(r1, r2, t)) {
-                        continue;
+                    if (!(format == TournamentFormat.DOUBLE_KNOCKOUT && registrantsToBeMatched.size() == 2)) {
+                        if (!isMatchValid(r1, r2, t)) {
+                            continue;
+                        }
                     }
 
                     Match m = new Match(
@@ -179,8 +185,10 @@ public abstract class FormatMatcher {
                     continue;
                 }
 
-                if (!isMatchValid(r1, r2, t)) {
-                    continue;
+                if (!(format == TournamentFormat.DOUBLE_KNOCKOUT && registrants.size() == 2)) {
+                    if (!isMatchValid(r1, r2, t)) {
+                        continue;
+                    }
                 }
 
                 Match seriesMatch = new Match(
