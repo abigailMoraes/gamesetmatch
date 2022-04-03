@@ -73,8 +73,6 @@ public class Match {
     @Column(name="userID_2")
     private int userID_2;
 
-    // 0 = not published
-    // 1 = published
-    private int publishedOrNot;
+    private Boolean isPublished;
 
 }

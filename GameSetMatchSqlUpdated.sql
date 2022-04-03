@@ -39,7 +39,7 @@ CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tou
 /*is_conflict is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot) */
 /*Create table statement for Match_Has*/
 CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, roundID int, is_conflict int, userID_1 int, userID_2 int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES User(userID), FOREIGN KEY(userID_2) REFERENCES User(userID));
-ALTER TABLE Match_Has ADD publishedOrNot int;
+ALTER TABLE Match_Has ADD isPublished BOOLEAN;
 
 /*Create table statement for user_involves_match*/
 CREATE TABLE User_involves_match(userID int, matchID int, results int, attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));

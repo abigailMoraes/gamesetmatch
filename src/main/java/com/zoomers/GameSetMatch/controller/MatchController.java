@@ -38,7 +38,7 @@ public class MatchController {
     RoundRepository roundRepository;
 
     @GetMapping("/match/involves/user/{id}")
-    List<UserMatchTournamentInfo> getMatchesForUser(@PathVariable int id) {
+    List<UserMatchTournamentInfo> getPublishedMatchesForUser(@PathVariable int id) {
         return userMatchTournamentRepository.findPublishedMatchesByUserID(id);
     }
 

@@ -4,6 +4,7 @@ import com.zoomers.GameSetMatch.controller.MailController;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
@@ -90,7 +91,8 @@ public class TournamentController {
     }
 
     @PostMapping(value = "/{tournamentID}/register")
-    public ResponseEntity<String> registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Integer tournamentID) {
+    public ResponseEntity registerForTournament(@RequestBody IncomingRegistration newRegistrtation,
+                                                        @PathVariable Integer tournamentID) {
         Tournament tournament = tournamentService.findTournamentByID(tournamentID).get();
 
         if (tournament.getStatus() == TournamentStatus.OPEN_FOR_REGISTRATION.getStatus()) {
@@ -98,9 +100,11 @@ public class TournamentController {
             userRegistersTournament.saveRegistration(tournamentID, userID, newRegistrtation.getSkillLevel());
             availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The tournament registration is closed. Cannot register.");
+            String errorMsg = "The tournament registration is closed. Cannot register.";
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, errorMsg);
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Successfully registered!");
+        return ResponseEntity.status(HttpStatus.OK).body("Successfully registered!");
     }
 
 
