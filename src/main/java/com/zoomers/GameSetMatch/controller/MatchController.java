@@ -102,6 +102,88 @@ public class MatchController {
        return  userMatchTournamentRepository.getBracketMatchInfoByTournamentID(tournamentID);
     }
 
+    @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner")
+    Optional<UserMatchTournamentRepository.NumQuery>
+    getNextWinnerMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
+                oldRoundID);
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
+                oldRoundID);
+        UserMatchTournamentRepository.NumQuery winnerMatchID =
+                userMatchTournamentRepository.getNextWinnerMatchID(oldRoundID, winnerID.getWinner(), loserID.getLoser(),
+                        oldMatchID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(winnerMatchID).isPresent()) {
+            return Optional.of(winnerMatchID);
+        } else {
+            return Optional.of(empty);
+        }
+
+    }
+
+    @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner/multiple")
+    Optional<UserMatchTournamentRepository.NumQuery>
+    getNextWinnerMatchIDForMultipleMatches(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
+                oldRoundID);
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
+                oldRoundID);
+        UserMatchTournamentRepository.NumQuery winnerMatchID =
+                userMatchTournamentRepository.getNextWinnerMatchIDMultipleMatchesPerRound(oldRoundID,
+                        winnerID.getWinner(), loserID.getLoser(), oldMatchID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(winnerMatchID).isPresent()) {
+            return Optional.of(winnerMatchID);
+        } else {
+            return Optional.of(empty);
+        }
+
+    }
+
+    @GetMapping("/round/{oldRoundID}/roundNumber")
+    Optional<UserMatchTournamentRepository.RoundNumber> getRoundNumberByRoundID(@PathVariable int oldRoundID){
+        return Optional.of(userMatchTournamentRepository.getRoundNumber(oldRoundID));
+    }
+
+    @GetMapping("/match/{matchID}/winner")
+    Optional<UserMatchTournamentRepository.WinnerName> getWinnerNameByMatchID(@PathVariable int matchID){
+        return Optional.of(userMatchTournamentRepository.getWinnerName(matchID));
+    }
+
+
+    @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/loser")
+    Optional<UserMatchTournamentRepository.NumQuery>
+    getNextLoserMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
+                oldRoundID);
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
+                oldRoundID);
+        UserMatchTournamentRepository.NumQuery loserMatchID =
+                userMatchTournamentRepository.getNextLoserMatchID(oldRoundID, winnerID.getWinner(),
+                        loserID.getLoser(), oldMatchID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(loserMatchID).isPresent()) {
+            return Optional.of(loserMatchID);
+        } else {
+            return Optional.of(empty);
+        }
+    }
+
     @PutMapping("/match/userAttendance")
     public void updateAttendance(@RequestBody IncomingAttendance attendance) {
         userMatchTournamentRepository.dropOutForUser(attendance.getMatchID(), attendance.getUserID(), attendance.getAttendance());

@@ -1,11 +1,12 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
 import com.zoomers.GameSetMatch.controller.Error.ApiException;
-import com.zoomers.GameSetMatch.controller.MailController;
+import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.AvailabilityDTO;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
@@ -48,9 +49,6 @@ public class TournamentController {
 
     @Autowired
     Scheduler scheduler;
-
-    @Autowired
-    MailController mailController;
 
     @GetMapping()
     public List<OutgoingTournament> getAllTournaments(@RequestParam int registeredUser, @RequestParam int status) {
@@ -104,6 +102,21 @@ public class TournamentController {
         userRegistersTournament.saveRegistration(tournamentID, userID, newRegistrtation.getSkillLevel());
         availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
 
+    }
+
+    @GetMapping(value="/{tournamentID}/availabilities/{userID}")
+    public List<AvailabilityDTO> getPlayerAvailabilities(@PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        return availability.getUsersAvailabilityForTournament(userID, tournamentID);
+    }
+
+    @PutMapping(value="/{tournamentID}/availabilities/{userID}")
+    public void  updateUsersAvailabilityForTournament(@RequestBody List<AvailabilityDTO> updatedAvailability, @PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        availability.updateUsersAvailabilityForTournament(tournamentID, userID, updatedAvailability);
+    }
+
+    @PostMapping(value = "/{tournamentID}/deregister/{userID}")
+    public void undoRegistration(@PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        userRegistersTournament.undoRegistration(tournamentID, userID);
     }
 
 
@@ -191,7 +204,7 @@ public class TournamentController {
 
     @PostMapping(value = "", params = {"createdBy"})
     public List<Tournament> getTournament(@RequestBody TournamentByStatuses statuses,
-                                                 @RequestParam(name = "createdBy") int user) {
+                                          @RequestParam(name = "createdBy") int user) {
 
         List<Tournament> fullList = new ArrayList<>();
         for (Integer status : statuses.getStatuses() ) {
@@ -231,17 +244,50 @@ public class TournamentController {
         try {
 
             scheduler.createSchedule(tournamentID);
-
         } catch (ScheduleException e) {
             ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
-
         } catch (EntityNotFoundException e) {
             ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
-
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Schedule created.");
+        return ResponseEntity.status(HttpStatus.OK).body("Schedule created for Tournament ID: " + tournamentID);
+    }
+
+    @GetMapping(value = "/user/{userID}/number/completed")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfCompletedTournamentsByUser(@PathVariable int userID) {
+        UserMatchTournamentRepository.NumQuery completed =
+                tournamentService.getNumberOfTournamentsPlayed(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(completed).isPresent()) {
+            return Optional.of(completed);
+        } else {
+            return Optional.of(empty);
+        }
+    }
+
+    @GetMapping(value = "/user/{userID}/number/won")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfTournamentsWonByUser(@PathVariable int userID) {
+        UserMatchTournamentRepository.NumQuery won =
+                tournamentService.getNumberOfTournamentsWon(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(won).isPresent()) {
+            return Optional.of(won);
+        } else {
+            return Optional.of(empty);
+        }
     }
 }

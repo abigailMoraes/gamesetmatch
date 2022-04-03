@@ -4,7 +4,9 @@ import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
+import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
 import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
@@ -50,6 +52,7 @@ public class TournamentService {
         return tournament.findByStatus(status);
     }
 
+    @Transactional
     public void saveTournament(Tournament tour) {
         tournament.save(tour);
     }
@@ -62,11 +65,12 @@ public class TournamentService {
         return tournament.findTournaments(status, id);
     }
 
+    @Transactional
     public void deleteTournamentByID(Integer id) throws MessagingException, InvalidActionForTournamentStatusException {
         // remove references in other tables
         Tournament t = this.findTournamentByID(id).orElse(null);
 
-        if (isNull(t)){
+        if (isNull(t)) {
             throw new EntityNotFoundException(String.format("Unable to find the tournament with id %d", id));
         }
 
@@ -86,8 +90,9 @@ public class TournamentService {
     }
 
     public List<Tournament> getCompletedTournamentsForUser(int userID) {
-        return tournament.findCompletedTournamentsForUser(userID);
+        return tournament.findCompletedTournamentsForUser(userID, TournamentStatus.TOURNAMENT_OVER.getStatus());
     }
+
 
     @Transactional
     public void changeTournamentStatus(Integer id, TournamentStatus status) throws EntityNotFoundException {
@@ -96,10 +101,22 @@ public class TournamentService {
         if (isNull(tournament)) {
             throw new EntityNotFoundException(String.format("Unable to find the tournament with id %d", tournament.getTournamentID()));
         }
-
         tournament.setStatus(status.getStatus());
 
         this.saveTournament(tournament);
+    }
+
+    public UserMatchTournamentRepository.NumQuery getNumberOfTournamentsPlayed(Integer userID) {
+        return tournament.getNumberOfCompletedTournamentsForUser(userID, TournamentStatus.TOURNAMENT_OVER.getStatus());
+    }
+
+    public UserMatchTournamentRepository.NumQuery getNumberOfTournamentsWon(Integer userID) {
+        return tournament.getNumberOfTournamentsWonByUser(userID, TournamentStatus.TOURNAMENT_OVER.getStatus(),
+                PlayerStatus.SAFE.getStatus());
+    }
+
+    public List<Tournament> getRegisteredTournaments(int userID) {
+        return tournament.findRegisteredTournamentsForUser(userID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE.getStatus());
     }
 
     @Transactional
@@ -152,30 +169,26 @@ public class TournamentService {
 
         }
 
-        Round round = roundRepository.findById(roundID.get(0)).orElse(null);
-
-        if (isNull(round)) {
-            throw new EntityNotFoundException(String.format("Unable to locate the round resource.", currentTournament.getTournamentID()));
-        }
-
-        Date today = DateAndLocalDateService.localDateToDate(LocalDate.now());
-        Date nextRoundStartDate = DateAndLocalDateService.localDateToDate(LocalDate.now().plusDays(DateAndLocalDateService.DaysBetweenRounds));
-        currentTournament.setRoundStartDate(nextRoundStartDate);
-        round.setEndDate(today);
-
-        if(currentTournament.getStatus() == TournamentStatus.FINAL_ROUND.getStatus()) {
+        if (currentTournament.getStatus() == TournamentStatus.FINAL_ROUND.getStatus()) {
             currentTournament.setStatus(TournamentStatus.TOURNAMENT_OVER.getStatus());
         } else {
+            Round round = roundRepository.findById(roundID.get(0)).orElse(null);
+
+            if (isNull(round)) {
+                throw new EntityNotFoundException(String.format("Unable to locate the round resource.", currentTournament.getTournamentID()));
+            }
+
             currentTournament.setStatus(TournamentStatus.READY_TO_SCHEDULE.getStatus());
+            Date today = DateAndLocalDateService.localDateToDate(LocalDate.now());
+            Date nextRoundStartDate = DateAndLocalDateService.localDateToDate(LocalDate.now().plusDays(DateAndLocalDateService.DaysBetweenRounds));
+            currentTournament.setRoundStartDate(nextRoundStartDate);
+            round.setEndDate(today);
+
+            roundRepository.save(round);
         }
 
         tournament.save(currentTournament);
-        roundRepository.save(round);
-
     }
-
-
-
 }
 
 

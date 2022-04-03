@@ -1,7 +1,10 @@
 package com.zoomers.GameSetMatch.controller;
 
+import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.repository.UserRepository;
+import com.zoomers.GameSetMatch.services.TournamentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +15,13 @@ import java.util.List;
 @RequestMapping("/api")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
-    private final UserRepository repository;
+    @Autowired
+    private UserRepository repository;
 
-    public UserController(UserRepository repository) {
-        this.repository = repository;
-    }
+    @Autowired
+    private TournamentService tournamentService;
+
+
 
     @PostMapping("/employee")
     User newEmployee(@RequestBody User newEmployee) {
@@ -50,7 +55,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(e.getEmail() + " is now an admin!");
     }
 
-
+    @GetMapping(value = "/user/{userID}/registeredTournaments")
+    public List<Tournament> getRegisteredTournaments(@PathVariable int userID) {
+        return tournamentService.getRegisteredTournaments(userID);
+    }
 
     @DeleteMapping("/user/{id}")
     public void deleteUser(@PathVariable int id) {
