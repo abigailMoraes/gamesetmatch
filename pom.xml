@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.zoomers</groupId>
 	<artifactId>GameSetMatch</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
+	<version>0.0.6-SNAPSHOT</version>
 	<name>GameSetMatch</name>
 	<description>To schedule users into matches based on given availability</description>
 	<properties>
