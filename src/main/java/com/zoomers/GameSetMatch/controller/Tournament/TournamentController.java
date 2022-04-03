@@ -14,6 +14,7 @@ import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
 import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
 import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
+import com.zoomers.GameSetMatch.services.Errors.MissingMatchResultsException;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,9 +86,10 @@ public class TournamentController {
     }
 
     @PostMapping()
-    public Tournament createTournament(@RequestBody Tournament tournament)  {
+    public Tournament createTournament(@RequestBody Tournament tournament) {
         if (tournament.getStatus() == TournamentStatus.DEFAULT.getStatus()) {
             tournament.setStatus(TournamentStatus.OPEN_FOR_REGISTRATION.getStatus());
+            tournament.setRoundStartDate(tournament.getStartDate());
             tournament.setCurrentRound(0);
         }
         tournamentService.saveTournament(tournament);
@@ -96,7 +98,7 @@ public class TournamentController {
 
     @PostMapping(value = "/{tournamentID}/register")
     public ResponseEntity registerForTournament(@RequestBody IncomingRegistration newRegistrtation,
-                                                        @PathVariable Integer tournamentID) {
+                                                @PathVariable Integer tournamentID) {
         Tournament tournament = tournamentService.findTournamentByID(tournamentID).get();
 
         if (tournament.getStatus() == TournamentStatus.OPEN_FOR_REGISTRATION.getStatus()) {
@@ -141,6 +143,7 @@ public class TournamentController {
             }
             if (incoming.getStartDate() != null) {
                 tour.setStartDate(incoming.getStartDate());
+                tour.setRoundStartDate(incoming.getStartDate());
             }
             if (incoming.getCloseRegistrationDate() != null) {
                 tour.setCloseRegistrationDate(incoming.getCloseRegistrationDate());
@@ -184,11 +187,25 @@ public class TournamentController {
     public ResponseEntity<Object> closeRegistration(@PathVariable Integer tournamentID) {
         try {
             tournamentService.closeRegistration(tournamentID);
-        } catch (MinRegistrantsNotMetException e) {
+        } catch (MinRegistrantsNotMetException | InvalidActionForTournamentStatusException e) {
             ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         } catch (EntityNotFoundException e) {
             ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @PutMapping(value = "/{tournamentID}/endCurrentRound")
+    public ResponseEntity<Object> endCurrentRound(@PathVariable Integer tournamentID) {
+        try {
+            tournamentService.endCurrentRound(tournamentID);
+        }catch (EntityNotFoundException e) {
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (MissingMatchResultsException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
         return ResponseEntity.status(HttpStatus.OK).body(null);
@@ -237,12 +254,14 @@ public class TournamentController {
 
             scheduler.createSchedule(tournamentID);
         } catch (ScheduleException e) {
-
-            System.out.println(e.getMessage());
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (EntityNotFoundException e) {
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
-        boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE);
-        return res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Schedule created.") :
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There was an error creating the schedule.");
+
+        return ResponseEntity.status(HttpStatus.OK).body("Schedule created for Tournament ID: " + tournamentID);
     }
 
     @GetMapping(value = "/user/{userID}/number/completed")
@@ -281,4 +300,3 @@ public class TournamentController {
         }
     }
 }
-

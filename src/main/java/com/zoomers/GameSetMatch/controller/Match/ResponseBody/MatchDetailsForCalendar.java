@@ -13,18 +13,18 @@ public class MatchDetailsForCalendar {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private int roundID;
-    private int isConflict;
+    private int matchStatus;
     private int playerOneID;
     private int playerTwoID;
     private List<UsersMatchInfo> participants;
 
     public MatchDetailsForCalendar(Integer matchID, LocalDateTime startTime, LocalDateTime endTime, int roundID,
-                                   int isConflict, int playerOneID, int playerTwoID) {
+                                   int matchStatus, int playerOneID, int playerTwoID) {
         this.matchID = matchID;
         this.startTime = startTime;
         this.endTime = endTime;
         this.roundID = roundID;
-        this.isConflict = isConflict;
+        this.matchStatus = matchStatus;
         this.playerOneID = playerOneID;
         this.playerTwoID = playerTwoID;
     }

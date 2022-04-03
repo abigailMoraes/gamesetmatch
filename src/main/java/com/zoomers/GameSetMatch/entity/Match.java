@@ -29,8 +29,8 @@ public class Match {
 
     private int roundID;
 
-    @Column(name="is_conflict")
-    private int isConflict;
+    @Column(name="match_status")
+    private int matchStatus;
 
     @Column(name="userID_1")
     private int userID_1;

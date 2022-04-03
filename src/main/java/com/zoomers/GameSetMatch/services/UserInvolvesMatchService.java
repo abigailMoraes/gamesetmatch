@@ -49,13 +49,17 @@ public class UserInvolvesMatchService {
         for (Match m : matches) {
             List<UsersMatchInfo> usersMatch = userInvolvesMatchRepository.getUsersMatchInfoForCalendar(m.getMatchID());
             MatchDetailsForCalendar matchDetailsForCalendar = new MatchDetailsForCalendar(m.getMatchID(),
-                    m.getStartTime(), m.getEndTime(), m.getRoundID(), m.getIsConflict(), m.getUserID_1(), m.getUserID_2());
+                    m.getStartTime(), m.getEndTime(), m.getRoundID(), m.getMatchStatus(), m.getUserID_1(), m.getUserID_2());
             matchDetailsForCalendar.setParticipants(usersMatch);
 
             returnList.add(matchDetailsForCalendar);
 
         }
         return returnList;
+    }
+
+    public List<Integer> findMatchesForRoundWithPendingResults(int roundID) {
+        return userInvolvesMatchRepository.getPendingMatches(roundID, MatchResult.PENDING.getResult());
     }
 
 }

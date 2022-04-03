@@ -7,7 +7,6 @@ import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
 import com.zoomers.GameSetMatch.entity.Match;
-import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
@@ -23,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -204,28 +202,16 @@ public class MatchController {
     }
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
-    public void updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
+    public ResponseEntity updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
                                     @RequestBody List<IncomingMatch> matches) {
-        LocalDateTime latestMatchDate =matches.get(0).getEndTime();
-        for (IncomingMatch match : matches) {
-            Optional<Match> existingMatch = Optional.of(matchRepository.getById(match.getID()));
-
-            if (existingMatch.isPresent()) {
-                matchRepository.updateMatchInfo(match.getID(),
-                        match.getStartTime(), match.getEndTime());
-            } else {
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Match ID");
-            }
-            Optional<Round> existingRound = Optional.of(roundRepository.getById(roundID));
-            /* Update end date for existing round if date for match end time is later than the corresponding
-            round end date */
-            if (latestMatchDate.isBefore(match.getEndTime())) {
-                latestMatchDate = match.getEndTime();
-            } else {
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
-            }
+        try {
+            matchService.updateMatchesInARound(tournamentID, roundID, matches);
+            tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.ONGOING);
+        } catch(EntityNotFoundException e){
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
-        tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.ONGOING);
+        return ResponseEntity.ok("Update successful.");
     }
 
     @PostMapping("/tournaments/{tournamentID}/match/{matchID}/checkNewTime")

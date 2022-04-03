@@ -15,11 +15,9 @@ import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 @Component
 @Configuration
@@ -68,10 +66,10 @@ public class ScheduledTasks {
             }
         }
 
-        new_tournamentIDs = tournamentRepository.getTournamentsPastCloseRegistrationDate(TournamentStatus.REGISTRATION_CLOSED.getStatus(), TournamentStatus.OPEN_FOR_REGISTRATION.getStatus());
+        new_tournamentIDs = tournamentRepository.getTournamentsPastCloseRegistrationDate(TournamentStatus.READY_TO_SCHEDULE.getStatus(), TournamentStatus.OPEN_FOR_REGISTRATION.getStatus());
         System.out.println("TournamentIds to schedule first round " + new_tournamentIDs);
         for(Integer tournamentID : new_tournamentIDs){
-            tournamentRepository.setTournamentStatus(TournamentStatus.REGISTRATION_CLOSED.getStatus(), tournamentID);
+            tournamentRepository.setTournamentStatus(TournamentStatus.READY_TO_SCHEDULE.getStatus(), tournamentID);
             try {
 
                 scheduler.createSchedule(tournamentID);
