@@ -1,7 +1,48 @@
 package com.zoomers.GameSetMatch.entity;
 
+import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.AvailabilityDTO;
+import com.zoomers.GameSetMatch.services.DTO.ParticipantAvailabilityForADayInfo;
+
 import javax.persistence.*;
-import java.util.Date;
+
+@SqlResultSetMapping(name = "AvailabilityDTOMapping",
+        classes = @ConstructorResult(
+                targetClass = AvailabilityDTO.class,
+                columns = {
+                        @ColumnResult(name = "day_of_week", type = Integer.class),
+                        @ColumnResult(name = "availability_string", type = String.class),
+                }
+        )
+)
+@NamedNativeQuery(
+        name = "Availability.getUsersAvailabilityForTournament",
+        query = "SELECT day_of_week, availability_string " +
+                "FROM Availability " +
+                "WHERE userID = :userID AND tournamentID = :tournamentID " +
+                "ORDER BY day_of_week",
+        resultSetMapping = "AvailabilityDTOMapping"
+)
+
+@SqlResultSetMapping(name = "ParticipantAvailabilityForDayMapping",
+        classes = @ConstructorResult(
+                targetClass = ParticipantAvailabilityForADayInfo.class,
+                columns = {
+                        @ColumnResult(name = "userID", type = Integer.class),
+                        @ColumnResult(name = "name", type = String.class),
+                        @ColumnResult(name = "availability_string", type = String.class)
+                }
+        )
+)
+@NamedNativeQuery(
+        name = "Availability.getParticipantsAvailabilityForADay",
+        query = "SELECT User.userID, User.name, a.availability_string FROM Availability a " +
+                "INNER JOIN User_involves_match u ON  a.userID = u.userID " +
+                "INNER JOIN User on User.userID = u.userID " +
+                "WHERE a.day_of_week = :dayOfWeek AND " +
+                "u.matchID = :matchID AND " +
+                "a.tournamentID = :tournamentID",
+        resultSetMapping = "ParticipantAvailabilityForDayMapping"
+)
 
 @Entity
 @IdClass(AvailabilityID.class)

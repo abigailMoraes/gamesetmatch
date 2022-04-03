@@ -21,13 +21,16 @@ import java.util.Date;
                         @ColumnResult(name="match_by", type=Integer.class),
                         @ColumnResult(name="match_duration", type=Integer.class),
                         @ColumnResult(name="start_date", type=Date.class),
-                        @ColumnResult(name="current_round", type=Integer.class)
+                        @ColumnResult(name="current_round", type=Integer.class),
+                        @ColumnResult(name="status", type=Integer.class),
+                        @ColumnResult(name="min_participants", type=Integer.class)
                 }
         )
 )
 @NamedNativeQuery(
         name="Tournament.getMockTournamentByID",
-        query="SELECT tournamentID, format, series, match_by, match_duration, start_date, current_round " +
+        query="SELECT tournamentID, format, series, match_by, match_duration, " +
+                "start_date, current_round, status, min_participants " +
                 "FROM Tournament WHERE tournamentID = :tournamentID",
         resultSetMapping = "MockTournamentMapping"
 )
@@ -64,7 +67,7 @@ public class Tournament {
     private Integer series;
 
     @Column(name = "match_by")
-    private Integer matchBySkill;
+    private Integer matchBy;
 
     @Column(name = "match_duration")
     private Integer matchDuration;
@@ -73,21 +76,17 @@ public class Tournament {
     @Column(name = "admin_hosts_tournament")
     private int adminHostsTournament;
 
-    //     -1 = default value in constructor
-    //     0 = open for registration,
-    //     1 = ready to schedule,
-    //     2 = ongoing tournament,
-    //     3 = ready to schedule next round,
-    //     4 = tournament over
     @Column(name = "status")
     private int status;
 
     @Column(name="current_round")
     private int currentRound;
 
+    @Column(name="min_participants")
+    private Integer minParticipants;
+
     @Column(name = "round_start_date")
     private Date roundStartDate;
-
 
     public Tournament() {
         this.status = -1;

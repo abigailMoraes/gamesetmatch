@@ -1,26 +1,35 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
-import com.zoomers.GameSetMatch.controller.MailController;
+import com.zoomers.GameSetMatch.controller.Error.ApiException;
+import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.AvailabilityDTO;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
+import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.AvailabilityService;
+import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
+import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserRegistersTournamentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -32,9 +41,6 @@ public class TournamentController {
     AvailabilityService availability;
 
     @Autowired
-    TournamentService tournament;
-
-    @Autowired
     UserRegistersTournamentService userRegistersTournament;
 
     @Autowired
@@ -42,9 +48,6 @@ public class TournamentController {
 
     @Autowired
     Scheduler scheduler;
-
-    @Autowired
-    MailController mailController;
 
     @GetMapping()
     public List<OutgoingTournament> getAllTournaments(@RequestParam int registeredUser, @RequestParam int status) {
@@ -67,6 +70,7 @@ public class TournamentController {
             outgoingTournament.setSeries(tournament.getSeries());
             outgoingTournament.setCloseRegistrationDate(tournament.getCloseRegistrationDate());
             outgoingTournament.setMatchDuration(tournament.getMatchDuration());
+            outgoingTournament.setMinParticipants(tournament.getMinParticipants());
             boolean registeredInTournament = registeredTournaments.contains(tournament.getTournamentID());
             outgoingTournament.setRegistered(registeredInTournament);
 
@@ -105,6 +109,21 @@ public class TournamentController {
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
         return ResponseEntity.status(HttpStatus.OK).body("Successfully registered!");
+    }
+
+    @GetMapping(value="/{tournamentID}/availabilities/{userID}")
+    public List<AvailabilityDTO> getPlayerAvailabilities(@PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        return availability.getUsersAvailabilityForTournament(userID, tournamentID);
+    }
+
+    @PutMapping(value="/{tournamentID}/availabilities/{userID}")
+    public void  updateUsersAvailabilityForTournament(@RequestBody List<AvailabilityDTO> updatedAvailability, @PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        availability.updateUsersAvailabilityForTournament(tournamentID, userID, updatedAvailability);
+    }
+
+    @PostMapping(value = "/{tournamentID}/deregister/{userID}")
+    public void undoRegistration(@PathVariable Integer tournamentID, @PathVariable Integer userID) {
+        userRegistersTournament.undoRegistration(tournamentID, userID);
     }
 
 
@@ -150,6 +169,9 @@ public class TournamentController {
             if (incoming.getStatus() != TournamentStatus.DEFAULT.getStatus()) {
                 tour.setStatus(incoming.getStatus());
             }
+            if (incoming.getMinParticipants() != null) {
+                tour.setMinParticipants(incoming.getMinParticipants());
+            }
 
             tournamentService.saveTournament(tour);
         } else {
@@ -159,44 +181,104 @@ public class TournamentController {
     }
 
     @PutMapping(value = "/{tournamentID}/closeRegistration")
-    public ResponseEntity<String> closeRegistration(@PathVariable Integer tournamentID) {
-            boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE);
-       return  res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament registration is closed") :
-               ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to close registration");
+    public ResponseEntity<Object> closeRegistration(@PathVariable Integer tournamentID) {
+        try {
+            tournamentService.closeRegistration(tournamentID);
+        } catch (MinRegistrantsNotMetException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (EntityNotFoundException e) {
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-    @GetMapping(value = "", params = {"status", "createdBy"})
-    public List<Tournament> getTournament(@RequestParam(name = "status") int status,
-                                                 @RequestParam(name = "createdBy") int user) {
-        return tournamentService.getTournaments(status, user);
+    @PostMapping(value = "", params = {"createdBy"})
+    public List<Tournament> getTournament(@RequestBody TournamentByStatuses statuses,
+                                          @RequestParam(name = "createdBy") int user) {
+
+        List<Tournament> fullList = new ArrayList<>();
+        for (Integer status : statuses.getStatuses() ) {
+            List<Tournament> t = tournamentService.getTournaments(status, user);
+            fullList = Stream.concat(fullList.stream(), t.stream())
+                    .collect(Collectors.toList());
+        }
+        return fullList;
     }
 
     @DeleteMapping(value = "/{tournamentID}")
-    public ResponseEntity<String> deleteInactiveTournament(@PathVariable Integer tournamentID) throws MessagingException {
-        Optional<Tournament> tournament = tournamentService.findTournamentByID(tournamentID);
-
-        if (tournament.isPresent()) {
-            Tournament tour = tournament.get();
-
-            if (tour.getStatus() == TournamentStatus.OPEN_FOR_REGISTRATION.getStatus()) {
-                mailController.sendCancelMail(tournamentID);
-
-                availability.deleteByTournamentID(tournamentID);
-                userRegistersTournament.deleteByTournamentID(tournamentID);
-                tournamentService.deleteTournamentByID(tournamentID);
-            } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("ID: " + tournamentID + " Tournament is currently active. Cannot delete.");
-            }
-        } else {
-            ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Tournament ID");
+    public ResponseEntity<Object> deleteInactiveTournament(@PathVariable Integer tournamentID){
+        try {
+            tournamentService.deleteTournamentByID(tournamentID);
+        } catch (InvalidActionForTournamentStatusException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (EntityNotFoundException e) {
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (MailException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST,
+                    "SEND_EMAIL_ERROR_MAIL",
+                    e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (MessagingException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST,
+                    "SEND_EMAIL_ERROR_MESSAGING",
+                    e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
-        return ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Tournament is deleted.");
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PostMapping(value = "/{tournamentID}/runCreateSchedule")
     public ResponseEntity createSchedule(@PathVariable(name = "tournamentID") int tournamentID) {
-        scheduler.createSchedule(tournamentID);
-        return ResponseEntity.status(HttpStatus.OK).body("Schedule created");
+        try {
+
+            scheduler.createSchedule(tournamentID);
+        } catch (ScheduleException e) {
+
+            System.out.println(e.getMessage());
+        }
+        boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE);
+        return res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Schedule created.") :
+                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There was an error creating the schedule.");
+    }
+
+    @GetMapping(value = "/user/{userID}/number/completed")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfCompletedTournamentsByUser(@PathVariable int userID) {
+        UserMatchTournamentRepository.NumQuery completed =
+                tournamentService.getNumberOfTournamentsPlayed(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(completed).isPresent()) {
+            return Optional.of(completed);
+        } else {
+            return Optional.of(empty);
+        }
+    }
+
+    @GetMapping(value = "/user/{userID}/number/won")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfTournamentsWonByUser(@PathVariable int userID) {
+        UserMatchTournamentRepository.NumQuery won =
+                tournamentService.getNumberOfTournamentsWon(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(won).isPresent()) {
+            return Optional.of(won);
+        } else {
+            return Optional.of(empty);
+        }
     }
 }
+

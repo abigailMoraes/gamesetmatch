@@ -22,6 +22,12 @@ public class Timeslot {
         this.date = date;
     }
 
+    public Timeslot(Timeslot timeslot) {
+        this.time = timeslot.time;
+        this.date = timeslot.date;
+        this.id = convertToID(this.time, this.date);
+    }
+
     private int convertToID(float time, Date date) {
 
         Calendar calendar = Calendar.getInstance();
@@ -66,6 +72,11 @@ public class Timeslot {
         return this.date;
     }
 
+    public String getDateString() {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        return sdfDate.format(this.date);
+    }
+
     public LocalDateTime getLocalStartDateTime() {
 
         LocalDate localDate = this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -108,7 +119,6 @@ public class Timeslot {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-        return sdfDate.format(this.date) + " " + convertTimeToString(time);
+        return this.date + " " + convertTimeToString(time);
     }
 }

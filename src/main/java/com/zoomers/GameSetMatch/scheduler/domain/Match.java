@@ -4,6 +4,7 @@ import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Objects;
 
 public class Match {
@@ -12,9 +13,9 @@ public class Match {
     private int degrees = 0;
     private final Tuple players;
     private Timeslot timeslot;
-    private int skillWeight = 0;
+    private int skillWeight;
     private int matchScore = 0;
-    private int matchDuration = 0;
+    private final int matchDuration;
     private float matchIndex = 0;
 
     public Match(int p1, int p2, Timeslot timeslot, int matchDuration, int skillWeight) {
@@ -41,26 +42,31 @@ public class Match {
 
     public boolean shareTimeslot(Match m2) {
 
-        if (this.timeslot == m2.getTimeslot()) {
+        if (this.timeslot.getTime() == m2.getTimeslot().getTime()) {
             return true;
         }
-        else if (this.timeslot.getTime() <= m2.getTimeslot().getTime() &&
+        else if (this.timeslot.getTime() < m2.getTimeslot().getTime() &&
                 this.timeslot.getTime() + matchIndex > m2.getTimeslot().getTime()) {
             return true;
         }
         else {
-            return m2.getTimeslot().getTime() <= this.timeslot.getTime() &&
+            return m2.getTimeslot().getTime() < this.timeslot.getTime() &&
                     m2.getTimeslot().getTime() + matchIndex > this.timeslot.getTime();
         }
     }
 
     public boolean shareDate(Match m2) {
 
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-        return sdf.format(this.timeslot.getDate()).equals(sdf.format(m2.getTimeslot().getDate()));
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTime(this.timeslot.getDate());
+        cal2.setTime(m2.getTimeslot().getDate());
+        return cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
+                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
     }
 
     public void moveToNextWeek() {
+        this.timeslot = new Timeslot(this.timeslot);
         this.timeslot.addWeek();
     }
 
@@ -102,11 +108,6 @@ public class Match {
         if (o == null || getClass() != o.getClass()) return false;
         Match match = (Match) o;
         return Objects.equals(players, match.players) && Objects.equals(timeslot, match.timeslot);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(players, timeslot);
     }
 
     @Override

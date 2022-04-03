@@ -1,14 +1,15 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.PrimaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
+import com.zoomers.GameSetMatch.scheduler.graphs.MatchGraph;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
 
-    public GreedyMatchingAlgorithm(PrimaryMatchGraph matchGraph) {
+    public GreedyMatchingAlgorithm(MatchGraph matchGraph) {
 
         super(matchGraph);
         buildPriorityQueue();
@@ -37,7 +38,7 @@ public abstract class GreedyMatchingAlgorithm extends MatchingAlgorithm {
 
         this.matchGraph.removeAll(matchesToRemove);
 
-        // System.out.println("    Matches left to check " + this.matches);
+        // System.out.println("    Matches left to check " + this.matchGraph.getMatches());
     }
 
     protected abstract void buildPriorityQueue();
