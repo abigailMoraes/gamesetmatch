@@ -62,10 +62,10 @@ public class Scheduler {
 
         initTypeMatcher(this.MOCK_TOURNAMENT.getTournamentFormat(), this.MOCK_TOURNAMENT.getMatchBy());
         initTournamentPlayers(tournamentID);
-        this.CALENDAR.setTime(this.MOCK_TOURNAMENT.getStartDate());
+        this.CALENDAR.setTime(this.MOCK_TOURNAMENT.getRoundStartDate());
         initTimeslots();
 
-        // checkIfLastRound();
+        checkPreviousRoundStatus();
 
         schedule();
     }
@@ -114,7 +114,7 @@ public class Scheduler {
     @Transactional
     protected void schedule() throws ScheduleException {
 
-        Set<Match> returnedMatches = new HashSet<>();
+        Set<Match> returnedMatches = new LinkedHashSet<>();
 
         switch (MOCK_TOURNAMENT.getTournamentFormat()) {
             case ROUND_ROBIN:
@@ -145,7 +145,7 @@ public class Scheduler {
         newRound.setTournamentID(this.MOCK_TOURNAMENT.getTournamentID());
         newRound.setRoundNumber(this.MOCK_TOURNAMENT.getCurrentRound());
         newRound.setEndDate(this.MOCK_TOURNAMENT.getRoundEndDate());
-        newRound.setStartDate( this.MOCK_TOURNAMENT.getStartDate());
+        newRound.setStartDate( this.MOCK_TOURNAMENT.getRoundStartDate());
 
         Round persistedRound = roundRepository.save(newRound);
 
@@ -239,7 +239,7 @@ public class Scheduler {
 
             if (registrantsToMatch.isEmpty()) {
                 currentLastMatchDate = maximumMatchScoreMatcher.getLastMatchDate();
-                CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
+                CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
                 break;
             }
         }
@@ -296,7 +296,7 @@ public class Scheduler {
             currentLastMatchDate = initialKnockoutAlgorithm.getLastMatchDate();
         }
 
-        CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
+        CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
 
         return matches;
     }
@@ -315,7 +315,7 @@ public class Scheduler {
             PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
 
             if (matchGraph.getMatches().size() == 0) {
-                CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
+                CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
                 break;
             }
 
@@ -736,5 +736,23 @@ public class Scheduler {
             }
         }
         this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.FINAL_ROUND);
+    }
+
+    private void checkPreviousRoundStatus() throws ScheduleException {
+
+        if (MOCK_TOURNAMENT.getCurrentRound() == 1) {
+            return;
+        }
+
+        int previousRoundID = roundRepository.getLastTournamentRound(MOCK_TOURNAMENT.getTournamentID());
+        List<com.zoomers.GameSetMatch.entity.Match> previousRoundMatches = matchRepository.getMatchesByRound(previousRoundID);
+
+        for (com.zoomers.GameSetMatch.entity.Match m : previousRoundMatches) {
+
+            List<Integer> matchResult = userInvolvesMatchRepository.getMatchResultByMatchID(m.getMatchID());
+            if (matchResult.size() != 1) { throw new ScheduleException("Invalid Match Result"); }
+
+            if (matchResult.get(0) == 0) { throw new ScheduleException("Previous Match Result cannot be Pending"); }
+        }
     }
 }

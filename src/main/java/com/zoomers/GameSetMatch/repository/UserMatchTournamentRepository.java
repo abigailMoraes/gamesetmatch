@@ -9,9 +9,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTournamentInfo, Long> {
-
-
-
+    
     @Query(
            value ="SELECT u.results, u.attendance, Match_Has.matchID, Match_Has.start_time, Match_Has.end_time,\n" +
                    "Round_Has.roundNumber,t.name,t.location,t.description \n" +
@@ -30,15 +28,6 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             " ON Round_Has.tournamentID = Tournament.tournamentID;",
             nativeQuery = true)
     List<UserMatchTournamentInfo> findPastMatchesByUserID(int id, int status);
-
-    @Query(  value ="SELECT u.results, u.attendance, m.matchID, m.start_time, m.end_time,\n" +
-            "Tournament.name, Tournament.location, Tournament.description \n" +
-            "FROM (SELECT * FROM User_involves_match WHERE userID = :id) u \n" +
-            "JOIN (SELECT * FROM Match_Has) m ON m.matchID = u.matchID LEFT JOIN \n" +
-            " Round_Has ON m.roundID = Round_Has.roundID LEFT JOIN Tournament \n" +
-            " ON Round_Has.tournamentID = Tournament.tournamentID WHERE Round_Has.tournamentID = :t_id",
-            nativeQuery = true)
-    List<UserMatchTournamentInfo> findPastMatchesInTournamentByUserID(int id, int t_id);
 
     @Query(  value ="SELECT m.matchID \n" +
             "FROM (SELECT * FROM User_involves_match WHERE userID = :id) u \n" +

@@ -37,7 +37,7 @@ public class GraphTests {
 
         try {
 
-            scheduler.createSchedule(1);
+            scheduler.createSchedule(2);
         }
         catch (ScheduleException e) {
 

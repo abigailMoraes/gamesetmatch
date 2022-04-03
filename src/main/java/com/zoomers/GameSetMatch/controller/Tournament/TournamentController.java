@@ -7,6 +7,7 @@ import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegist
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
