@@ -22,6 +22,7 @@ public class UserController {
     private TournamentService tournamentService;
 
 
+
     @PostMapping("/employee")
     User newEmployee(@RequestBody User newEmployee) {
         return repository.save(newEmployee);

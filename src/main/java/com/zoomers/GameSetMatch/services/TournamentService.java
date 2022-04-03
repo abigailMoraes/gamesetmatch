@@ -2,7 +2,9 @@ package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
+import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
 import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
@@ -78,7 +80,7 @@ public class TournamentService {
     }
 
     public List<Tournament> getCompletedTournamentsForUser(int userID) {
-        return tournament.findCompletedTournamentsForUser(userID);
+        return tournament.findCompletedTournamentsForUser(userID, TournamentStatus.TOURNAMENT_OVER.getStatus());
     }
 
     @Transactional
@@ -94,6 +96,15 @@ public class TournamentService {
             return true;
         }
         return false;
+    }
+
+    public UserMatchTournamentRepository.NumQuery getNumberOfTournamentsPlayed(Integer userID) {
+        return tournament.getNumberOfCompletedTournamentsForUser(userID, TournamentStatus.TOURNAMENT_OVER.getStatus());
+    }
+
+    public UserMatchTournamentRepository.NumQuery getNumberOfTournamentsWon(Integer userID) {
+        return tournament.getNumberOfTournamentsWonByUser(userID, TournamentStatus.TOURNAMENT_OVER.getStatus(),
+                PlayerStatus.SAFE.getStatus());
     }
 
     public List<Tournament> getRegisteredTournaments(int userID) {

@@ -1,11 +1,12 @@
 package com.zoomers.GameSetMatch.controller.Tournament;
 
-import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.AvailabilityDTO;
 import com.zoomers.GameSetMatch.controller.Error.ApiException;
+import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.AvailabilityDTO;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.Scheduler;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
@@ -186,7 +187,7 @@ public class TournamentController {
 
     @PostMapping(value = "", params = {"createdBy"})
     public List<Tournament> getTournament(@RequestBody TournamentByStatuses statuses,
-                                                 @RequestParam(name = "createdBy") int user) {
+                                          @RequestParam(name = "createdBy") int user) {
 
         List<Tournament> fullList = new ArrayList<>();
         for (Integer status : statuses.getStatuses() ) {
@@ -226,13 +227,48 @@ public class TournamentController {
         try {
 
             scheduler.createSchedule(tournamentID);
-        }
-        catch (ScheduleException e) {
+        } catch (ScheduleException e) {
 
             System.out.println(e.getMessage());
         }
         boolean res = tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.READY_TO_PUBLISH_SCHEDULE);
-        return  res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Schedule created.") :
+        return res ? ResponseEntity.status(HttpStatus.OK).body("ID: " + tournamentID + " Schedule created.") :
                 ResponseEntity.status(HttpStatus.BAD_REQUEST).body("There was an error creating the schedule.");
+    }
+
+    @GetMapping(value = "/user/{userID}/number/completed")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfCompletedTournamentsByUser(@PathVariable int userID) {
+        UserMatchTournamentRepository.NumQuery completed =
+                tournamentService.getNumberOfTournamentsPlayed(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(completed).isPresent()) {
+            return Optional.of(completed);
+        } else {
+            return Optional.of(empty);
+        }
+    }
+
+    @GetMapping(value = "/user/{userID}/number/won")
+    public Optional<UserMatchTournamentRepository.NumQuery>
+    getNumberOfTournamentsWonByUser(@PathVariable int userID) {
+        UserMatchTournamentRepository.NumQuery won =
+                tournamentService.getNumberOfTournamentsWon(userID);
+        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
+            @Override
+            public Integer getNext() {
+                return null;
+            }
+        };
+        if (Optional.ofNullable(won).isPresent()) {
+            return Optional.of(won);
+        } else {
+            return Optional.of(empty);
+        }
     }
 }
