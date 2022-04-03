@@ -202,8 +202,8 @@ public class MatchController {
     }
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
-    public ResponseEntity updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
-                                    @RequestBody List<IncomingMatch> matches) {
+    public ResponseEntity publishRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
+                                               @RequestBody List<IncomingMatch> matches) {
         try {
             matchService.updateMatchesInARound(tournamentID, roundID, matches);
             tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.ONGOING);

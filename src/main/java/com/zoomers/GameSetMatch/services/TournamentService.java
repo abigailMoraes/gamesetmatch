@@ -179,10 +179,16 @@ public class TournamentService {
             }
 
             currentTournament.setStatus(TournamentStatus.READY_TO_SCHEDULE.getStatus());
+
             Date today = DateAndLocalDateService.localDateToDate(LocalDate.now());
             Date nextRoundStartDate = DateAndLocalDateService.localDateToDate(LocalDate.now().plusDays(DateAndLocalDateService.DaysBetweenRounds));
+
             currentTournament.setRoundStartDate(nextRoundStartDate);
             round.setEndDate(today);
+
+            if (round.getStartDate().after(round.getEndDate())) {
+                round.setStartDate(today);
+            }
 
             roundRepository.save(round);
         }

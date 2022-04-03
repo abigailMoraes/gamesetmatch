@@ -58,6 +58,7 @@ public class MatchService {
     @Transactional
     public void updateMatchesInARound(int tournamentID, int roundID, List<IncomingMatch> matches) throws EntityNotFoundException {
         LocalDateTime latestMatchDate = matches.get(0).getEndTime();
+        LocalDateTime firstMatchDate = matches.get(0).getStartTime();
         List<Match> updatedMatches = new ArrayList<>();
         for (IncomingMatch match : matches) {
             System.out.println(match.getID());
@@ -75,6 +76,10 @@ public class MatchService {
             if (latestMatchDate.isBefore(match.getEndTime())) {
                 latestMatchDate = match.getEndTime();
             }
+
+            if(firstMatchDate.isAfter(match.getStartTime())){
+                firstMatchDate = match.getStartTime();
+            }
         }
 
         Round round = roundRepository.getById(roundID);
@@ -88,10 +93,12 @@ public class MatchService {
             throw new EntityNotFoundException(String.format("Invalid Tournament ID: %d", tournamentID));
         }
 
+        Date roundStartDate = DateAndLocalDateService.localDateToDate(firstMatchDate.toLocalDate());
         Date roundEndDate = DateAndLocalDateService.localDateToDate(latestMatchDate.toLocalDate());
         Date nextRoundStartDate = DateAndLocalDateService
                 .localDateToDate(latestMatchDate.toLocalDate().plusDays(DateAndLocalDateService.DaysBetweenRounds));
 
+        round.setStartDate(roundStartDate);
         round.setEndDate(roundEndDate);
         tournament.setRoundStartDate(nextRoundStartDate);
 
