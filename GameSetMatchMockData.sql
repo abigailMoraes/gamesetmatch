@@ -448,22 +448,22 @@ CREATE TABLE Admin_hosts_tournament(userID int, tournamentID int, PRIMARY KEY(us
 
 /*Create table User_registers_tournament*/
 CREATE TABLE User_registers_tournament(userID int, tournamentID int, skill_level int, PRIMARY KEY (userID, tournamentID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (tournamentID) REFERENCES Tournament(tournamentID));
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,9,0);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,9,0);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,9,0);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (4,9,0);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (1,9,2);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (2,9,1);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (3,9,1);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (4,9,2);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (5,9,0);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,9,0);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (7,9,0);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (8,9,0);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (6,9,2);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (7,9,2);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (8,9,1);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (9,9,1);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (10,9,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (11,9,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (12,9,1);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (13,9,1);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (11,9,0);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (12,9,0);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (13,9,0);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (14,9,1);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (15,9,2);
-INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (16,9,2);
+INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (16,9,1);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (17,9,2);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (18,9,2);
 INSERT INTO User_registers_tournament(userID, tournamentID, skill_level) values (19,9,1);
@@ -523,7 +523,6 @@ BEGIN
     DECLARE availabilityCounter INT DEFAULT 0;
 
     WHILE counter < 256 DO
-        SET availabilityCounter = 0;
         SET @id = LAST_INSERT_ID();
         INSERT INTO User(firebase_id, name, email, is_admin) values ('abc', CONCAT('Player ', @id) , CONCAT(@id, '@gmail.com'), 0);
         INSERT INTO Availability values (@id, 11, 0, "111111111111111111111111");
@@ -533,7 +532,7 @@ BEGIN
         INSERT INTO Availability values (@id, 11, 4, "111111111111111111111111");
         INSERT INTO Availability values (@id, 11, 5, "111111111111111111111111");
         INSERT INTO Availability values (@id, 11, 6, "111111111111111111111111");
-        INSERT INTO User_registers_tournament values (@id,10,1,0);
+        INSERT INTO User_registers_tournament values (@id,11,1,0);
         SET counter = counter + 1;
     END WHILE;
 
@@ -541,6 +540,7 @@ END$$
 
 DELIMITER ;
 
+DROP PROCEDURE CreateRegistrantsStress;
 CALL CreateRegistrantsStress();
 
 /*Create table statement for Invitation Code*/

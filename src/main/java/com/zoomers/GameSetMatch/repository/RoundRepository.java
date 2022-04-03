@@ -28,7 +28,7 @@ public interface RoundRepository extends JpaRepository<Round, Integer>{
     @Query(value = "SELECT MAX(roundID) FROM Round_Has WHERE tournamentID = :tournamentID", nativeQuery = true)
     int getLastTournamentRound(int tournamentID);
 
-    @Query (
+    @Query(
             value = "SELECT DISTINCT r.tournamentID \n" +
                     "FROM Round_Has r \n" +
                     "right join Tournament t\n" +
@@ -37,5 +37,12 @@ public interface RoundRepository extends JpaRepository<Round, Integer>{
             nativeQuery = true
     )
     LinkedHashSet<Integer> findNextRoundTournamentId(String date, int ongoingStatus);
+
+    @Query(value = "SELECT roundID " +
+            "FROM Round_Has " +
+            "WHERE tournamentID= :tournamentID AND " +
+            "roundNumber = :currentRound",
+            nativeQuery = true)
+    List<Integer> findIDByTournamentCurrentRound(int tournamentID, int currentRound);
 
 }

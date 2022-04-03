@@ -3,7 +3,7 @@
  * the algorithm will produce a schedule for all players registered
  * in the tournament.
  *
- * @since 2022-03-31
+ * @since 2022-04-02
  */
 
 package com.zoomers.GameSetMatch.scheduler;
@@ -44,9 +44,10 @@ public class Scheduler {
     private List<Registrant> REGISTRANTS;
     private List<Timeslot> TIMESLOTS;
     private MockTournament MOCK_TOURNAMENT;
-    private FormatMatcher typeMatcher;
+    private FormatMatcher formatMatcher;
     private Calendar CALENDAR;
-    private TournamentStatus originalStatus;
+    private int originalRound;
+
     private Date currentLastMatchDate;
 
     public void createSchedule(int tournamentID) throws ScheduleException {
@@ -58,42 +59,44 @@ public class Scheduler {
         this.MOCK_TOURNAMENT = tournamentRepository.getMockTournamentByID(tournamentID);
         if (MOCK_TOURNAMENT == null) throw new NullPointerException("Failed to get Mock Tournament");
         if (MOCK_TOURNAMENT.getMatchDuration() > 720) throw new ScheduleException("Match Duration is too long!");
-        this.originalStatus = MOCK_TOURNAMENT.getTournamentStatus();
+        this.originalRound = MOCK_TOURNAMENT.getCurrentRound() - 1;
 
-        initTypeMatcher(this.MOCK_TOURNAMENT.getTournamentFormat(), this.MOCK_TOURNAMENT.getMatchBy());
+        initFormatMatcher(this.MOCK_TOURNAMENT.getTournamentFormat(), this.MOCK_TOURNAMENT.getMatchBy());
         initTournamentPlayers(tournamentID);
-        this.CALENDAR.setTime(this.MOCK_TOURNAMENT.getStartDate());
+        this.CALENDAR.setTime(this.MOCK_TOURNAMENT.getRoundStartDate());
         initTimeslots();
 
-        // checkIfLastRound();
+        checkPreviousRoundStatus();
 
         schedule();
     }
 
-    private void initTypeMatcher(TournamentFormat type, MatchBy matchBy) {
+    private void initFormatMatcher(TournamentFormat format, MatchBy matchBy) {
 
-        switch (type) {
+        switch (format) {
             case SINGLE_KNOCKOUT:
             case SINGLE_BRACKET:
-                typeMatcher = new SingleKnockoutMatcher();
+                formatMatcher = new SingleKnockoutMatcher();
                 break;
             case DOUBLE_KNOCKOUT:
-                typeMatcher = new DoubleKnockoutMatcher();
+                formatMatcher = new DoubleKnockoutMatcher();
                 break;
             case ROUND_ROBIN:
-                typeMatcher = new RoundRobinMatcher();
+                formatMatcher = new RoundRobinMatcher();
                 break;
         }
 
+        formatMatcher.initFormat(format);
+
         switch (matchBy) {
             case MATCH_BY_RANDOM:
-                typeMatcher.initScorer(new RandomMatchByScorer());
+                formatMatcher.initScorer(new RandomMatchByScorer());
                 break;
             case MATCH_BY_SKILL:
-                typeMatcher.initScorer(new SkillMatchByScorer());
+                formatMatcher.initScorer(new SkillMatchByScorer());
                 break;
             case MATCH_BY_SEED:
-                typeMatcher.initScorer(new SeedMatchByScorer());
+                formatMatcher.initScorer(new SeedMatchByScorer());
                 break;
         }
     }
@@ -114,7 +117,7 @@ public class Scheduler {
     @Transactional
     protected void schedule() throws ScheduleException {
 
-        Set<Match> returnedMatches = new HashSet<>();
+        Set<Match> returnedMatches = new LinkedHashSet<>();
 
         switch (MOCK_TOURNAMENT.getTournamentFormat()) {
             case ROUND_ROBIN:
@@ -133,11 +136,10 @@ public class Scheduler {
 
         if (MOCK_TOURNAMENT.getTournamentSeries() != TournamentSeries.BEST_OF_1) {
 
-            int expectedMatches = (this.REGISTRANTS.size() / 2) * MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames();
+            int expectedMatches = returnedMatches.size() * MOCK_TOURNAMENT.getTournamentSeries().getNumberOfGames();
             returnedMatches.addAll(scheduleBestOfMatches(returnedMatches, expectedMatches));
         }
 
-        // Date roundEndDate = ((Match)returnedMatches.toArray()[returnedMatches.size() - 1]).getTimeslot().getDate();
         MOCK_TOURNAMENT.setRoundEndDate(currentLastMatchDate);
 
         Round newRound = new Round();
@@ -145,7 +147,7 @@ public class Scheduler {
         newRound.setTournamentID(this.MOCK_TOURNAMENT.getTournamentID());
         newRound.setRoundNumber(this.MOCK_TOURNAMENT.getCurrentRound());
         newRound.setEndDate(this.MOCK_TOURNAMENT.getRoundEndDate());
-        newRound.setStartDate( this.MOCK_TOURNAMENT.getStartDate());
+        newRound.setStartDate( this.MOCK_TOURNAMENT.getRoundStartDate());
 
         Round persistedRound = roundRepository.save(newRound);
 
@@ -154,15 +156,14 @@ public class Scheduler {
             com.zoomers.GameSetMatch.entity.Match matchEntity = new com.zoomers.GameSetMatch.entity.Match();
             matchEntity.setStartTime(m.getTimeslot().getLocalStartDateTime());
             matchEntity.setEndTime(m.getTimeslot().getLocalEndDateTime(this.MOCK_TOURNAMENT.getMatchDuration()));
-            matchEntity.setIsConflict(m.getMatchStatus().ordinal());
+            matchEntity.setMatchStatus(m.getMatchStatus().ordinal());
             matchEntity.setRoundID(persistedRound.getRoundID());
             matchEntity.setUserID_1(m.getPlayers().getFirst());
             matchEntity.setUserID_2(m.getPlayers().getSecond());
             matchEntities.add(matchEntity);
         }
 
-        TournamentStatus newStatus = this.originalStatus == TournamentStatus.OPEN_FOR_REGISTRATION ||
-                this.originalStatus == TournamentStatus.REGISTRATION_CLOSED ?
+        TournamentStatus newStatus = this.originalRound == 0 ?
                 TournamentStatus.READY_TO_PUBLISH_SCHEDULE : TournamentStatus.READY_TO_PUBLISH_NEXT_ROUND;
 
         tournamentRepository.updateTournament(
@@ -210,7 +211,7 @@ public class Scheduler {
 
         while (matches.size() < expectedMatches) {
 
-            RoundRobinGraph roundRobinGraph = typeMatcher.createRoundRobinMatches(
+            RoundRobinGraph roundRobinGraph = formatMatcher.createRoundRobinMatches(
                     registrantsToMatch,
                     registrantMatches,
                     TIMESLOTS,
@@ -239,7 +240,7 @@ public class Scheduler {
 
             if (registrantsToMatch.isEmpty()) {
                 currentLastMatchDate = maximumMatchScoreMatcher.getLastMatchDate();
-                CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
+                CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
                 break;
             }
         }
@@ -275,7 +276,7 @@ public class Scheduler {
 
             System.out.println("Initial Single Knockout : " + this.CALENDAR.getTime());
 
-            SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
+            SecondaryMatchGraph secondaryMatchGraph = formatMatcher.createPossibleSecondaryMatches(
                     registrantsToMatch,
                     TIMESLOTS,
                     MOCK_TOURNAMENT.getMatchDuration()
@@ -296,7 +297,7 @@ public class Scheduler {
             currentLastMatchDate = initialKnockoutAlgorithm.getLastMatchDate();
         }
 
-        CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
+        CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
 
         return matches;
     }
@@ -312,10 +313,10 @@ public class Scheduler {
 
             BipartiteGraph bg = new BipartiteGraph(TIMESLOTS, registrantsToMatch, MOCK_TOURNAMENT.getMatchDuration());
 
-            PrimaryMatchGraph matchGraph = typeMatcher.createPossiblePrimaryMatches(bg);
+            PrimaryMatchGraph matchGraph = formatMatcher.createPossiblePrimaryMatches(bg);
 
             if (matchGraph.getMatches().size() == 0) {
-                CALENDAR.setTime(MOCK_TOURNAMENT.getStartDate());
+                CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
                 break;
             }
 
@@ -335,6 +336,8 @@ public class Scheduler {
             addWeek();
             currentLastMatchDate = greedyMaximumIndependentSet.getLastMatchDate();
         }
+
+        // CALENDAR.setTime(MOCK_TOURNAMENT.getRoundStartDate());
 
         for (Match match : matches) {
 
@@ -368,7 +371,7 @@ public class Scheduler {
 
             System.out.println("Secondary: " + this.CALENDAR.getTime());
 
-            SecondaryMatchGraph secondaryMatchGraph = typeMatcher.createPossibleSecondaryMatches(
+            SecondaryMatchGraph secondaryMatchGraph = formatMatcher.createPossibleSecondaryMatches(
                     registrantsToMatch,
                     availableTimeslots,
                     MOCK_TOURNAMENT.getMatchDuration()
@@ -390,7 +393,9 @@ public class Scheduler {
             availableTimeslots = findAvailableTimeslots(matches, MOCK_TOURNAMENT.getMatchDuration());
         }
 
-        decreaseWeek();
+        if (!newMatches.isEmpty()) {
+            decreaseWeek();
+        }
 
         for (Match match : newMatches) {
 
@@ -409,9 +414,13 @@ public class Scheduler {
 
             returnedMatches.addAll(scheduleFirstKnockoutRound());
         }
-        else {
+        else if (REGISTRANTS.size() > 2) {
             returnedMatches.addAll(scheduleNoLossMatches());
             returnedMatches.addAll(scheduleOneLossMatches());
+        }
+        else {
+            returnedMatches.addAll(schedulePrimaryMatches());
+            returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
         }
         return returnedMatches;
     }
@@ -512,7 +521,7 @@ public class Scheduler {
 
                 System.out.println("Bracket Match: " + this.CALENDAR.getTime());
 
-                BracketMatchGraph bracketMatchGraph = typeMatcher.createPossibleBracketMatches(
+                BracketMatchGraph bracketMatchGraph = formatMatcher.createPossibleBracketMatches(
                         REGISTRANTS,
                         TIMESLOTS,
                         matchedPlayers,
@@ -550,7 +559,7 @@ public class Scheduler {
 
             System.out.println("Best-Of: " + this.CALENDAR.getTime());
 
-            BestOfMatchGraph bestOfMatchGraph = typeMatcher.createPossibleBestOfMatches(
+            BestOfMatchGraph bestOfMatchGraph = formatMatcher.createPossibleBestOfMatches(
                     new LinkedHashSet<>(REGISTRANTS),
                     new LinkedHashSet<>(availableTimeslots),
                     matchesToSchedule,
@@ -583,11 +592,6 @@ public class Scheduler {
 
             currentLastMatchDate = bestOfMatching.getLastMatchDate();
             matches.addAll(bestOfMatches);
-        }
-
-        for (Match match : matches) {
-
-            System.out.println("Best-Of Match: " + match);
         }
 
         return matches;
@@ -736,5 +740,23 @@ public class Scheduler {
             }
         }
         this.MOCK_TOURNAMENT.setTournamentStatus(TournamentStatus.FINAL_ROUND);
+    }
+
+    private void checkPreviousRoundStatus() throws ScheduleException {
+
+        if (MOCK_TOURNAMENT.getCurrentRound() == 1) {
+            return;
+        }
+
+        int previousRoundID = roundRepository.getLastTournamentRound(MOCK_TOURNAMENT.getTournamentID());
+        List<com.zoomers.GameSetMatch.entity.Match> previousRoundMatches = matchRepository.getMatchesByRound(previousRoundID);
+
+        for (com.zoomers.GameSetMatch.entity.Match m : previousRoundMatches) {
+
+            List<Integer> matchResult = userInvolvesMatchRepository.getMatchResultByMatchID(m.getMatchID());
+            if (matchResult.size() != 2) { throw new ScheduleException("Invalid Match Result"); }
+
+            if (matchResult.get(0) == 0 || matchResult.get(1) == 0) { throw new ScheduleException("Previous Match Result cannot be Pending"); }
+        }
     }
 }
