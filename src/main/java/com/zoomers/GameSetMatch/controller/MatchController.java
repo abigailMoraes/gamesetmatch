@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,12 +52,12 @@ public class MatchController {
 
     @GetMapping("/match/involves/user/{id}")
     List<UserMatchTournamentInfo> getMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findMatchesByUserID(id,TournamentStatus.ONGOING.getStatus());
+        return userMatchTournamentRepository.findMatchesByUserID(id);
     }
 
     @GetMapping("/match/history/involves/user/{id}")
     List<UserMatchTournamentInfo> getPastMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findPastMatchesByUserID(id,TournamentStatus.ONGOING.getStatus());
+        return userMatchTournamentRepository.findPastMatchesByUserID(id);
     }
 
     @GetMapping("/match/{id}/{uid}")
