@@ -6,8 +6,9 @@ import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
-import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
-import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
+import com.zoomers.GameSetMatch.scheduler.enumerations.*;
+import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
 import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
 import com.zoomers.GameSetMatch.services.Errors.MissingMatchResultsException;
@@ -18,9 +19,8 @@ import javax.mail.MessagingException;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 
@@ -34,6 +34,9 @@ public class TournamentService {
 
     @Autowired
     private UserRegistersTournamentService userRegistersTournament;
+
+    @Autowired
+    private UserRegistersTournamentRepository userRegistersTournamentRepository;
 
     @Autowired
     private UserInvolvesMatchService userInvolvesMatchService;
@@ -188,6 +191,55 @@ public class TournamentService {
         }
 
         tournament.save(currentTournament);
+    }
+
+    public Tournament getTournament(int tournamentID) {
+        Tournament currentTournament = this.findTournamentByID(tournamentID).orElse(null);
+        if (isNull(currentTournament)) {
+            throw new EntityNotFoundException(String.format("Unable to find the tournament with id %d", currentTournament.getTournamentID()));
+
+        }
+        return currentTournament;
+    }
+
+    public boolean isEnteringFinalRound(int tournamentID) throws ScheduleException {
+        List<Registrant> registrants = userRegistersTournamentRepository.getSchedulerRegistrantsByTournamentID(tournamentID);
+        Set<Integer> registrantIDs = registrants.stream().map(Registrant::getID).collect(Collectors.toSet());
+        Tournament t = getTournament(tournamentID);
+        TournamentFormat format = TournamentFormat.values()[t.getFormat()];
+
+        for (Registrant r : registrants) {
+
+            r.setPlayersToPlay(new LinkedHashSet<>(registrantIDs));
+            r.initCurrentStatus(
+                    format,
+                    MatchBy.values()[t.getMatchBy()],
+                    t.getTournamentID()
+            );
+        }
+
+        switch (format) {
+            case ROUND_ROBIN:
+                return checkIfAllPlayersHavePlayed(registrants);
+            case DOUBLE_KNOCKOUT:
+                return false;
+            case SINGLE_BRACKET:
+            case SINGLE_KNOCKOUT:
+                registrants.removeIf(registrant -> registrant.getStatus() == PlayerStatus.ELIMINATED);
+                return registrants.size() == 2;
+        }
+
+        return false;
+    }
+
+    private boolean checkIfAllPlayersHavePlayed(List<Registrant> registrants) {
+
+        for (Registrant r : registrants) {
+            if (r.getPlayersToPlay().size() > 1) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 
