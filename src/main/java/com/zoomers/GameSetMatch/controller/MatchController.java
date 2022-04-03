@@ -12,6 +12,7 @@ import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.Errors.ProposedMatchChangeConflictException;
 import com.zoomers.GameSetMatch.services.MatchService;
 import com.zoomers.GameSetMatch.services.TournamentService;
@@ -52,11 +53,15 @@ public class MatchController {
         return userMatchTournamentRepository.findPublishedMatchesByUserID(id);
     }
 
+    @GetMapping("/match/history/involves/user/{id}")
+    List<UserMatchTournamentInfo> getPastMatchesForUser(@PathVariable int id) {
+        return userMatchTournamentRepository.findPastMatchesByUserID(id);
+    }
+
     @GetMapping("/match/{id}/{uid}")
     UserMatchTournamentInfo getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
         return userMatchTournamentRepository.findMatchInfoByMatchID(id);
     }
-
 
     @GetMapping( "/rounds/{roundID}/matches")
     List<MatchDetailsForCalendar> getMatchesByRoundID(@PathVariable int roundID){
@@ -198,12 +203,17 @@ public class MatchController {
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
     public ResponseEntity updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
-                                    @RequestBody List<IncomingMatch> matches) {
+                                    @RequestBody List<IncomingMatch> matches)  {
         try {
             matchService.updateMatchesInARound(tournamentID, roundID, matches);
-            tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.ONGOING);
-        } catch(EntityNotFoundException e){
+            TournamentStatus newStatus = tournamentService.isEnteringFinalRound(tournamentID) ?
+                    TournamentStatus.FINAL_ROUND : TournamentStatus.ONGOING;
+            tournamentService.changeTournamentStatus(tournamentID, newStatus);
+        } catch (EntityNotFoundException e) {
             ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (ScheduleException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
         return ResponseEntity.ok("Update successful.");
