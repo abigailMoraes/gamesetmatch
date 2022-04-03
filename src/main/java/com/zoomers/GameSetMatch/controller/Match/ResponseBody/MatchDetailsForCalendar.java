@@ -4,14 +4,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Getter
 @Setter
 public class MatchDetailsForCalendar {
     private Integer matchID;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private ZonedDateTime startTime;
+    private ZonedDateTime endTime;
     private int roundID;
     private int matchStatus;
     private int playerOneID;
@@ -21,8 +23,8 @@ public class MatchDetailsForCalendar {
     public MatchDetailsForCalendar(Integer matchID, LocalDateTime startTime, LocalDateTime endTime, int roundID,
                                    int matchStatus, int playerOneID, int playerTwoID) {
         this.matchID = matchID;
-        this.startTime = startTime;
-        this.endTime = endTime;
+        this.startTime = startTime.atZone(ZoneId.of("America/Los_Angeles"));
+        this.endTime = endTime.atZone(ZoneId.of("America/Los_Angeles"));
         this.roundID = roundID;
         this.matchStatus = matchStatus;
         this.playerOneID = playerOneID;

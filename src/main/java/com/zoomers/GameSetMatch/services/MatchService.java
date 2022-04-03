@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -57,16 +59,16 @@ public class MatchService {
 
     @Transactional
     public void updateMatchesInARound(int tournamentID, int roundID, List<IncomingMatch> matches) throws EntityNotFoundException {
-        LocalDateTime latestMatchDate = matches.get(0).getEndTime();
-        LocalDateTime firstMatchDate = matches.get(0).getStartTime();
+
+        ZonedDateTime latestMatchDate = matches.get(0).getEndTime();
+        ZonedDateTime firstMatchDate = matches.get(0).getStartTime();
         List<Match> updatedMatches = new ArrayList<>();
         for (IncomingMatch match : matches) {
-            System.out.println(match.getID());
             Match existingMatch = matchRepository.getById(match.getID());
 
             if (!isNull(existingMatch)) {
-                existingMatch.setStartTime(match.getStartTime());
-                existingMatch.setEndTime(match.getEndTime());
+                existingMatch.setStartTime(convertToPSTLocalDateTime(match.getStartTime()));
+                existingMatch.setEndTime(convertToPSTLocalDateTime(match.getEndTime()));
                 existingMatch.setIsPublished(1);
                 updatedMatches.add(existingMatch);
             } else {
@@ -92,9 +94,11 @@ public class MatchService {
         if (isNull(tournament)) {
             throw new EntityNotFoundException(String.format("Invalid Tournament ID: %d", tournamentID));
         }
+        LocalDateTime firstMatchLDT = convertToPSTLocalDateTime(firstMatchDate);
+        LocalDateTime lastMatchLDT = convertToPSTLocalDateTime(latestMatchDate);
 
-        Date roundStartDate = DateAndLocalDateService.localDateToDate(firstMatchDate.toLocalDate());
-        Date roundEndDate = DateAndLocalDateService.localDateToDate(latestMatchDate.toLocalDate());
+        Date roundStartDate = DateAndLocalDateService.localDateToDate(firstMatchLDT.toLocalDate());
+        Date roundEndDate = DateAndLocalDateService.localDateToDate(lastMatchLDT.toLocalDate());
         Date nextRoundStartDate = DateAndLocalDateService
                 .localDateToDate(latestMatchDate.toLocalDate().plusDays(DateAndLocalDateService.DaysBetweenRounds));
 
@@ -105,6 +109,11 @@ public class MatchService {
         matchRepository.saveAll(updatedMatches);
         tournamentRepository.save(tournament);
         roundRepository.save(round);
+    }
+
+    private LocalDateTime convertToPSTLocalDateTime(ZonedDateTime t){
+        ZonedDateTime pstZoned = t.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
+        return pstZoned.toLocalDateTime();
     }
 
 }

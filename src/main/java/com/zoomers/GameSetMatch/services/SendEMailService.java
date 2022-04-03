@@ -75,7 +75,7 @@ public class SendEMailService {
                         + "<p>Round <i>" + roundNumber + "</i> for the tournament <b><i>" + tournamentName + "</i></b> has been scheduled!</p><br>"
                         + "<p>You have a match scheduled on <b>" + date + "</b> from " +
                         "<b>" + startTime + "</b>" + " to " + "<b>" + endTime + "</b>"
-                        + ". Good luck and have fun!.</p><br>" +
+                        + " PST. Good luck and have fun!.</p><br>" +
                         "<p>Best,</p><p>GameSetMatch</p>", html);
 
                 mailSender.send(message);

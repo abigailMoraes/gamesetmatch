@@ -79,7 +79,7 @@ public class Timeslot {
 
     public LocalDateTime getLocalStartDateTime() {
 
-        LocalDate localDate = this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate = this.date.toInstant().atZone(ZoneId.of("America/Los_Angeles")).toLocalDate();
 
         int minutes = 30;
         if (this.time % 1 == 0) {

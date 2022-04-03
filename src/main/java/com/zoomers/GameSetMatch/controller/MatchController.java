@@ -6,6 +6,7 @@ import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingCheckNewMat
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
+import com.zoomers.GameSetMatch.controller.Match.ResponseBody.UserMatchTournamentInfoResp;
 import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,17 +51,38 @@ public class MatchController {
 
     @GetMapping("/match/involves/user/{id}")
     List<UserMatchTournamentInfo> getPublishedMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findPublishedMatchesByUserID(id);
+        List<UserMatchTournamentInfo> matches = userMatchTournamentRepository.findPublishedMatchesByUserID(id);
+        return matches;
+    }
+
+    private UserMatchTournamentInfoResp mapUserMatchTournamentInfoToResponse(UserMatchTournamentInfo match) {
+        return new UserMatchTournamentInfoResp(match.getResults(),
+                match.getAttendance(),
+                match.getMatchID(),
+                match.getStartTime(),
+                match.getEndTime(),
+                match.getName(),
+                match.getLocation(),
+                match.getDescription());
+    }
+
+    private List<UserMatchTournamentInfoResp> mapUserMatchTournamentInfoToResponse(List<UserMatchTournamentInfo> matches) {
+        List<UserMatchTournamentInfoResp> responseMatches = new ArrayList<>();
+        for(UserMatchTournamentInfo m : matches){
+            responseMatches.add(mapUserMatchTournamentInfoToResponse(m));
+        }
+
+        return responseMatches;
     }
 
     @GetMapping("/match/history/involves/user/{id}")
-    List<UserMatchTournamentInfo> getPastMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findPastMatchesByUserID(id);
+    List<UserMatchTournamentInfoResp> getPastMatchesForUser(@PathVariable int id) {
+        return mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findPastMatchesByUserID(id));
     }
 
     @GetMapping("/match/{id}/{uid}")
-    UserMatchTournamentInfo getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
-        return userMatchTournamentRepository.findMatchInfoByMatchID(id);
+    UserMatchTournamentInfoResp getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
+        return mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findMatchInfoByMatchID(id));
     }
 
 
