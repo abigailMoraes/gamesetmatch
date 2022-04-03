@@ -8,6 +8,7 @@
 
 package com.zoomers.GameSetMatch.scheduler;
 
+import com.zoomers.GameSetMatch.entity.EnumsForColumns.MatchResult;
 import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
 import com.zoomers.GameSetMatch.repository.*;
@@ -751,13 +752,9 @@ public class Scheduler {
 
         int previousRoundID = roundRepository.getLastTournamentRound(MOCK_TOURNAMENT.getTournamentID());
         List<com.zoomers.GameSetMatch.entity.Match> previousRoundMatches = matchRepository.getMatchesByRound(previousRoundID);
+        List<Integer> pendingMatches = userInvolvesMatchRepository.getPendingMatches(previousRoundID, MatchResult.PENDING.getResult());
 
-        for (com.zoomers.GameSetMatch.entity.Match m : previousRoundMatches) {
-
-            List<Integer> matchResult = userInvolvesMatchRepository.getMatchResultByMatchID(m.getMatchID());
-            if (matchResult.size() != 2) { throw new ScheduleException("Invalid Match Result"); }
-
-            if (matchResult.get(0) == 0 || matchResult.get(1) == 0) { throw new ScheduleException("Previous Match Result cannot be Pending"); }
-        }
+        if (!pendingMatches.isEmpty())
+            throw new ScheduleException("Matches from the previous round cannot be pending!");
     }
 }

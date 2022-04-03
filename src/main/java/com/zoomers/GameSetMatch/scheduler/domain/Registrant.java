@@ -68,13 +68,6 @@ public class Registrant {
         this.playersToPlay = registrantService.initPlayersToPlay(this.id, this.playersToPlay, tournamentId);
 
         switch(format) {
-            case ROUND_ROBIN:
-            {
-                if (this.playersToPlay.size() == 0) {
-                    this.status = PlayerStatus.ELIMINATED;
-                }
-            }
-            break;
             case SINGLE_KNOCKOUT:
             case DOUBLE_KNOCKOUT:
             case SINGLE_BRACKET: {
