@@ -231,7 +231,7 @@ public class TournamentController {
         try {
 
             scheduler.createSchedule(tournamentID);
-            
+
         } catch (ScheduleException e) {
             ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
