@@ -66,6 +66,7 @@ public class MatchService {
             if (!isNull(existingMatch)) {
                 existingMatch.setStartTime(match.getStartTime());
                 existingMatch.setEndTime(match.getEndTime());
+                existingMatch.setPublished(true);
                 updatedMatches.add(existingMatch);
             } else {
                 throw new EntityNotFoundException(String.format("Invalid Match ID: %d,", match.getID()));
