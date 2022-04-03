@@ -20,7 +20,7 @@ import java.util.Date;
                         @ColumnResult(name="series", type=Integer.class),
                         @ColumnResult(name="match_by", type=Integer.class),
                         @ColumnResult(name="match_duration", type=Integer.class),
-                        @ColumnResult(name="start_date", type=Date.class),
+                        @ColumnResult(name="round_start_date", type=Date.class),
                         @ColumnResult(name="current_round", type=Integer.class),
                         @ColumnResult(name="status", type=Integer.class),
                         @ColumnResult(name="min_participants", type=Integer.class)
@@ -30,7 +30,7 @@ import java.util.Date;
 @NamedNativeQuery(
         name="Tournament.getMockTournamentByID",
         query="SELECT tournamentID, format, series, match_by, match_duration, " +
-                "start_date, current_round, status, min_participants " +
+                "round_start_date, current_round, status, min_participants " +
                 "FROM Tournament WHERE tournamentID = :tournamentID",
         resultSetMapping = "MockTournamentMapping"
 )
