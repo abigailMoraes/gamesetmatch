@@ -38,6 +38,7 @@ public class Match {
     @Column(name="userID_2")
     private int userID_2;
 
-    private boolean isPublished;
+    @Column(name="isPublished")
+    private int isPublished;
 
 }
