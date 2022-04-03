@@ -4,14 +4,14 @@ import java.util.List;
 
 public class IncomingRegistration {
     private Integer userID;
-    private List<IncomingAvailability> availabilities;
+    private List<AvailabilityDTO> availabilities;
     private Integer skillLevel;
 
     public Integer getUserID() {
         return userID;
     }
 
-    public List<IncomingAvailability> getAvailabilities() {
+    public List<AvailabilityDTO> getAvailabilities() {
         return availabilities;
     }
 

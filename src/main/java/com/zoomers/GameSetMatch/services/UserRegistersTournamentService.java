@@ -1,10 +1,13 @@
 package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
+import com.zoomers.GameSetMatch.repository.AvailabilityRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +16,9 @@ public class UserRegistersTournamentService {
 
     @Autowired
     private UserRegistersTournamentRepository userRegistersTournament;
+
+    @Autowired
+    private AvailabilityRepository availabilityRepository;
 
     public List<Integer> getUserRegisteredInTournamentIDs(Integer userID) {
         List<Integer> registeredTournaments = new ArrayList<>();
@@ -30,11 +36,19 @@ public class UserRegistersTournamentService {
         return userRegistersTournament.findRegistrantsByTournamentID(tournamentID);
     }
 
+    @Transactional
     public void saveRegistration(Integer tournamentID, Integer userID, Integer skillLevel) {
-        UserRegistersTournament registration = new UserRegistersTournament(tournamentID, userID, skillLevel);
+        UserRegistersTournament registration = new UserRegistersTournament(tournamentID, userID, skillLevel, PlayerStatus.SAFE);
         userRegistersTournament.save(registration);
     }
 
+    @Transactional
+    public void undoRegistration(Integer tournamentID, Integer userID) {
+        availabilityRepository.removeAvailabilityForUser(tournamentID, userID);
+        userRegistersTournament.removeRegistrationForUser(tournamentID, userID);
+    }
+
+    @Transactional
     public void deleteByTournamentID(Integer tournamentID) {
         userRegistersTournament.deleteUserRegistersTournamentsByTournamentID(tournamentID);
     }

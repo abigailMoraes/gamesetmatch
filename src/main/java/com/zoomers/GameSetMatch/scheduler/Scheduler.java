@@ -46,7 +46,8 @@ public class Scheduler {
     private MockTournament MOCK_TOURNAMENT;
     private FormatMatcher formatMatcher;
     private Calendar CALENDAR;
-    private TournamentStatus originalStatus;
+    private int originalRound;
+
     private Date currentLastMatchDate;
 
     public void createSchedule(int tournamentID) throws ScheduleException {
@@ -58,7 +59,7 @@ public class Scheduler {
         this.MOCK_TOURNAMENT = tournamentRepository.getMockTournamentByID(tournamentID);
         if (MOCK_TOURNAMENT == null) throw new NullPointerException("Failed to get Mock Tournament");
         if (MOCK_TOURNAMENT.getMatchDuration() > 720) throw new ScheduleException("Match Duration is too long!");
-        this.originalStatus = MOCK_TOURNAMENT.getTournamentStatus();
+        this.originalRound = MOCK_TOURNAMENT.getCurrentRound() - 1;
 
         initFormatMatcher(this.MOCK_TOURNAMENT.getTournamentFormat(), this.MOCK_TOURNAMENT.getMatchBy());
         initTournamentPlayers(tournamentID);
@@ -155,15 +156,14 @@ public class Scheduler {
             com.zoomers.GameSetMatch.entity.Match matchEntity = new com.zoomers.GameSetMatch.entity.Match();
             matchEntity.setStartTime(m.getTimeslot().getLocalStartDateTime());
             matchEntity.setEndTime(m.getTimeslot().getLocalEndDateTime(this.MOCK_TOURNAMENT.getMatchDuration()));
-            matchEntity.setIsConflict(m.getMatchStatus().ordinal());
+            matchEntity.setMatchStatus(m.getMatchStatus().ordinal());
             matchEntity.setRoundID(persistedRound.getRoundID());
             matchEntity.setUserID_1(m.getPlayers().getFirst());
             matchEntity.setUserID_2(m.getPlayers().getSecond());
             matchEntities.add(matchEntity);
         }
 
-        TournamentStatus newStatus = this.originalStatus == TournamentStatus.OPEN_FOR_REGISTRATION ||
-                this.originalStatus == TournamentStatus.REGISTRATION_CLOSED ?
+        TournamentStatus newStatus = this.originalRound == 0 ?
                 TournamentStatus.READY_TO_PUBLISH_SCHEDULE : TournamentStatus.READY_TO_PUBLISH_NEXT_ROUND;
 
         tournamentRepository.updateTournament(
