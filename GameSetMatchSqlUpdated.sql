@@ -42,7 +42,10 @@ CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME,
 /* if you don't want to reacreate the table*/
 --ALTER TABLE Match_Has DROP Column is_conflict;
 --ALTER TABLE Match_Has ADD COLUMN match_status int;
-ALTER TABLE Match_Has ADD isPublished BOOLEAN;
+ALTER TABLE Match_Has ADD isPublished int;
+
+/* if have the column as boolean*/
+--ALTER TABLE Match_Has MODIFY COLUMN isPublished int;
 
 
 /*Create table statement for user_involves_match*/

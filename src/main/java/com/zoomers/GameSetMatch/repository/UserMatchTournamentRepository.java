@@ -14,9 +14,10 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
            value ="SELECT u.results, u.attendance, Match_Has.matchID, Match_Has.start_time, Match_Has.end_time,\n" +
                    "Round_Has.roundNumber, Tournament.name, Tournament.location, Tournament.description \n" +
                    "FROM (SELECT * FROM User_involves_match WHERE userID = :id) \n " +
-                   "u LEFT JOIN Match_Has ON Match_Has.matchID = u.matchID AND Match_Has.isPublished = TRUE LEFT JOIN \n" +
+                   "u LEFT JOIN Match_Has ON Match_Has.matchID = u.matchID LEFT JOIN \n" +
                    " Round_Has ON Match_Has.roundID = Round_Has.roundID LEFT JOIN Tournament \n" +
-                   " ON Round_Has.tournamentID = Tournament.tournamentID;",
+                   " ON Round_Has.tournamentID = Tournament.tournamentID " +
+                   "WHERE Match_Has.isPublished = 1;",
             nativeQuery = true)
     List<UserMatchTournamentInfo> findPublishedMatchesByUserID(int id);
 

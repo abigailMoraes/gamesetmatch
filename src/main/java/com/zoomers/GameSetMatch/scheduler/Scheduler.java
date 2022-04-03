@@ -160,6 +160,7 @@ public class Scheduler {
             matchEntity.setRoundID(persistedRound.getRoundID());
             matchEntity.setUserID_1(m.getPlayers().getFirst());
             matchEntity.setUserID_2(m.getPlayers().getSecond());
+            matchEntity.setIsPublished(0);
             matchEntities.add(matchEntity);
         }
 
