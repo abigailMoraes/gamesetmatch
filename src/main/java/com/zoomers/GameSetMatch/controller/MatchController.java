@@ -48,8 +48,8 @@ public class MatchController {
     MatchService matchService;
 
     @GetMapping("/match/involves/user/{id}")
-    List<UserMatchTournamentInfo> getMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findMatchesByUserID(id);
+    List<UserMatchTournamentInfo> getPublishedMatchesForUser(@PathVariable int id) {
+        return userMatchTournamentRepository.findPublishedMatchesByUserID(id);
     }
 
     @GetMapping("/match/history/involves/user/{id}")

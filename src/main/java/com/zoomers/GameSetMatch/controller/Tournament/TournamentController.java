@@ -86,7 +86,7 @@ public class TournamentController {
     }
 
     @PostMapping()
-    public Tournament createTournament(@RequestBody Tournament tournament)  {
+    public Tournament createTournament(@RequestBody Tournament tournament) {
         if (tournament.getStatus() == TournamentStatus.DEFAULT.getStatus()) {
             tournament.setStatus(TournamentStatus.OPEN_FOR_REGISTRATION.getStatus());
             tournament.setRoundStartDate(tournament.getStartDate());
@@ -97,11 +97,20 @@ public class TournamentController {
     }
 
     @PostMapping(value = "/{tournamentID}/register")
-    public void registerForTournament(@RequestBody IncomingRegistration newRegistrtation, @PathVariable Integer tournamentID) {
-        Integer userID = newRegistrtation.getUserID();
-        userRegistersTournament.saveRegistration(tournamentID, userID, newRegistrtation.getSkillLevel());
-        availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
+    public ResponseEntity registerForTournament(@RequestBody IncomingRegistration newRegistrtation,
+                                                @PathVariable Integer tournamentID) {
+        Tournament tournament = tournamentService.findTournamentByID(tournamentID).get();
 
+        if (tournament.getStatus() == TournamentStatus.OPEN_FOR_REGISTRATION.getStatus()) {
+            Integer userID = newRegistrtation.getUserID();
+            userRegistersTournament.saveRegistration(tournamentID, userID, newRegistrtation.getSkillLevel());
+            availability.saveAvailabilities(tournamentID, userID, newRegistrtation.getAvailabilities());
+        } else {
+            String errorMsg = "The tournament registration is closed. Cannot register.";
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, errorMsg);
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("Successfully registered!");
     }
 
     @GetMapping(value="/{tournamentID}/availabilities/{userID}")
