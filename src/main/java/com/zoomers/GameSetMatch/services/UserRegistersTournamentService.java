@@ -3,6 +3,7 @@ package com.zoomers.GameSetMatch.services;
 import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
 import com.zoomers.GameSetMatch.repository.AvailabilityRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,7 @@ public class UserRegistersTournamentService {
 
     @Transactional
     public void saveRegistration(Integer tournamentID, Integer userID, Integer skillLevel) {
-        UserRegistersTournament registration = new UserRegistersTournament(tournamentID, userID, skillLevel);
+        UserRegistersTournament registration = new UserRegistersTournament(tournamentID, userID, skillLevel, PlayerStatus.SAFE);
         userRegistersTournament.save(registration);
     }
 
