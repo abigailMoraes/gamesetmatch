@@ -107,12 +107,12 @@ public class TournamentController {
     }
 
     @PutMapping(value="/{tournamentID}/availabilities/{userID}")
-    public void  updatePlayerAvailabilities(@RequestBody List<AvailabilityDTO> updatedAvailability, @PathVariable Integer tournamentID, @PathVariable Integer userID) {
+    public void  updateUsersAvailabilityForTournament(@RequestBody List<AvailabilityDTO> updatedAvailability, @PathVariable Integer tournamentID, @PathVariable Integer userID) {
         availability.updateUsersAvailabilityForTournament(tournamentID, userID, updatedAvailability);
     }
 
     @PostMapping(value = "/{tournamentID}/deregister/{userID}")
-    public void registerForTournament(@PathVariable Integer tournamentID, @PathVariable Integer userID) {
+    public void undoRegistration(@PathVariable Integer tournamentID, @PathVariable Integer userID) {
         userRegistersTournament.undoRegistration(tournamentID, userID);
     }
 
