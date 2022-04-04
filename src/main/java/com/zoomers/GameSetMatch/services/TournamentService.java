@@ -156,7 +156,7 @@ public class TournamentService {
     }
 
     @Transactional
-    public void endCurrentRound(Integer tournamentID) throws MissingMatchResultsException, EntityNotFoundException {
+    public int endCurrentRound(Integer tournamentID) throws MissingMatchResultsException, EntityNotFoundException {
         Tournament currentTournament = this.findTournamentByID(tournamentID).orElse(null);
         if (isNull(currentTournament)) {
             throw new EntityNotFoundException(String.format("Unable to find the tournament with id %d", currentTournament.getTournamentID()));
@@ -202,6 +202,7 @@ public class TournamentService {
         }
 
         tournament.save(currentTournament);
+        return currentTournament.getStatus();
     }
 
     private boolean canEndTournament(Tournament t) {

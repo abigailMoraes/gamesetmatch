@@ -47,7 +47,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
     List<Integer> findPastTournamentMatchIDsByUserID(int id, int t_id);
 
     @Query(value = "SELECT m.matchID \n" +
-            "FROM (SELECT * FROM User_involves_match WHERE userID = :id AND results > 0) u \n" +
+            "FROM (SELECT * FROM User_involves_match WHERE userID = :id AND results > :resultGreaterThan) u \n" +
             "JOIN (SELECT * FROM Match_Has) m ON m.matchID = u.matchID LEFT JOIN \n" +
             " Round_Has ON m.roundID = Round_Has.roundID WHERE Round_Has.tournamentID = :t_id",
             nativeQuery = true)

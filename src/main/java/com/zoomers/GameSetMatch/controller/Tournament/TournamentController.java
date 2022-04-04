@@ -4,6 +4,7 @@ import com.zoomers.GameSetMatch.controller.Error.ApiException;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.AvailabilityDTO;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.IncomingRegistration;
 import com.zoomers.GameSetMatch.controller.Tournament.RequestBody.TournamentByStatuses;
+import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.CurrentTournamentStatus;
 import com.zoomers.GameSetMatch.controller.Tournament.ResponseBody.OutgoingTournament;
 import com.zoomers.GameSetMatch.entity.Tournament;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
@@ -200,7 +201,8 @@ public class TournamentController {
     @PutMapping(value = "/{tournamentID}/endCurrentRound")
     public ResponseEntity<Object> endCurrentRound(@PathVariable Integer tournamentID) {
         try {
-            tournamentService.endCurrentRound(tournamentID);
+            int currentStatus = tournamentService.endCurrentRound(tournamentID);
+            return ResponseEntity.status(HttpStatus.OK).body(new CurrentTournamentStatus(currentStatus));
         }catch (EntityNotFoundException e) {
             ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
@@ -208,7 +210,6 @@ public class TournamentController {
             ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
-        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @PostMapping(value = "", params = {"createdBy"})
