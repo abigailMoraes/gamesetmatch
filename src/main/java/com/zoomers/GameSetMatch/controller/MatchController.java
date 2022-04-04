@@ -61,6 +61,7 @@ public class MatchController {
     UserRepository userRepository;
 
     @GetMapping("/match/involves/user/{id}")
+
     List<UserMatchTournamentInfo> getPublishedMatchesForUser(@PathVariable int id) {
         return userMatchTournamentRepository.findPublishedMatchesByUserID(id);
     }

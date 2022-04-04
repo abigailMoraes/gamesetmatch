@@ -51,7 +51,6 @@ public class UserInvolvesMatchService {
             MatchDetailsForCalendar matchDetailsForCalendar = new MatchDetailsForCalendar(m.getMatchID(),
                     m.getStartTime(), m.getEndTime(), m.getRoundID(), m.getMatchStatus(), m.getUserID_1(), m.getUserID_2());
             matchDetailsForCalendar.setParticipants(usersMatch);
-
             returnList.add(matchDetailsForCalendar);
 
         }
