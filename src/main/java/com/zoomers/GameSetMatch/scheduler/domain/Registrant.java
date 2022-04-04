@@ -39,6 +39,7 @@ public class Registrant {
         this.id = id;
         this.skillLevel = Skill.values()[skillLevel];
         this.tournamentId = tournamentId;
+        this.registrantService = SpringConfig.getBean(RegistrantService.class);
     }
 
     public boolean checkAvailability(int timeID, int matchDuration) {
@@ -55,7 +56,6 @@ public class Registrant {
 
     public void initAvailability() throws ScheduleException {
 
-        this.registrantService = SpringConfig.getBean(RegistrantService.class);
         this.availability = registrantService.initAvailability(this.id, this.tournamentId);
     }
 

@@ -2,12 +2,16 @@ package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.TournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
-import com.zoomers.GameSetMatch.scheduler.enumerations.*;
+import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.Errors.InvalidActionForTournamentStatusException;
 import com.zoomers.GameSetMatch.services.Errors.MinRegistrantsNotMetException;
@@ -152,8 +156,8 @@ public class TournamentService {
     }
 
     @Transactional
-    public void endCurrentRound(Integer id) throws MissingMatchResultsException, EntityNotFoundException {
-        Tournament currentTournament = this.findTournamentByID(id).orElse(null);
+    public int endCurrentRound(Integer tournamentID) throws MissingMatchResultsException, EntityNotFoundException {
+        Tournament currentTournament = this.findTournamentByID(tournamentID).orElse(null);
         if (isNull(currentTournament)) {
             throw new EntityNotFoundException(String.format("Unable to find the tournament with id %d", currentTournament.getTournamentID()));
 
@@ -172,8 +176,9 @@ public class TournamentService {
 
         }
 
-        if (currentTournament.getStatus() == TournamentStatus.FINAL_ROUND.getStatus()) {
+        if (canEndTournament(currentTournament)) {
             currentTournament.setStatus(TournamentStatus.TOURNAMENT_OVER.getStatus());
+
         } else {
             Round round = roundRepository.findById(roundID.get(0)).orElse(null);
 
@@ -182,15 +187,42 @@ public class TournamentService {
             }
 
             currentTournament.setStatus(TournamentStatus.READY_TO_SCHEDULE.getStatus());
+
             Date today = DateAndLocalDateService.localDateToDate(LocalDate.now());
             Date nextRoundStartDate = DateAndLocalDateService.localDateToDate(LocalDate.now().plusDays(DateAndLocalDateService.DaysBetweenRounds));
+
             currentTournament.setRoundStartDate(nextRoundStartDate);
             round.setEndDate(today);
+
+            if (round.getStartDate().after(round.getEndDate())) {
+                round.setStartDate(today);
+            }
 
             roundRepository.save(round);
         }
 
         tournament.save(currentTournament);
+        return currentTournament.getStatus();
+    }
+
+    private boolean canEndTournament(Tournament t) {
+
+        if (t.getStatus() != TournamentStatus.FINAL_ROUND.getStatus()) {
+            return false;
+        }
+
+        TournamentFormat format = TournamentFormat.values()[t.getFormat()];
+
+        switch (format) {
+            case DOUBLE_KNOCKOUT:
+                // make sure that there was a winner for double knockout before ending the tournament
+                return numberOfRemainingPlayers(t.getTournamentID()) <= 1;
+            case ROUND_ROBIN:
+            case SINGLE_BRACKET:
+            case SINGLE_KNOCKOUT:
+            default:
+                return true;
+        }
     }
 
     public Tournament getTournament(int tournamentID) {
@@ -222,7 +254,6 @@ public class TournamentService {
             case ROUND_ROBIN:
                 return checkIfAllPlayersHavePlayed(registrants);
             case DOUBLE_KNOCKOUT:
-                return false;
             case SINGLE_BRACKET:
             case SINGLE_KNOCKOUT:
                 registrants.removeIf(registrant -> registrant.getStatus() == PlayerStatus.ELIMINATED);
@@ -240,6 +271,16 @@ public class TournamentService {
             }
         }
         return true;
+    }
+
+    private Integer numberOfRemainingPlayers(int tournamentID) {
+        // get players from tournament and see if they are all eliminated but one
+        List<UserRegistersTournament> registrants = userRegistersTournament.getRegistrantsByTournamentID(tournamentID);
+
+        List<UserRegistersTournament> notEliminated = registrants.stream()
+                .filter(r -> r.getPlayerStatus() != PlayerStatus.ELIMINATED).collect(Collectors.toList());
+
+        return notEliminated.size();
     }
 }
 

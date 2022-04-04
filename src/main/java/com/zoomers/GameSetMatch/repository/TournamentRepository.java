@@ -58,20 +58,20 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
     List<Tournament> findRegisteredTournamentsForUser(int userID, int status);
 
     @Query(value = "SELECT * FROM Tournament WHERE status = :status AND + \n"
-            + "EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
-            " AND Tournament.tournamentID = user_registers_tournament.tournamentID)",
+            + "EXISTS (SELECT * FROM User_registers_tournament WHERE User_registers_tournament.userID = :userID \n" +
+            " AND Tournament.tournamentID = User_registers_tournament.tournamentID)",
             nativeQuery = true)
     List<Tournament> findCompletedTournamentsForUser(int userID, int status);
 
     @Query(value = "SELECT count(*) as next FROM Tournament WHERE status = :status AND + \n"
-            + "EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
-            " AND Tournament.tournamentID = user_registers_tournament.tournamentID)",
+            + "EXISTS (SELECT * FROM User_registers_tournament WHERE User_registers_tournament.userID = :userID \n" +
+            " AND Tournament.tournamentID = User_registers_tournament.tournamentID)",
             nativeQuery = true)
     UserMatchTournamentRepository.NumQuery getNumberOfCompletedTournamentsForUser(int userID, int status);
 
     @Query(value = "SELECT count(*) as next FROM Tournament WHERE status = :status AND + \n"
-            + "EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
-            " AND Tournament.tournamentID = user_registers_tournament.tournamentID AND player_status = :safeStatus)",
+            + "EXISTS (SELECT * FROM User_registers_tournament WHERE User_registers_tournament.userID = :userID \n" +
+            " AND Tournament.tournamentID = User_registers_tournament.tournamentID AND player_status = :safeStatus)",
             nativeQuery = true)
     UserMatchTournamentRepository.NumQuery getNumberOfTournamentsWonByUser(int userID, int status, int safeStatus);
 }

@@ -6,6 +6,7 @@ import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingCheckNewMat
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
+import com.zoomers.GameSetMatch.controller.Match.ResponseBody.UserMatchTournamentInfoResp;
 import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
@@ -23,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,18 +51,41 @@ public class MatchController {
     MatchService matchService;
 
     @GetMapping("/match/involves/user/{id}")
-    List<UserMatchTournamentInfo> getPublishedMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findPublishedMatchesByUserID(id);
+    List<UserMatchTournamentInfoResp> getPublishedMatchesForUser(@PathVariable int id) {
+        List<UserMatchTournamentInfoResp> info = mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findPublishedMatchesByUserID(id));
+        return info;
+    }
+
+    private UserMatchTournamentInfoResp mapUserMatchTournamentInfoToResponse(UserMatchTournamentInfo match) {
+        return new UserMatchTournamentInfoResp(match.getResults(),
+                match.getAttendance(),
+                match.getMatchID(),
+                match.getStartTime(),
+                match.getEndTime(),
+                match.getName(),
+                match.getLocation(),
+                match.getDescription());
+    }
+
+    private List<UserMatchTournamentInfoResp> mapUserMatchTournamentInfoToResponse(List<UserMatchTournamentInfo> matches) {
+        List<UserMatchTournamentInfoResp> responseMatches = new ArrayList<>();
+        for(UserMatchTournamentInfo m : matches){
+            responseMatches.add(mapUserMatchTournamentInfoToResponse(m));
+        }
+
+        return responseMatches;
     }
 
     @GetMapping("/match/history/involves/user/{id}")
-    List<UserMatchTournamentInfo> getPastMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findPastMatchesByUserID(id);
+    List<UserMatchTournamentInfoResp> getPastMatchesForUser(@PathVariable int id) {
+        List<UserMatchTournamentInfoResp> info =  mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findPastMatchesByUserID(id));
+        return info;
     }
 
     @GetMapping("/match/{id}/{uid}")
-    UserMatchTournamentInfo getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
-        return userMatchTournamentRepository.findMatchInfoByMatchID(id);
+    UserMatchTournamentInfoResp getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
+        UserMatchTournamentInfoResp response = mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findMatchInfoByMatchID(id));
+        return response;
     }
 
     @GetMapping( "/rounds/{roundID}/matches")
@@ -202,8 +227,8 @@ public class MatchController {
     }
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
-    public ResponseEntity updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
-                                    @RequestBody List<IncomingMatch> matches)  {
+    public ResponseEntity publishRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
+                                               @RequestBody List<IncomingMatch> matches) {
         try {
             matchService.updateMatchesInARound(tournamentID, roundID, matches);
             TournamentStatus newStatus = tournamentService.isEnteringFinalRound(tournamentID) ?
