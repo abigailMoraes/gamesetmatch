@@ -184,7 +184,7 @@ public class TournamentService {
         for (UserRegistersTournament r : remainingRegistrants) {
             List<UserInvolvesMatch> playedInRound = userInvolvesMatchRepository.getUsersMatchesForRound(roundID.get(0), r.getUserID());
             if (playedInRound.size() > 0) {
-                userInvolvesMatchService.updateToNewPlayerStatus(currentTournament, r.getUserID(), roundID.get(0));
+                userInvolvesMatchService.updateToNewPlayerStatus(currentTournament, r.getUserID(), roundID.get(0), playedInRound);
             }
         }
 

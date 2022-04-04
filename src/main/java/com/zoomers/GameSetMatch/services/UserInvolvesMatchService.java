@@ -2,14 +2,9 @@ package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.UsersMatchInfo;
+import com.zoomers.GameSetMatch.entity.*;
 import com.zoomers.GameSetMatch.entity.EnumsForColumns.MatchResult;
-import com.zoomers.GameSetMatch.entity.Match;
-import com.zoomers.GameSetMatch.entity.Tournament;
-import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
-import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
 import com.zoomers.GameSetMatch.repository.*;
-import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
-import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
 import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
@@ -20,10 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class UserInvolvesMatchService {
@@ -59,12 +51,10 @@ public class UserInvolvesMatchService {
         userInvolvesMatchRepository.saveAll(matches);
     }
 
-    public void updateToNewPlayerStatus(Tournament t, int userID, int roundID) throws ScheduleException {
+    public void updateToNewPlayerStatus(Tournament t, int userID, int roundID, List<UserInvolvesMatch> matches) throws ScheduleException {
 
         TournamentSeries series = TournamentSeries.values()[t.getSeries()];
         TournamentFormat format = TournamentFormat.values()[t.getFormat()];
-
-        List<UserInvolvesMatch> matches = userInvolvesMatchRepository.getUsersMatchesForRound(roundID, userID);
 
         if (matches.size() == 0) {
             throw new EntityNotFoundException("Match not found in our records. Unable to update Player Status");
@@ -82,32 +72,25 @@ public class UserInvolvesMatchService {
             }
         }
 
-        // don't update till series is over for now
-        if (matchesLost + matchesWon != series.getNumberOfGames()) {
+        // don't update till series is over (it will always be over since called in endRound, but leaving check in case)
+        // no need to players status if they're the winner
+        if (matchesLost + matchesWon != series.getNumberOfGames() || matchesWon >= matchesToWin) {
             return;
         }
 
         switch (format) {
-            case ROUND_ROBIN:
-                updateForRoundRobin(t, userID);
-                break;
             case DOUBLE_KNOCKOUT:
-                setDoubleKnockoutStatus(matchesWon >= matchesToWin, userID, t.getTournamentID());
+                setDoubleKnockoutStatus( userID, t.getTournamentID());
                 break;
             case SINGLE_BRACKET:
             case SINGLE_KNOCKOUT:
-                PlayerStatus uStat = matchesWon >= matchesToWin ? PlayerStatus.SAFE : PlayerStatus.ELIMINATED;
-                updatePlayerStatus(t.getTournamentID(), userID, uStat);
+                updatePlayerStatus( t.getTournamentID(), userID, PlayerStatus.ELIMINATED);
                 break;
 
         }
     }
 
-    public void setDoubleKnockoutStatus(boolean winner, int userID, int tournamentID) {
-        // no need to update status if they won
-        if (winner) {
-            return;
-        }
+    public void setDoubleKnockoutStatus(int userID, int tournamentID) {
 
         List<UserRegistersTournament> uList = userRegistersTournamentRepository.getTournamentRegistrationForUser(userID, tournamentID);
         if (uList.size() != 1) {
@@ -124,25 +107,6 @@ public class UserInvolvesMatchService {
             case ELIMINATED:
                 u.setPlayerStatus(PlayerStatus.ELIMINATED);
                 break;
-        }
-    }
-
-    public void updateForRoundRobin(Tournament t, int userID) throws ScheduleException {
-        List<Registrant> registrants = userRegistersTournamentRepository.getSchedulerRegistrantsByTournamentID(t.getTournamentID());
-        Set<Integer> registrantIDs = registrants.stream().map(Registrant::getID).collect(Collectors.toSet());
-        registrants = registrants.stream().filter(r -> r.getID() == userID).collect(Collectors.toList());
-
-        for (Registrant r : registrants) {
-            r.setPlayersToPlay(new LinkedHashSet<>(registrantIDs));
-            r.initCurrentStatus(
-                    TournamentFormat.ROUND_ROBIN,
-                    MatchBy.values()[t.getMatchBy()],
-                    t.getTournamentID()
-            );
-
-            if (r.getPlayersToPlay().size() == 0) {
-                updatePlayerStatus(t.getTournamentID(), r.getID(), PlayerStatus.ELIMINATED);
-            }
         }
     }
 
