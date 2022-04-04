@@ -43,7 +43,7 @@ public class UserInvolvesMatchService {
     public void updateMatchResults(int matchID, int userID, int result) throws EntityNotFoundException, ScheduleException {
         // there is a match for each user, set the result to be the same in both i.e tie, player1 or player2 was the winner
         List<UserInvolvesMatch> matches = userInvolvesMatchRepository.getUserInvolvesMatchByMatchID(matchID);
-        int opponentID = -1;
+
         if (matches.size() == 0) {
             throw new EntityNotFoundException("Match not found in our records. Unable to update Match Results");
         }
@@ -55,11 +55,6 @@ public class UserInvolvesMatchService {
                 int opponentsResult = result == MatchResult.WIN.getResult() ? MatchResult.LOSS.getResult() : MatchResult.WIN.getResult();
                 match.setResults(match.getUserID() == userID ? result : opponentsResult);
             }
-
-            if (match.getUserID() != userID) {
-                opponentID = match.getUserID();
-            }
-
         }
         userInvolvesMatchRepository.saveAll(matches);
     }
