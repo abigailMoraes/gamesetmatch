@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Objects.isNull;
-
 @Service
 public class UserInvolvesMatchService {
     @Autowired
@@ -64,26 +62,17 @@ public class UserInvolvesMatchService {
 
         }
         userInvolvesMatchRepository.saveAll(matches);
+    }
 
+    public void updateToNewPlayerStatus(Tournament t, int userID, int roundID) throws ScheduleException {
 
-        if (opponentID == -1) {
-            throw new EntityNotFoundException("Match not found in our records. Unable to update Player Status");
-        }
+        TournamentSeries series = TournamentSeries.values()[t.getSeries()];
+        TournamentFormat format = TournamentFormat.values()[t.getFormat()];
 
-        Match match = matchRepository.getById(matchID);
-        Integer tournamentID = roundRepository.getTournamentIDByRoundID(match.getRoundID());
-        Tournament tournament = tournamentRepository.getById(tournamentID);
-        TournamentSeries series = TournamentSeries.values()[tournament.getSeries()];
-        TournamentFormat format = TournamentFormat.values()[tournament.getFormat()];
-
-        matches = userInvolvesMatchRepository.getUsersMatchesForRound(match.getRoundID(), userID);
+        List<UserInvolvesMatch> matches = userInvolvesMatchRepository.getUsersMatchesForRound(roundID, userID);
 
         if (matches.size() == 0) {
             throw new EntityNotFoundException("Match not found in our records. Unable to update Player Status");
-        }
-
-        if (isNull(tournament)) {
-            throw new EntityNotFoundException("Tournament not found in our records. Unable to update Player Status");
         }
 
         int matchesToWin = (int) Math.ceil(series.getNumberOfGames() / 2.0);
@@ -105,24 +94,26 @@ public class UserInvolvesMatchService {
 
         switch (format) {
             case ROUND_ROBIN:
-                updateForRoundRobin(tournament, userID, opponentID);
+                updateForRoundRobin(t, userID);
                 break;
             case DOUBLE_KNOCKOUT:
-                setDoubleKnockoutStatus(matchesWon >= matchesToWin, userID, tournament.getTournamentID());
-                setDoubleKnockoutStatus(matchesLost >= matchesToWin, opponentID, tournament.getTournamentID());
+                setDoubleKnockoutStatus(matchesWon >= matchesToWin, userID, t.getTournamentID());
                 break;
             case SINGLE_BRACKET:
             case SINGLE_KNOCKOUT:
                 PlayerStatus uStat = matchesWon >= matchesToWin ? PlayerStatus.SAFE : PlayerStatus.ELIMINATED;
-                PlayerStatus oStat = matchesWon >= matchesToWin ? PlayerStatus.ELIMINATED : PlayerStatus.SAFE;
-                updatePlayerStatus(tournament.getTournamentID(), userID, uStat);
-                updatePlayerStatus(tournament.getTournamentID(), opponentID, oStat);
+                updatePlayerStatus(t.getTournamentID(), userID, uStat);
                 break;
 
         }
     }
 
     public void setDoubleKnockoutStatus(boolean winner, int userID, int tournamentID) {
+        // no need to update status if they won
+        if (winner) {
+            return;
+        }
+
         List<UserRegistersTournament> uList = userRegistersTournamentRepository.getTournamentRegistrationForUser(userID, tournamentID);
         if (uList.size() != 1) {
             throw new EntityNotFoundException("User registration not found in our records. Unable to update Player Status");
@@ -132,20 +123,19 @@ public class UserInvolvesMatchService {
 
         switch (original) {
             case SAFE:
-                u.setPlayerStatus(winner ? PlayerStatus.SAFE : PlayerStatus.ONE_LOSS);
+                u.setPlayerStatus(PlayerStatus.ONE_LOSS);
                 break;
             case ONE_LOSS:
-                u.setPlayerStatus(winner ? PlayerStatus.SAFE : PlayerStatus.ELIMINATED);
-                break;
             case ELIMINATED:
-                u.setPlayerStatus(winner ? PlayerStatus.ONE_LOSS : PlayerStatus.ELIMINATED);
+                u.setPlayerStatus(PlayerStatus.ELIMINATED);
+                break;
         }
     }
 
-    public void updateForRoundRobin(Tournament t, int userID, int opponentID) throws ScheduleException {
+    public void updateForRoundRobin(Tournament t, int userID) throws ScheduleException {
         List<Registrant> registrants = userRegistersTournamentRepository.getSchedulerRegistrantsByTournamentID(t.getTournamentID());
         Set<Integer> registrantIDs = registrants.stream().map(Registrant::getID).collect(Collectors.toSet());
-        registrants = registrants.stream().filter(r -> r.getID() == userID || r.getID() == opponentID).collect(Collectors.toList());
+        registrants = registrants.stream().filter(r -> r.getID() == userID).collect(Collectors.toList());
 
         for (Registrant r : registrants) {
             r.setPlayersToPlay(new LinkedHashSet<>(registrantIDs));
