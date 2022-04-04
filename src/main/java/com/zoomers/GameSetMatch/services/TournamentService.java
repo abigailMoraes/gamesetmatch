@@ -263,7 +263,7 @@ public class TournamentService {
         return false;
     }
 
-    private boolean checkIfAllPlayersHavePlayed(List<Registrant> registrants) {
+    public boolean checkIfAllPlayersHavePlayed(List<Registrant> registrants) {
 
         for (Registrant r : registrants) {
             if (r.getPlayersToPlay().size() > 1) {
