@@ -265,6 +265,11 @@ public class TournamentController {
         return ResponseEntity.status(HttpStatus.OK).body("Schedule created for Tournament ID: " + tournamentID);
     }
 
+    @GetMapping(value = "/user/{userID}/completed")
+    public List<Tournament> getCompletedTournamentsByUser(@PathVariable int userID){
+        return tournamentService.getCompletedTournamentsForUser(userID);
+    }
+
     @GetMapping(value = "/user/{userID}/number/completed")
     public Optional<UserMatchTournamentRepository.NumQuery>
     getNumberOfCompletedTournamentsByUser(@PathVariable int userID) {

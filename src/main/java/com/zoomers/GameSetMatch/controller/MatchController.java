@@ -51,9 +51,9 @@ public class MatchController {
     MatchService matchService;
 
     @GetMapping("/match/involves/user/{id}")
-    List<UserMatchTournamentInfo> getPublishedMatchesForUser(@PathVariable int id) {
-        List<UserMatchTournamentInfo> matches = userMatchTournamentRepository.findPublishedMatchesByUserID(id);
-        return matches;
+    List<UserMatchTournamentInfoResp> getPublishedMatchesForUser(@PathVariable int id) {
+        List<UserMatchTournamentInfoResp> info = mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findPublishedMatchesByUserID(id));
+        return info;
     }
 
     private UserMatchTournamentInfoResp mapUserMatchTournamentInfoToResponse(UserMatchTournamentInfo match) {
@@ -78,12 +78,14 @@ public class MatchController {
 
     @GetMapping("/match/history/involves/user/{id}")
     List<UserMatchTournamentInfoResp> getPastMatchesForUser(@PathVariable int id) {
-        return mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findPastMatchesByUserID(id));
+        List<UserMatchTournamentInfoResp> info =  mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findPastMatchesByUserID(id));
+        return info;
     }
 
     @GetMapping("/match/{id}/{uid}")
     UserMatchTournamentInfoResp getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
-        return mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findMatchInfoByMatchID(id));
+        UserMatchTournamentInfoResp response = mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findMatchInfoByMatchID(id));
+        return response;
     }
 
     @GetMapping( "/rounds/{roundID}/matches")

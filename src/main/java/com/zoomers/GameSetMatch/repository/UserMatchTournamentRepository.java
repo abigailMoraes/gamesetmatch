@@ -88,17 +88,16 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
 
     @Query(value ="SELECT u.userID as id, u.results as resultText, u.attendance as status, p.name\n " +
             "FROM User_involves_match u \n" +
-            "JOIN (SELECT * FROM Match_Has WHERE Match_has.matchID = :matchID) m ON m.matchID = u.matchID JOIN \n" +
-            " Round_Has r ON m.roundID = r.roundID JOIN tournament t\n" +
+            "JOIN (SELECT * FROM Match_Has WHERE Match_Has.matchID = :matchID) m ON m.matchID = u.matchID JOIN \n" +
+            " Round_Has r ON m.roundID = r.roundID JOIN Tournament t\n" +
             " ON r.tournamentID = t.tournamentID JOIN User p ON u.userID = p.userID", nativeQuery = true)
     List<IParticipantInfo> getUserMatchInfoByMatchID(int matchID);
 
 
-    @Query(value ="SELECT m.matchID as id, t.name as name, m.roundID as tournamentRoundText, m.start_time as \n" +
-            "startTime " +
+    @Query(value ="SELECT MAX(m.matchID) as id, t.name as name, m.roundID as tournamentRoundText " +
             "FROM Match_Has m JOIN \n"
-            + "Round_Has r ON m.roundID = r.roundID JOIN (SELECT * FROM tournament WHERE \n" +
-            "tournament.tournamentID = :tournamentID) t on t.tournamentID = r.tournamentID group by m.userID_1,\n" +
+            + "Round_Has r ON m.roundID = r.roundID JOIN (SELECT * FROM Tournament WHERE \n" +
+            "Tournament.tournamentID = :tournamentID) t on t.tournamentID = r.tournamentID group by m.userID_1,\n" +
             "m.userID_2, m.roundID;", nativeQuery = true)
     List<UserMatchTournamentRepository.IBracketMatchInfo> getBracketMatchInfoByTournamentID(int tournamentID);
 
@@ -197,7 +196,6 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
         Integer getID();
         String  getName();
         String  getTournamentRoundText();
-        String  getStartTime();
     }
 
 
