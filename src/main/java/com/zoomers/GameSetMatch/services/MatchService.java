@@ -16,12 +16,12 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.zoomers.GameSetMatch.services.DateAndLocalDateService.timezoneOfData;
 import static java.util.Objects.isNull;
 
 @Service
@@ -67,8 +67,8 @@ public class MatchService {
             Match existingMatch = matchRepository.getById(match.getID());
 
             if (!isNull(existingMatch)) {
-                existingMatch.setStartTime(convertToPSTLocalDateTime(match.getStartTime()));
-                existingMatch.setEndTime(convertToPSTLocalDateTime(match.getEndTime()));
+                existingMatch.setStartTime(convertToDatasTZLocalDateTime(match.getStartTime()));
+                existingMatch.setEndTime(convertToDatasTZLocalDateTime(match.getEndTime()));
                 existingMatch.setIsPublished(1);
                 updatedMatches.add(existingMatch);
             } else {
@@ -94,8 +94,8 @@ public class MatchService {
         if (isNull(tournament)) {
             throw new EntityNotFoundException(String.format("Invalid Tournament ID: %d", tournamentID));
         }
-        LocalDateTime firstMatchLDT = convertToPSTLocalDateTime(firstMatchDate);
-        LocalDateTime lastMatchLDT = convertToPSTLocalDateTime(latestMatchDate);
+        LocalDateTime firstMatchLDT = convertToDatasTZLocalDateTime(firstMatchDate);
+        LocalDateTime lastMatchLDT = convertToDatasTZLocalDateTime(latestMatchDate);
 
         Date roundStartDate = DateAndLocalDateService.localDateToDate(firstMatchLDT.toLocalDate());
         Date roundEndDate = DateAndLocalDateService.localDateToDate(lastMatchLDT.toLocalDate());
@@ -111,8 +111,8 @@ public class MatchService {
         roundRepository.save(round);
     }
 
-    private LocalDateTime convertToPSTLocalDateTime(ZonedDateTime t){
-        ZonedDateTime pstZoned = t.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
+    private LocalDateTime convertToDatasTZLocalDateTime(ZonedDateTime t) {
+        ZonedDateTime pstZoned = t.withZoneSameInstant(timezoneOfData);
         return pstZoned.toLocalDateTime();
     }
 

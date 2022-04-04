@@ -1,8 +1,9 @@
 package com.zoomers.GameSetMatch.controller.Match.ResponseBody;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
+
+import static com.zoomers.GameSetMatch.services.DateAndLocalDateService.timezoneOfData;
 
 public class UserMatchTournamentInfoResp {
     private Integer results;
@@ -21,8 +22,8 @@ public class UserMatchTournamentInfoResp {
         this.results = results;
         this.attendance = attendance;
         this.matchID = matchID;
-        this.startTime = startTime.atZone(ZoneId.of("America/Los_Angeles"));
-        this.endTime = startTime.atZone(ZoneId.of("America/Los_Angeles"));
+        this.startTime = startTime.atZone(timezoneOfData);
+        this.endTime = startTime.atZone(timezoneOfData);
         this.name = name;
         this.location = location;
         this.description = description;

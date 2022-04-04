@@ -39,14 +39,21 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             nativeQuery = true)
     List<UserMatchTournamentInfo> findPastMatchesInTournamentByUserID(int id, int t_id);
 
-    @Query(  value ="SELECT m.matchID \n" +
+    @Query(value = "SELECT m.matchID \n" +
             "FROM (SELECT * FROM User_involves_match WHERE userID = :id) u \n" +
             "JOIN (SELECT * FROM Match_Has WHERE end_time <= NOW()) m ON m.matchID = u.matchID LEFT JOIN \n" +
             " Round_Has ON m.roundID = Round_Has.roundID WHERE Round_Has.tournamentID = :t_id",
             nativeQuery = true)
     List<Integer> findPastTournamentMatchIDsByUserID(int id, int t_id);
 
-    @Query(  value ="SELECT m.matchID, m.start_time, m.end_time, Round_Has.roundNumber, \n" +
+    @Query(value = "SELECT m.matchID \n" +
+            "FROM (SELECT * FROM User_involves_match WHERE userID = :id AND results > 0) u \n" +
+            "JOIN (SELECT * FROM Match_Has) m ON m.matchID = u.matchID LEFT JOIN \n" +
+            " Round_Has ON m.roundID = Round_Has.roundID WHERE Round_Has.tournamentID = :t_id",
+            nativeQuery = true)
+    List<Integer> findTournamentMatchIDsByUserIDWithResultsGreaterThan(int id, int t_id, int resultGreaterThan);
+
+    @Query(value = "SELECT m.matchID, m.start_time, m.end_time, Round_Has.roundNumber, \n" +
             " Tournament.name, Tournament.location, Tournament.description \n" +
             "FROM (SELECT * FROM Match_Has WHERE matchID = :id) m JOIN Round_Has ON m.roundID = Round_Has.roundID \n" +
             "LEFT JOIN Tournament ON Round_Has.tournamentID = Tournament.tournamentID;",
@@ -55,7 +62,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
 
     @Transactional
     @Modifying
-    @Query( value = "UPDATE User_involves_match SET User_involves_match.attendance = :attendance \n"+
+    @Query(value = "UPDATE User_involves_match SET User_involves_match.attendance = :attendance \n" +
             "WHERE User_involves_match.matchID = :mid AND User_involves_match.userID = :uid", nativeQuery = true)
     void confirmMatchAttendanceForUser(int mid, int uid, String attendance);
 

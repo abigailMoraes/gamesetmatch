@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.zoomers.GameSetMatch.services.DateAndLocalDateService.timezoneOfData;
+
 public class Timeslot {
 
     private final float time;
@@ -79,7 +81,7 @@ public class Timeslot {
 
     public LocalDateTime getLocalStartDateTime() {
 
-        LocalDate localDate = this.date.toInstant().atZone(ZoneId.of("America/Los_Angeles")).toLocalDate();
+        LocalDate localDate = this.date.toInstant().atZone(timezoneOfData).toLocalDate();
 
         int minutes = 30;
         if (this.time % 1 == 0) {
