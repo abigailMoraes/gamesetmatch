@@ -206,7 +206,7 @@ public class TournamentController {
         }catch (EntityNotFoundException e) {
             ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
-        } catch (MissingMatchResultsException e) {
+        } catch (MissingMatchResultsException | ScheduleException e) {
             ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         }

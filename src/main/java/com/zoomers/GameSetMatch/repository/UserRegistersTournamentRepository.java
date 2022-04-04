@@ -31,6 +31,10 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
             "WHERE userID = :id AND tournamentID = :t_id", nativeQuery = true)
     List<Integer> getPlayerStatusByTournamentID(int id, int t_id);
 
+    @Query(value = "SELECT * FROM User_registers_tournament " +
+            "WHERE userID = :id AND tournamentID = :t_id", nativeQuery = true)
+    List<UserRegistersTournament> getTournamentRegistrationForUser(int id, int t_id);
+
     //TODO: add skill level table that maps value to meaning e.g. skill 1 = beginner, 2 = intermediate...
     interface IRegistrant {
         Integer getUserID();

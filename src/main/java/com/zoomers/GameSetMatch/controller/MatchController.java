@@ -99,14 +99,12 @@ public class MatchController {
     }
 
     @GetMapping("/tournament/{matchID}/userMatchInfo")
-    List<UserMatchTournamentRepository.IParticipantInfo>
-    getMatchUserInfoByMatchID(@PathVariable int matchID){
+    List<UserMatchTournamentRepository.IParticipantInfo> getMatchUserInfoByMatchID(@PathVariable int matchID){
         return userMatchTournamentRepository.getUserMatchInfoByMatchID(matchID);
     }
 
     @GetMapping("/tournament/round/{roundID}/match/{matchID}")
-    Optional<UserMatchTournamentRepository.NumQuery>
-    getNextMatchInBracketSingleElimination(@PathVariable int roundID, @PathVariable int matchID) {
+    Optional<UserMatchTournamentRepository.NumQuery> getNextMatchInBracketSingleElimination(@PathVariable int roundID, @PathVariable int matchID) {
         UserMatchTournamentRepository.NumQuery num = userMatchTournamentRepository.getNextMatchID(matchID, roundID);
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
@@ -122,27 +120,23 @@ public class MatchController {
     }
 
     @GetMapping("/tournament/{tournamentID}/bracketMatchInfo")
-    List<UserMatchTournamentRepository.IBracketMatchInfo>
-    getBracketMatchInfoByTournamentID(@PathVariable int tournamentID){
+    List<UserMatchTournamentRepository.IBracketMatchInfo> getBracketMatchInfoByTournamentID(@PathVariable int tournamentID){
        return  userMatchTournamentRepository.getBracketMatchInfoByTournamentID(tournamentID);
     }
 
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner")
-    Optional<UserMatchTournamentRepository.NumQuery>
-    getNextWinnerMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.NumQuery winnerMatchID =
-                userMatchTournamentRepository.getNextWinnerMatchID(oldRoundID, winnerID.getWinner(), loserID.getLoser(),
-                        oldMatchID);
+    Optional<UserMatchTournamentRepository.NumQuery> getNextWinnerMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID, oldRoundID);
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID, oldRoundID);
+        UserMatchTournamentRepository.NumQuery winnerMatchID = userMatchTournamentRepository.getNextWinnerMatchID(oldRoundID, winnerID.getWinner(), loserID.getLoser(), oldMatchID);
+
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
             public Integer getNext() {
                 return null;
             }
         };
+
         if (Optional.ofNullable(winnerMatchID).isPresent()) {
             return Optional.of(winnerMatchID);
         } else {
@@ -152,21 +146,19 @@ public class MatchController {
     }
 
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner/multiple")
-    Optional<UserMatchTournamentRepository.NumQuery>
-    getNextWinnerMatchIDForMultipleMatches(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.NumQuery winnerMatchID =
-                userMatchTournamentRepository.getNextWinnerMatchIDMultipleMatchesPerRound(oldRoundID,
+    Optional<UserMatchTournamentRepository.NumQuery> getNextWinnerMatchIDForMultipleMatches(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID, oldRoundID);
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID, oldRoundID);
+        UserMatchTournamentRepository.NumQuery winnerMatchID = userMatchTournamentRepository.getNextWinnerMatchIDMultipleMatchesPerRound(oldRoundID,
                         winnerID.getWinner(), loserID.getLoser(), oldMatchID);
+
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
             public Integer getNext() {
                 return null;
             }
         };
+
         if (Optional.ofNullable(winnerMatchID).isPresent()) {
             return Optional.of(winnerMatchID);
         } else {
@@ -187,21 +179,18 @@ public class MatchController {
 
 
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/loser")
-    Optional<UserMatchTournamentRepository.NumQuery>
-    getNextLoserMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.NumQuery loserMatchID =
-                userMatchTournamentRepository.getNextLoserMatchID(oldRoundID, winnerID.getWinner(),
-                        loserID.getLoser(), oldMatchID);
+    Optional<UserMatchTournamentRepository.NumQuery> getNextLoserMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID, oldRoundID);
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID, oldRoundID);
+        UserMatchTournamentRepository.NumQuery loserMatchID = userMatchTournamentRepository.getNextLoserMatchID(oldRoundID, winnerID.getWinner(),
+                loserID.getLoser(), oldMatchID);
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
             public Integer getNext() {
                 return null;
             }
         };
+
         if (Optional.ofNullable(loserMatchID).isPresent()) {
             return Optional.of(loserMatchID);
         } else {
@@ -221,6 +210,9 @@ public class MatchController {
 
         } catch (EntityNotFoundException e){
             ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (ScheduleException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
         return ResponseEntity.ok("Update successful.");
