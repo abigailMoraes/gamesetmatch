@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.zoomers</groupId>
 	<artifactId>GameSetMatch</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.6-SNAPSHOT</version>
 	<name>GameSetMatch</name>
 	<description>To schedule users into matches based on given availability</description>
 	<properties>
@@ -18,6 +18,17 @@
 		<tomcat.version>9.0.56</tomcat.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<version>3.1.2</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>8.1.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -54,6 +65,20 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20211205</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 
 	</dependencies>

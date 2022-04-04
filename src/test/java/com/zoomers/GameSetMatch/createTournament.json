@@ -1,0 +1,17 @@
+{
+  "name": "this is for test",
+  "description": "hope it can pass",
+  "format": "aaaa",
+  "location": "unknown",
+  "maxParticipants": 6,
+  "minParticipants": 2,
+  "prize": "aaaa",
+  "type": null,
+  "startDate": "2022-03-24",
+  "closeRegistrationDate": "2022-03-28",
+  "matchDuration": 0,
+  "numberOfMatches": 0,
+  "roundDuration": 0,
+  "endDate": null,
+  "adminHostsTournament": 319
+}

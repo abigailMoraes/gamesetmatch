@@ -12,18 +12,21 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "User")
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(
-        name="discriminator",
-        discriminatorType=DiscriminatorType.STRING
-)
 
-@DiscriminatorValue(value="U")
 public class User {
-    private @Id @GeneratedValue(strategy = GenerationType.IDENTITY) int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column (name = "userID")
+    private int id;
+    @Column (name = "firebase_id")
+    private String firebaseId;
+    @Column (name = "email")
     private String email;
+    @Column (name = "name")
     private String name;
-    private String phoneNum;
+    // 0 is employee, 1 is admin, 2 is root admin
+    @Column (name = "is_admin")
+    private int isAdmin;
 
     @Override
     public boolean equals(Object o) {
@@ -36,5 +39,11 @@ public class User {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("{\"id\":%d,\"firebaseId\":\"%s\",\"email\":\"%s\",\"name\":\"%s\"," +
+                "\"isAdmin\":%d}", this.id, this.firebaseId, this.email, this.name, this.isAdmin);
     }
 }
