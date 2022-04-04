@@ -44,30 +44,35 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
 
     @Transactional
     @Modifying
-    @Query ( value = "UPDATE Tournament t SET t.status = :status WHERE t.tournamentID = :tournamentID",
+    @Query(value = "UPDATE Tournament t SET t.status = :status WHERE t.tournamentID = :tournamentID",
             nativeQuery = true
 
     )
-    void setTournamentStatus (int status, int tournamentID);
+    void setTournamentStatus(int status, int tournamentID);
 
+
+    @Query(value = "SELECT * FROM Tournament t " +
+            "INNER JOIN User_registers_tournament u ON u.tournamentID = t.tournamentID " +
+            "WHERE status < :status " +
+            "AND u.userID = :userID ",
+            nativeQuery = true)
+    List<Tournament> findRegisteredTournamentsForUser(int userID, int status);
 
     @Query(value = "SELECT * FROM Tournament WHERE status = :status AND + \n"
-            +"EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
+            + "EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
             " AND Tournament.tournamentID = user_registers_tournament.tournamentID)",
-    nativeQuery = true)
+            nativeQuery = true)
     List<Tournament> findCompletedTournamentsForUser(int userID, int status);
 
     @Query(value = "SELECT count(*) as next FROM Tournament WHERE status = :status AND + \n"
-            +"EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
+            + "EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
             " AND Tournament.tournamentID = user_registers_tournament.tournamentID)",
             nativeQuery = true)
     UserMatchTournamentRepository.NumQuery getNumberOfCompletedTournamentsForUser(int userID, int status);
 
     @Query(value = "SELECT count(*) as next FROM Tournament WHERE status = :status AND + \n"
-            +"EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
+            + "EXISTS (SELECT * FROM user_registers_tournament WHERE user_registers_tournament.userID = :userID \n" +
             " AND Tournament.tournamentID = user_registers_tournament.tournamentID AND player_status = :safeStatus)",
             nativeQuery = true)
     UserMatchTournamentRepository.NumQuery getNumberOfTournamentsWonByUser(int userID, int status, int safeStatus);
-
-
 }

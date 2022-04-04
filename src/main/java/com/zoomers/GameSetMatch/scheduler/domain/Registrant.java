@@ -59,7 +59,7 @@ public class Registrant {
         this.availability = registrantService.initAvailability(this.id, this.tournamentId);
     }
 
-    public void initCurrentStatus(TournamentFormat format, MatchBy matchBy, int tournamentId) {
+    public void initCurrentStatus(TournamentFormat format, MatchBy matchBy, int tournamentId) throws ScheduleException {
 
         if (matchBy == MatchBy.MATCH_BY_RANDOM) {
             this.skillLevel = Skill.INTERMEDIATE;
@@ -68,13 +68,6 @@ public class Registrant {
         this.playersToPlay = registrantService.initPlayersToPlay(this.id, this.playersToPlay, tournamentId);
 
         switch(format) {
-            case ROUND_ROBIN:
-            {
-                if (this.playersToPlay.size() == 0) {
-                    this.status = PlayerStatus.ELIMINATED;
-                }
-            }
-            break;
             case SINGLE_KNOCKOUT:
             case DOUBLE_KNOCKOUT:
             case SINGLE_BRACKET: {

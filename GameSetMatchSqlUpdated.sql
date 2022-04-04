@@ -28,17 +28,25 @@ CREATE TABLE Availability(userID int, tournamentID int, day_of_week int, availab
 
 /*Create table statement for Round*/
 CREATE TABLE Round_Has(roundID int NOT NULL AUTO_INCREMENT, roundNumber int, tournamentID int, start_date DATETIME, end_date DATETIME, PRIMARY KEY(roundID), FOREIGN KEY(tournamentID) REFERENCES Tournament(tournamentID));
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1,'2022/03/05','2022/03/21');
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
-INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
+--INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,1,'2022/02/20','2022/02/27');
+--INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,1,'2022/03/05','2022/03/21');
+--INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (1,2,'2022/04/05','2022/04/12');
+--INSERT INTO Round_Has(roundNumber, tournamentID, start_date, end_date) values (2,2,'2022/04/10','2022/04/22');
 
-ALTER TABLE Round_Has ADD roundNumber int;
+--ALTER TABLE Round_Has ADD roundNumber int;
 
-
-/*is_conflict is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot) */
+/*match_status is an int to represent whether the players have a conflict in their attendance responses (i.e. one player can attend while the other cannot) */
 /*Create table statement for Match_Has*/
-CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, roundID int, is_conflict int, userID_1 int, userID_2 int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES User(userID), FOREIGN KEY(userID_2) REFERENCES User(userID));
+CREATE TABLE Match_Has(matchID int NOT NULL AUTO_INCREMENT, start_time DATETIME, end_time DATETIME, roundID int,  match_status int, userID_1 int, userID_2 int, PRIMARY KEY(matchID), FOREIGN KEY(roundID) REFERENCES Round_Has(roundID), FOREIGN KEY(userID_1) REFERENCES User(userID), FOREIGN KEY(userID_2) REFERENCES User(userID));
+
+/* if you don't want to reacreate the table*/
+--ALTER TABLE Match_Has DROP Column is_conflict;
+--ALTER TABLE Match_Has ADD COLUMN match_status int;
+ALTER TABLE Match_Has ADD isPublished int;
+
+/* if have the column as boolean*/
+--ALTER TABLE Match_Has MODIFY COLUMN isPublished int;
+
 
 /*Create table statement for user_involves_match*/
 CREATE TABLE User_involves_match(userID int, matchID int, results int, attendance varchar(40), PRIMARY KEY(userID, matchID), FOREIGN KEY (userID) REFERENCES User(userID), FOREIGN KEY (matchID) REFERENCES Match_Has(matchID));
@@ -96,6 +104,6 @@ DELIMITER $$
         SET SQL_SAFE_UPDATES = 0;
 /* ALL DELETE STATEMENTS */
 
-        DELETE FROM Match_has;
-        ALTER TABLE match_has auto_increment=1;
+        DELETE FROM Match_Has;
+        ALTER TABLE Match_Has auto_increment=1;
         DELETE FROM User;

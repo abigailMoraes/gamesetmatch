@@ -3,7 +3,6 @@ package com.zoomers.GameSetMatch.scheduler.domain;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchStatus;
 import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Objects;
 
