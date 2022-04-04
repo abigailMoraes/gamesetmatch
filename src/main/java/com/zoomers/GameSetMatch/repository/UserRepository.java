@@ -20,4 +20,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findById(int id);
 
     User getUserById(int id);
+
+
+    @Query(value="SELECT * FROM User WHERE userID in (SELECT userID FROM User_registers_tournament \n" +
+            "WHERE (tournamentID =:tournamentID AND player_status =:status ))", nativeQuery = true)
+    List<User> getRemainingPlayersWithSafeStatusInTournament(Integer tournamentID, int status);
+
 }

@@ -14,14 +14,13 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
 
     @Query(
            value ="SELECT u.results, u.attendance, Match_Has.matchID, Match_Has.start_time, Match_Has.end_time,\n" +
-                   "Round_Has.roundNumber, Tournament.name, Tournament.location, Tournament.description \n" +
+                   "Round_Has.roundNumber,Tournament.name,Tournament.location,Tournament.description \n" +
                    "FROM (SELECT * FROM User_involves_match WHERE userID = :id) \n " +
                    "u LEFT JOIN Match_Has ON Match_Has.matchID = u.matchID LEFT JOIN \n" +
                    " Round_Has ON Match_Has.roundID = Round_Has.roundID LEFT JOIN Tournament \n" +
-                   " ON Round_Has.tournamentID = Tournament.tournamentID " +
-                   "WHERE Match_Has.isPublished = 1;",
+                   " ON Round_Has.tournamentID = Tournament.tournamentID;",
             nativeQuery = true)
-    List<UserMatchTournamentInfo> findPublishedMatchesByUserID(int id);
+    List<UserMatchTournamentInfo> findMatchesByUserID(int id);
 
     @Query(  value ="SELECT u.results, u.attendance, m.matchID, m.start_time, m.end_time,\n" +
             "Tournament.name, Tournament.location, Tournament.description \n" +
@@ -116,7 +115,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             "and results = 1 \n" +
             " group by userID) \n " +
             "w order by count desc LIMIT 1;", nativeQuery = true)
-    WinnerID getWinnerUserID(int oldMatchID, int oldRoundID);
+    WinnerID getSeriesWinnerUserID(int oldMatchID, int oldRoundID);
 
 
     @Query(value = "SELECT u.name AS winner FROM User u JOIN ( SELECT userID From user_involves_match \n " +
@@ -133,7 +132,7 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             "matchID = :oldMatchID),(select userID_2 from match_has where matchID = :oldMatchID)) \n" +
             "and results = 2 group by userID) \n " +
             "w order by count desc LIMIT 1;", nativeQuery = true)
-    LoserID getLoserUserID(int oldMatchID, int oldRoundID);
+    LoserID getSeriesLoserUserID(int oldMatchID, int oldRoundID);
 
     @Query(value = "SELECT MIN(matchID) as next from (SELECT roundID FROM round_has \n"+
             "WHERE tournamentID = (SELECT tournamentID from round_has \n"+
@@ -157,6 +156,37 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             "and matchID > :oldMatchID) m ON r.roundID = m.roundID;", nativeQuery = true)
     NumQuery getNextLoserMatchID( int oldRoundID, int winnerID,int LoserID, int oldMatchID);
 
+    @Query
+    (value="select userID from (select userID, count(*) as wins from \n" +
+     "(Select * from user_involves_match where matchID in (SELECT matchID FROM match_has WHERE roundID in \n"+
+     "(Select roundID from round_has where tournamentID=:tournamentID))) t where (t.results = :winEnum   \n " +
+     "or t.results = :tieEnum) group by userID) w \n"+
+     "where wins = (select max(w.wins) from (select userID, count(*) as wins from (Select * from \n" +
+     "user_involves_match where matchID in (SELECT matchID FROM match_has WHERE roundID in \n" +
+     "(SELECT roundID from round_has where tournamentID=:tournamentID))) t where (t.results = :winEnum \n" +
+     "or t.results = :tieEnum) group by userID) w);",
+            nativeQuery = true)
+    List<Integer> getRoundRobinWinnerID(int tournamentID, int winEnum, int tieEnum);
+
+
+    @Query
+    (value="select userID from (select userID, count(*) as wins from \n" +
+            "(Select * from user_involves_match where matchID in (SELECT matchID FROM match_has WHERE roundID in\n" +
+            "(Select roundID from round_has where tournamentID=:tournamentID))) t where (t.results = :winEnum\n" +
+            "or t.results = :tieEnum) group by userID) w \n" +
+            "where wins < (select max(w.wins) from (select userID, count(*) as wins from (Select * from \n" +
+            "user_involves_match where matchID in (SELECT matchID FROM match_has WHERE roundID in \n" +
+            "(SELECT roundID from round_has where tournamentID=:tournamentID))) t where (t.results = :winEnum \n" +
+            "or t.results = :tieEnum) group by userID) w)",
+             nativeQuery = true)
+    List<Integer> getRoundRobinLoserID(Integer tournamentID, int winEnum, int tieEnum);
+
+    @Query
+    (value="Select count(*) as next \n " +
+            " from (Select distinct userID_1,userID_2 from match_has where roundID in \n" +
+            "( select roundID from round_has where tournamentID = :tournamentID) and :userID in (userID_1,userID_2)) n",
+            nativeQuery=true)
+    NumQuery getNumberOfDistinctOpponentsFacedByPlayerInTournament(int tournamentID, int userID);
 
     interface NumQuery{
         Integer getNext();

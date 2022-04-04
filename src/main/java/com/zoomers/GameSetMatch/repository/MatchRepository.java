@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface MatchRepository extends JpaRepository<Match,Integer> {
 
@@ -46,5 +47,16 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
     @Query(value = "SELECT * FROM match_has JOIN (SELECT * FROM round_has WHERE tournamentID = :tournamentID) r ON \n"+
     "match_has.roundID = r.roundID", nativeQuery = true)
     List<Match> getMatchesByTournamentID(int tournamentID);
+
+    @Query(value = "select n.matchNumber as next From (SELECT row_number() OVER ( order by matchID ) " +
+            "as matchNumber, \n" +
+            "matchID FROM (select * from match_has where roundID = \n " +
+            "(Select roundID from match_has where matchID = :currMatchID) and userID_1 in \n"+
+            "((Select userID_1 from match_has where matchID = :currMatchID), \n" +
+            "(Select userID_2 from match_has where matchID = :currMatchID)) \n" +
+            "and userID_2 in ((select userID_1 from match_has where matchID = :currMatchID), \n" +
+            "(select userID_2 from match_has where matchID = :currMatchID))) q ) n where n.matchID = :currMatchID\n",
+            nativeQuery = true)
+    UserMatchTournamentRepository.NumQuery getMatchNumber(int currMatchID);
 
 }

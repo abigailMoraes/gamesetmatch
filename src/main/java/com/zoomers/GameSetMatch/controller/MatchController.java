@@ -11,6 +11,12 @@ import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
+import com.zoomers.GameSetMatch.entity.*;
+import com.zoomers.GameSetMatch.entity.EnumsForColumns.MatchResult;
+import com.zoomers.GameSetMatch.repository.*;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
+import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentSeries;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
 import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
 import com.zoomers.GameSetMatch.services.Errors.ProposedMatchChangeConflictException;
@@ -47,6 +53,12 @@ public class MatchController {
 
     @Autowired
     MatchService matchService;
+
+    @Autowired
+    UserRegistersTournamentRepository userRegistersTournamentRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @GetMapping("/match/involves/user/{id}")
     List<UserMatchTournamentInfo> getPublishedMatchesForUser(@PathVariable int id) {
@@ -106,9 +118,9 @@ public class MatchController {
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner")
     Optional<UserMatchTournamentRepository.NumQuery>
     getNextWinnerMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getSeriesWinnerUserID(oldMatchID,
                 oldRoundID);
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getSeriesLoserUserID(oldMatchID,
                 oldRoundID);
         UserMatchTournamentRepository.NumQuery winnerMatchID =
                 userMatchTournamentRepository.getNextWinnerMatchID(oldRoundID, winnerID.getWinner(), loserID.getLoser(),
@@ -130,9 +142,9 @@ public class MatchController {
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner/multiple")
     Optional<UserMatchTournamentRepository.NumQuery>
     getNextWinnerMatchIDForMultipleMatches(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getSeriesWinnerUserID(oldMatchID,
                 oldRoundID);
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getSeriesLoserUserID(oldMatchID,
                 oldRoundID);
         UserMatchTournamentRepository.NumQuery winnerMatchID =
                 userMatchTournamentRepository.getNextWinnerMatchIDMultipleMatchesPerRound(oldRoundID,
@@ -165,9 +177,9 @@ public class MatchController {
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/loser")
     Optional<UserMatchTournamentRepository.NumQuery>
     getNextLoserMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getSeriesLoserUserID(oldMatchID,
                 oldRoundID);
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getSeriesWinnerUserID(oldMatchID,
                 oldRoundID);
         UserMatchTournamentRepository.NumQuery loserMatchID =
                 userMatchTournamentRepository.getNextLoserMatchID(oldRoundID, winnerID.getWinner(),
@@ -193,14 +205,168 @@ public class MatchController {
     @PutMapping("/match/userResults")
     public ResponseEntity updateMatchResults(@RequestBody IncomingResults results) {
         try {
-            userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
-
-        } catch (EntityNotFoundException e){
-            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
-            return new ResponseEntity<Object>(error, error.getHttpStatus());
+            userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(),
+                    results.getResults());
+            Optional<Tournament> tournamentQuery = null;
+            Tournament tournament = null;
+            tournamentQuery = tournamentService.getTournamentInfoByMatchID(results.getMatchID());
+            if (tournamentQuery.isPresent()) {
+                tournament = tournamentQuery.get();
+            }
+            int opponentID = matchRepository.findById(results.getMatchID()).get().getUserID_1() == results.getUserID()?
+                    matchRepository.findById(results.getMatchID()).get().getUserID_2() :
+                    matchRepository.findById(results.getMatchID()).get().getUserID_1();
+            if (tournament != null) {
+                if (matchIsTheLastMatchInTheSeries(results, tournament)) {
+                    if (tournamentFormatIsSingleKnockoutOrSingleBracket(tournament)) {
+                        updatePlayerStatusSingleKnockout(results, tournament,opponentID);
+                    } else if (tournamentFormatIsDoubleKnockout(tournament)) {
+                        updatePlayerStatusForDoubleKnockout(results, tournament,opponentID);
+                    } else {
+                        if (playerHasPlayedEveryOtherPlayerInRoundRobinTournament(tournament.getTournamentID(),
+                                results.getUserID())) {
+                            List<Integer> roundRobinWinners = userMatchTournamentRepository.getRoundRobinWinnerID(
+                                    tournament.getTournamentID(), MatchResult.WIN.getResult(),
+                                    MatchResult.TIE.getResult()
+                            );
+                            if (!roundRobinWinners.contains(results.getUserID())){
+                                updatePlayerStatusInRoundRobin(results.getUserID(),
+                                        tournament.getTournamentID(), PlayerStatus.ELIMINATED.getStatus());
+                            }else{
+                                userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                                tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+                            }
+                        } else{
+                            userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                                    tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+                        }
+                    }
+                }
+            }
         }
-        return ResponseEntity.ok("Update successful.");
+        catch(EntityNotFoundException e){
+                ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+                return new ResponseEntity<Object>(error, error.getHttpStatus());
+            }
+            return ResponseEntity.ok("Update successful.");
     }
+
+
+    private void updatePlayerStatusInRoundRobin(int userID, int tournamentID, int status) {
+        userRegistersTournamentRepository.updatePlayerStatusForATournament(userID, tournamentID,status);
+    }
+
+    private boolean playerHasPlayedEveryOtherPlayerInRoundRobinTournament(Integer tournamentID, int userID) {
+        UserMatchTournamentRepository.NumQuery allPlayersInTournament =
+                userRegistersTournamentRepository.getPlayersInTournament(tournamentID);
+        UserMatchTournamentRepository.NumQuery numberOfDistinctOpponentsFacedByPlayer =
+                userMatchTournamentRepository.getNumberOfDistinctOpponentsFacedByPlayerInTournament(tournamentID,
+                        userID);
+       return allPlayersInTournament.getNext()-1 == numberOfDistinctOpponentsFacedByPlayer.getNext();
+    }
+
+    private boolean tournamentFormatIsDoubleKnockout(Tournament tournament) {
+        return tournament.getFormat() == TournamentFormat.DOUBLE_KNOCKOUT.ordinal();
+    }
+
+    private boolean tournamentFormatIsSingleKnockoutOrSingleBracket(Tournament tournament) {
+        return tournament.getFormat() == TournamentFormat.SINGLE_KNOCKOUT.ordinal()
+                || tournament.getFormat() == TournamentFormat.SINGLE_BRACKET.ordinal();
+    }
+
+    private boolean matchIsTheLastMatchInTheSeries(IncomingResults results, Tournament tournament) {
+        return tournament.getSeries().equals(matchRepository.getMatchNumber(results.getMatchID()).getNext());
+    }
+
+    private void updatePlayerStatusForDoubleKnockout(IncomingResults results, Tournament tournament, int opponentID) {
+        List<User> remainingPlayersInTournament =
+                userRepository.getRemainingPlayersWithSafeStatusInTournament(tournament.getTournamentID(),
+                        PlayerStatus.SAFE.getStatus());
+        if (tournament.getSeries() == TournamentSeries.BEST_OF_1.getNumberOfGames() && results.getResults() ==
+                MatchResult.WIN.getResult()) {
+            if (userRegistersTournamentRepository.getPlayerStatusByTournamentID(results.getUserID(),
+                    tournament.getTournamentID()).get(0) != PlayerStatus.ONE_LOSS.getStatus()) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                        tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+            }
+            if (userRegistersTournamentRepository.getPlayerStatusByTournamentID(opponentID,
+                    tournament.getTournamentID()).get(0) == (PlayerStatus.SAFE.getStatus())) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(opponentID,
+                        tournament.getTournamentID(), PlayerStatus.ONE_LOSS.getStatus());
+            } else {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(opponentID,
+                        tournament.getTournamentID(), PlayerStatus.ELIMINATED.getStatus());
+            }
+        } else if (tournament.getSeries() == TournamentSeries.BEST_OF_1.getNumberOfGames() && results.getResults() ==
+                MatchResult.TIE.getResult()) {
+            if (userRegistersTournamentRepository.getPlayerStatusByTournamentID(results.getUserID(),
+                    tournament.getTournamentID()).get(0) != PlayerStatus.ONE_LOSS.getStatus()) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                        tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+            }
+            userRegistersTournamentRepository.updatePlayerStatusForATournament(opponentID,
+                    tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+        } else if (tournament.getSeries() == TournamentSeries.BEST_OF_1.getNumberOfGames() && results.getResults() ==
+                MatchResult.LOSS.getResult()) {
+            if (userRegistersTournamentRepository.getPlayerStatusByTournamentID(results.getUserID(),
+                    tournament.getTournamentID()).get(0) != PlayerStatus.ONE_LOSS.getStatus()) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(opponentID,
+                        tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+            }
+            if (userRegistersTournamentRepository.getPlayerStatusByTournamentID(results.getUserID(),
+                    tournament.getTournamentID()).get(0) == PlayerStatus.SAFE.getStatus()) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                        tournament.getTournamentID(), PlayerStatus.ONE_LOSS.getStatus());
+            } else {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                        tournament.getTournamentID(), PlayerStatus.ELIMINATED.getStatus());
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(opponentID,
+                        tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+            }
+        } else {
+            int seriesLoserID = userMatchTournamentRepository.getSeriesLoserUserID(results.getMatchID(),
+                    matchRepository.findById(results.getMatchID()).get().getRoundID()).getLoser();
+            if (userRegistersTournamentRepository.getPlayerStatusByTournamentID(seriesLoserID,
+                    tournament.getTournamentID()).get(0) == (PlayerStatus.SAFE.getStatus())) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(seriesLoserID,
+                        tournament.getTournamentID(), PlayerStatus.ONE_LOSS.getStatus());
+            } else{
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(seriesLoserID,
+                        tournament.getTournamentID(), PlayerStatus.ELIMINATED.getStatus());
+            }
+        }
+    }
+
+        private void updatePlayerStatusSingleKnockout (IncomingResults results, Tournament tournament,int opponentID){
+            if (tournament.getSeries() == TournamentSeries.BEST_OF_1.getNumberOfGames() && results.getResults() ==
+                    MatchResult.WIN.getResult()) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                        tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(opponentID,
+                        tournament.getTournamentID(), PlayerStatus.ELIMINATED.getStatus());
+            } else if (tournament.getSeries() == TournamentSeries.BEST_OF_1.getNumberOfGames() && results.getResults() ==
+                    MatchResult.TIE.getResult()) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                        tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(opponentID,
+                        tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+            } else if (tournament.getSeries() == TournamentSeries.BEST_OF_1.getNumberOfGames() && results.getResults() ==
+                    MatchResult.LOSS.getResult()) {
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(results.getUserID(),
+                        tournament.getTournamentID(), PlayerStatus.ELIMINATED.getStatus());
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(opponentID,
+                        tournament.getTournamentID(), PlayerStatus.SAFE.getStatus());
+            } else {
+                int seriesWinnerID = userMatchTournamentRepository.getSeriesWinnerUserID(results.getMatchID(),
+                        matchRepository.findById(results.getMatchID()).get().getRoundID()).getWinner();
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(seriesWinnerID, tournament.getTournamentID(),
+                        PlayerStatus.SAFE.getStatus());
+                int seriesLoserID = userMatchTournamentRepository.getSeriesLoserUserID(results.getMatchID(),
+                        matchRepository.findById(results.getMatchID()).get().getRoundID()).getLoser();
+                userRegistersTournamentRepository.updatePlayerStatusForATournament(seriesLoserID, tournament.getTournamentID(),
+                        PlayerStatus.ELIMINATED.getStatus());
+            }
+        }
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
     public ResponseEntity updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
@@ -225,7 +391,8 @@ public class MatchController {
                                                     @RequestBody IncomingCheckNewMatchTime newMatchTime) {
         try {
 
-            matchService.checkNewMatchTime(tournamentID, matchID, newMatchTime.getNewMatchAsAvailabilityString(), newMatchTime.getDayOfWeek());
+            matchService.checkNewMatchTime(tournamentID, matchID, newMatchTime.getNewMatchAsAvailabilityString(),
+                    newMatchTime.getDayOfWeek());
 
         } catch (ProposedMatchChangeConflictException e) {
             ApiException error = new ApiException(HttpStatus.BAD_REQUEST,
