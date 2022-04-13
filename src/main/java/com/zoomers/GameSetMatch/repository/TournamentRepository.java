@@ -44,11 +44,11 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
 
     @Transactional
     @Modifying
-    @Query(value = "UPDATE Tournament t SET t.status = :status WHERE t.tournamentID = :tournamentID",
+    @Query ( value = "UPDATE Tournament t SET t.status = :status WHERE t.tournamentID = :tournamentID",
             nativeQuery = true
 
     )
-    void setTournamentStatus(int status, int tournamentID);
+    void setTournamentStatus (int status, int tournamentID);
 
 
     @Query(value = "SELECT * FROM Tournament t " +

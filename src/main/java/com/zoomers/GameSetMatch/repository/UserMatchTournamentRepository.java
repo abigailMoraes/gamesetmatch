@@ -9,17 +9,15 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTournamentInfo, Long> {
-    
     @Query(
            value ="SELECT u.results, u.attendance, Match_Has.matchID, Match_Has.start_time, Match_Has.end_time,\n" +
-                   "Round_Has.roundNumber, Tournament.name, Tournament.location, Tournament.description \n" +
+                   "Round_Has.roundNumber,Tournament.name,Tournament.location,Tournament.description \n" +
                    "FROM (SELECT * FROM User_involves_match WHERE userID = :id) \n " +
-                   "u LEFT JOIN Match_Has ON Match_Has.matchID = u.matchID AND Match_Has.isPublished = TRUE LEFT JOIN \n" +
+                   "u LEFT JOIN Match_Has ON Match_Has.matchID = u.matchID LEFT JOIN \n" +
                    " Round_Has ON Match_Has.roundID = Round_Has.roundID LEFT JOIN Tournament \n" +
                    " ON Round_Has.tournamentID = Tournament.tournamentID;",
             nativeQuery = true)
-    List<UserMatchTournamentInfo> findPublishedMatchesByUserID(int id);
-
+    List<UserMatchTournamentInfo> findMatchesByUserID(int id);
 
     @Query(  value ="SELECT u.results, u.attendance, m.matchID, m.start_time, m.end_time,\n" +
             "Tournament.name, Tournament.location, Tournament.description \n" +
@@ -29,15 +27,6 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
             " ON Round_Has.tournamentID = Tournament.tournamentID;",
             nativeQuery = true)
     List<UserMatchTournamentInfo> findPastMatchesByUserID(int id);
-
-    @Query(  value ="SELECT u.results, u.attendance, m.matchID, m.start_time, m.end_time,\n" +
-            "Tournament.name, Tournament.location, Tournament.description \n" +
-            "FROM (SELECT * FROM User_involves_match WHERE userID = :id) u \n" +
-            "JOIN (SELECT * FROM Match_Has) m ON m.matchID = u.matchID LEFT JOIN \n" +
-            " Round_Has ON m.roundID = Round_Has.roundID LEFT JOIN Tournament \n" +
-            " ON Round_Has.tournamentID = Tournament.tournamentID WHERE Round_Has.tournamentID = :t_id",
-            nativeQuery = true)
-    List<UserMatchTournamentInfo> findPastMatchesInTournamentByUserID(int id, int t_id);
 
     @Query(  value ="SELECT m.matchID \n" +
             "FROM (SELECT * FROM User_involves_match WHERE userID = :id) u \n" +
@@ -87,16 +76,12 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
     List<IParticipantInfo> getUserMatchInfoByMatchID(int matchID);
 
 
-    @Query(value ="SELECT m.matchID as id, t.name as name, m.roundID as tournamentRoundText, m.start_time as \n" +
-            "startTime " +
-            "FROM match_has m JOIN \n"
+    @Query(value ="SELECT m.matchID as id, t.name as name, m.roundID as tournamentRoundText, m.start_time as startTime FROM match_has m JOIN \n"
             + "round_has r ON m.roundID = r.roundID JOIN (SELECT * FROM tournament WHERE \n" +
-            "tournament.tournamentID = :tournamentID) t on t.tournamentID = r.tournamentID group by m.userID_1,\n" +
-            "m.userID_2, m.roundID;", nativeQuery = true)
+            "tournament.tournamentID = :tournamentID) t on t.tournamentID = r.tournamentID", nativeQuery = true)
     List<UserMatchTournamentRepository.IBracketMatchInfo> getBracketMatchInfoByTournamentID(int tournamentID);
 
-    @Query(value ="SELECT matchID as next from match_has where roundID = (SELECT roundID FROM round_has WHERE " +
-            "roundNumber = \n"
+    @Query(value ="SELECT matchID as next from match_has where roundID = (SELECT roundID FROM round_has WHERE roundNumber = \n"
             + "(SELECT roundNumber from round_has where roundID = :oldRoundID) + 1\n" +
             " AND tournamentID = (SELECT tournamentID from round_has where roundID = :oldRoundID)) \n" +
             " AND ((userID_1 in ((select userID_1 from match_has where matchID = :oldMatchID),\n " +
@@ -223,7 +208,6 @@ public interface UserMatchTournamentRepository extends JpaRepository<UserMatchTo
         String  getTournamentRoundText();
         String  getStartTime();
     }
-
 
 
 
