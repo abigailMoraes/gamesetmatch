@@ -1,16 +1,21 @@
 package com.zoomers.GameSetMatch.controller;
 
+import com.zoomers.GameSetMatch.controller.Error.ApiException;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingAttendance;
+import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingCheckNewMatchTime;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
+import com.zoomers.GameSetMatch.controller.Match.ResponseBody.UserMatchTournamentInfoResp;
 import com.zoomers.GameSetMatch.entity.Match;
-import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentStatus;
+import com.zoomers.GameSetMatch.scheduler.exceptions.ScheduleException;
+import com.zoomers.GameSetMatch.services.Errors.ProposedMatchChangeConflictException;
+import com.zoomers.GameSetMatch.services.MatchService;
 import com.zoomers.GameSetMatch.services.TournamentService;
 import com.zoomers.GameSetMatch.services.UserInvolvesMatchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,21 +47,46 @@ public class MatchController {
     @Autowired
     RoundRepository roundRepository;
 
+    @Autowired
+    MatchService matchService;
+
     @GetMapping("/match/involves/user/{id}")
-    List<UserMatchTournamentInfo> getMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findMatchesByUserID(id);
+    List<UserMatchTournamentInfoResp> getPublishedMatchesForUser(@PathVariable int id) {
+        List<UserMatchTournamentInfoResp> info = mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findPublishedMatchesByUserID(id));
+        return info;
+    }
+
+    private UserMatchTournamentInfoResp mapUserMatchTournamentInfoToResponse(UserMatchTournamentInfo match) {
+        return new UserMatchTournamentInfoResp(match.getResults(),
+                match.getAttendance(),
+                match.getMatchID(),
+                match.getStartTime(),
+                match.getEndTime(),
+                match.getName(),
+                match.getLocation(),
+                match.getDescription());
+    }
+
+    private List<UserMatchTournamentInfoResp> mapUserMatchTournamentInfoToResponse(List<UserMatchTournamentInfo> matches) {
+        List<UserMatchTournamentInfoResp> responseMatches = new ArrayList<>();
+        for(UserMatchTournamentInfo m : matches){
+            responseMatches.add(mapUserMatchTournamentInfoToResponse(m));
+        }
+
+        return responseMatches;
     }
 
     @GetMapping("/match/history/involves/user/{id}")
-    List<UserMatchTournamentInfo> getPastMatchesForUser(@PathVariable int id) {
-        return userMatchTournamentRepository.findPastMatchesByUserID(id);
+    List<UserMatchTournamentInfoResp> getPastMatchesForUser(@PathVariable int id) {
+        List<UserMatchTournamentInfoResp> info =  mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findPastMatchesByUserID(id));
+        return info;
     }
 
     @GetMapping("/match/{id}/{uid}")
-    UserMatchTournamentInfo getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
-        return userMatchTournamentRepository.findMatchInfoByMatchID(id);
+    UserMatchTournamentInfoResp getMatchInfoById(@PathVariable int id, @PathVariable int uid) {
+        UserMatchTournamentInfoResp response = mapUserMatchTournamentInfoToResponse(userMatchTournamentRepository.findMatchInfoByMatchID(id));
+        return response;
     }
-
 
     @GetMapping( "/rounds/{roundID}/matches")
     List<MatchDetailsForCalendar> getMatchesByRoundID(@PathVariable int roundID){
@@ -99,9 +130,9 @@ public class MatchController {
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner")
     Optional<UserMatchTournamentRepository.NumQuery>
     getNextWinnerMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getSeriesWinnerUserID(oldMatchID,
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
                 oldRoundID);
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getSeriesLoserUserID(oldMatchID,
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
                 oldRoundID);
         UserMatchTournamentRepository.NumQuery winnerMatchID =
                 userMatchTournamentRepository.getNextWinnerMatchID(oldRoundID, winnerID.getWinner(), loserID.getLoser(),
@@ -123,9 +154,9 @@ public class MatchController {
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner/multiple")
     Optional<UserMatchTournamentRepository.NumQuery>
     getNextWinnerMatchIDForMultipleMatches(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getSeriesWinnerUserID(oldMatchID,
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
                 oldRoundID);
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getSeriesLoserUserID(oldMatchID,
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
                 oldRoundID);
         UserMatchTournamentRepository.NumQuery winnerMatchID =
                 userMatchTournamentRepository.getNextWinnerMatchIDMultipleMatchesPerRound(oldRoundID,
@@ -158,9 +189,9 @@ public class MatchController {
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/loser")
     Optional<UserMatchTournamentRepository.NumQuery>
     getNextLoserMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getSeriesLoserUserID(oldMatchID,
+        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
                 oldRoundID);
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getSeriesWinnerUserID(oldMatchID,
+        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
                 oldRoundID);
         UserMatchTournamentRepository.NumQuery loserMatchID =
                 userMatchTournamentRepository.getNextLoserMatchID(oldRoundID, winnerID.getWinner(),
@@ -184,33 +215,48 @@ public class MatchController {
     }
 
     @PutMapping("/match/userResults")
-    public void updateMatchResults(@RequestBody IncomingResults results) {
-        userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
+    public ResponseEntity updateMatchResults(@RequestBody IncomingResults results) {
+        try {
+            userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
+
+        } catch (EntityNotFoundException e){
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+        return ResponseEntity.ok("Update successful.");
     }
 
     @PutMapping("/tournaments/{tournamentID}/round/{roundID}")
-    public void updateRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
-                                    @RequestBody List<IncomingMatch> matches) {
-        LocalDateTime latestMatchDate =matches.get(0).getEndTime();
-        for (IncomingMatch match : matches) {
-            Optional<Match> existingMatch = Optional.of(matchRepository.getById(match.getID()));
-
-            if (existingMatch.isPresent()) {
-                matchRepository.updateMatchInfo(match.getID(),
-                        match.getStartTime(), match.getEndTime());
-            } else {
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Match ID");
-            }
-            Optional<Round> existingRound = Optional.of(roundRepository.getById(roundID));
-            /* Update end date for existing round if date for match end time is later than the corresponding
-            round end date */
-            if(latestMatchDate.isBefore(match.getEndTime())){
-                latestMatchDate = match.getEndTime();
-            }
-            else {
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Round ID");
-            }
+    public ResponseEntity publishRoundSchedule(@PathVariable int tournamentID, @PathVariable int roundID,
+                                               @RequestBody List<IncomingMatch> matches) {
+        try {
+            matchService.updateMatchesInARound(tournamentID, roundID, matches);
+            TournamentStatus newStatus = tournamentService.isEnteringFinalRound(tournamentID) ?
+                    TournamentStatus.FINAL_ROUND : TournamentStatus.ONGOING;
+            tournamentService.changeTournamentStatus(tournamentID, newStatus);
+        } catch (EntityNotFoundException e) {
+            ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        } catch (ScheduleException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST, e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
         }
-        tournamentService.changeTournamentStatus(tournamentID, TournamentStatus.ONGOING);
+        return ResponseEntity.ok("Update successful.");
+    }
+
+    @PostMapping("/tournaments/{tournamentID}/match/{matchID}/checkNewTime")
+    public ResponseEntity<Object> checkNewMatchTime(@PathVariable int tournamentID, @PathVariable int matchID,
+                                                    @RequestBody IncomingCheckNewMatchTime newMatchTime) {
+        try {
+
+            matchService.checkNewMatchTime(tournamentID, matchID, newMatchTime.getNewMatchAsAvailabilityString(), newMatchTime.getDayOfWeek());
+
+        } catch (ProposedMatchChangeConflictException e) {
+            ApiException error = new ApiException(HttpStatus.BAD_REQUEST,
+                    e.getMessage());
+            return new ResponseEntity<Object>(error, error.getHttpStatus());
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

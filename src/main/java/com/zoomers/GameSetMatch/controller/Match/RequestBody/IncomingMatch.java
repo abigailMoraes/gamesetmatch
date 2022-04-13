@@ -1,11 +1,11 @@
 package com.zoomers.GameSetMatch.controller.Match.RequestBody;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class IncomingMatch {
     private Integer matchID;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private ZonedDateTime startTime;
+    private ZonedDateTime endTime;
     private int roundID;
 
     public Integer getMatchID() {
@@ -20,11 +20,11 @@ public class IncomingMatch {
         return this.matchID;
     }
 
-    public LocalDateTime getStartTime() {
+    public ZonedDateTime getStartTime() {
         return this.startTime;
     }
 
-    public LocalDateTime getEndTime(){
+    public ZonedDateTime getEndTime(){
         return this.endTime;
     }
 }

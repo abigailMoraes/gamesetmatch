@@ -44,8 +44,8 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
     void addMatch(LocalDateTime startTime, LocalDateTime endTime, int roundID, int matchStatus, int userOneID, int userTwoID);
 
 
-    @Query(value = "SELECT * FROM match_has JOIN (SELECT * FROM round_has WHERE tournamentID = :tournamentID) r ON \n"+
-    "match_has.roundID = r.roundID", nativeQuery = true)
+    @Query(value = "SELECT * FROM Match_Has JOIN (SELECT * FROM Round_Has WHERE tournamentID = :tournamentID) r ON \n"+
+    "Match_Has.roundID = r.roundID", nativeQuery = true)
     List<Match> getMatchesByTournamentID(int tournamentID);
 
     @Query(value = "select n.matchNumber as next From (SELECT row_number() OVER ( order by matchID ) " +

@@ -1,10 +1,12 @@
 package com.zoomers.GameSetMatch.controller;
 
 
+import com.zoomers.GameSetMatch.controller.Round.RoundResponse;
 import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.repository.RoundRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -18,8 +20,24 @@ public class RoundController {
     }
 
     @GetMapping("/tournaments/{tournamentID}/rounds")
-    List<Round> getTournamentRounds(@PathVariable int tournamentID) {
-        return this.roundRepository.getRoundsByID(tournamentID);
+    List<RoundResponse> getTournamentRounds(@PathVariable int tournamentID) {
+        return mapRoundListToResponse(this.roundRepository.getRoundsByID(tournamentID));
     }
 
+    private RoundResponse mapRoundToResponse(Round r) {
+        return new RoundResponse(r.getRoundID(),
+                r.getRoundNumber(),
+                r.getTournamentID(),
+                r.getStartDate(),
+                r.getEndDate());
+    }
+
+    private List<RoundResponse> mapRoundListToResponse(List<Round> rounds) {
+        List<RoundResponse> responseResponse = new ArrayList<>();
+        for(Round r : rounds) {
+            responseResponse.add(mapRoundToResponse(r));
+        }
+
+        return responseResponse;
+    }
 }

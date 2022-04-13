@@ -16,10 +16,12 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.zoomers.GameSetMatch.services.DateAndLocalDateService.timezoneOfData;
 import static java.util.Objects.isNull;
 
 @Service
@@ -57,15 +59,16 @@ public class MatchService {
 
     @Transactional
     public void updateMatchesInARound(int tournamentID, int roundID, List<IncomingMatch> matches) throws EntityNotFoundException {
-        LocalDateTime latestMatchDate = matches.get(0).getEndTime();
+
+        ZonedDateTime latestMatchDate = matches.get(0).getEndTime();
+        ZonedDateTime firstMatchDate = matches.get(0).getStartTime();
         List<Match> updatedMatches = new ArrayList<>();
         for (IncomingMatch match : matches) {
-            System.out.println(match.getID());
             Match existingMatch = matchRepository.getById(match.getID());
 
             if (!isNull(existingMatch)) {
-                existingMatch.setStartTime(match.getStartTime());
-                existingMatch.setEndTime(match.getEndTime());
+                existingMatch.setStartTime(convertToDatasTZLocalDateTime(match.getStartTime()));
+                existingMatch.setEndTime(convertToDatasTZLocalDateTime(match.getEndTime()));
                 existingMatch.setIsPublished(1);
                 updatedMatches.add(existingMatch);
             } else {
@@ -74,6 +77,10 @@ public class MatchService {
 
             if (latestMatchDate.isBefore(match.getEndTime())) {
                 latestMatchDate = match.getEndTime();
+            }
+
+            if(firstMatchDate.isAfter(match.getStartTime())){
+                firstMatchDate = match.getStartTime();
             }
         }
 
@@ -87,17 +94,26 @@ public class MatchService {
         if (isNull(tournament)) {
             throw new EntityNotFoundException(String.format("Invalid Tournament ID: %d", tournamentID));
         }
+        LocalDateTime firstMatchLDT = convertToDatasTZLocalDateTime(firstMatchDate);
+        LocalDateTime lastMatchLDT = convertToDatasTZLocalDateTime(latestMatchDate);
 
-        Date roundEndDate = DateAndLocalDateService.localDateToDate(latestMatchDate.toLocalDate());
+        Date roundStartDate = DateAndLocalDateService.localDateToDate(firstMatchLDT.toLocalDate());
+        Date roundEndDate = DateAndLocalDateService.localDateToDate(lastMatchLDT.toLocalDate());
         Date nextRoundStartDate = DateAndLocalDateService
                 .localDateToDate(latestMatchDate.toLocalDate().plusDays(DateAndLocalDateService.DaysBetweenRounds));
 
+        round.setStartDate(roundStartDate);
         round.setEndDate(roundEndDate);
         tournament.setRoundStartDate(nextRoundStartDate);
 
         matchRepository.saveAll(updatedMatches);
         tournamentRepository.save(tournament);
         roundRepository.save(round);
+    }
+
+    private LocalDateTime convertToDatasTZLocalDateTime(ZonedDateTime t) {
+        ZonedDateTime pstZoned = t.withZoneSameInstant(timezoneOfData);
+        return pstZoned.toLocalDateTime();
     }
 
 }

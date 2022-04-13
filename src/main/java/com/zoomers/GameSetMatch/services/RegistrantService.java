@@ -1,7 +1,7 @@
 package com.zoomers.GameSetMatch.services;
 
+import com.zoomers.GameSetMatch.entity.EnumsForColumns.MatchResult;
 import com.zoomers.GameSetMatch.entity.Match;
-import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
 import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
 import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
@@ -41,7 +41,7 @@ public class RegistrantService {
 
     public Set<Integer> initPlayersToPlay(int id, Set<Integer> playersToPlay, int t_id) {
 
-        List<Integer> matchesPlayed = userMatchTournamentRepository.findPastTournamentMatchIDsByUserID(id, t_id);
+        List<Integer> matchesPlayed = userMatchTournamentRepository.findTournamentMatchIDsByUserIDWithResultsGreaterThan(id, t_id, MatchResult.TIE.getResult());
 
         for (Integer m_id : matchesPlayed) {
 
