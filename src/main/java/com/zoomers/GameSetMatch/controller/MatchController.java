@@ -90,7 +90,7 @@ public class MatchController {
 
     @GetMapping( "/rounds/{roundID}/matches")
     List<MatchDetailsForCalendar> getMatchesByRoundID(@PathVariable int roundID){
-       return userInvolvesMatchService.getMatchesByRoundForCalendar(roundID);
+        return userInvolvesMatchService.getMatchesByRoundForCalendar(roundID);
     }
 
     @GetMapping("/tournament/{tournamentID}/matches")
@@ -124,7 +124,7 @@ public class MatchController {
     @GetMapping("/tournament/{tournamentID}/bracketMatchInfo")
     List<UserMatchTournamentRepository.IBracketMatchInfo>
     getBracketMatchInfoByTournamentID(@PathVariable int tournamentID){
-       return  userMatchTournamentRepository.getBracketMatchInfoByTournamentID(tournamentID);
+        return  userMatchTournamentRepository.getBracketMatchInfoByTournamentID(tournamentID);
     }
 
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner")
@@ -208,6 +208,54 @@ public class MatchController {
             return Optional.of(empty);
         }
     }
+
+
+    @GetMapping("/match/{matchID}/series/winner")
+    Optional<UserMatchTournamentRepository.NumQuery> getSeriesWinnerID(@PathVariable int matchID){
+        List<Integer> seriesWins = userMatchTournamentRepository.findUserWinsInSeries(matchID);
+        ArrayList<Integer> users = new ArrayList<>();
+        ArrayList<Integer> wins = new ArrayList<>();
+        for (int userID : seriesWins) {
+            if (users.contains(userID)) {
+                wins.set(users.indexOf(userID),wins.get(users.indexOf(userID)) + 1);
+            } else {
+                users.add(userID);
+                wins.add(users.indexOf(userID),1);
+            }
+        }
+    UserMatchTournamentRepository.NumQuery answer;
+        if (users.size() == 1){
+            answer = new UserMatchTournamentRepository.NumQuery() {
+                @Override
+                public Integer getNext() {
+                    return users.get(0);
+                }
+            };
+        }
+        else if (wins.get(0) > wins.get(1)){
+            answer = new UserMatchTournamentRepository.NumQuery() {
+                @Override
+                public Integer getNext() {
+                    return users.get(0);
+                }
+            };
+        }else if (wins.get(1) > wins.get(0)){
+            answer = new UserMatchTournamentRepository.NumQuery() {
+                @Override
+                public Integer getNext() {
+                    return users.get(1);
+                }
+            };
+        }else {
+            answer = new UserMatchTournamentRepository.NumQuery() {
+                @Override
+                public Integer getNext() {
+                    return null;
+                }
+            };
+        }
+    return Optional.of(answer);
+        }
 
     @PutMapping("/match/userAttendance")
     public void updateAttendance(@RequestBody IncomingAttendance attendance) {

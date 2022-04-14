@@ -283,5 +283,3 @@ public class TournamentService {
         return notEliminated.size();
     }
 }
-
-
