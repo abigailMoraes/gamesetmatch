@@ -16,24 +16,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Component
+//@Component
 //@Order(Ordered.HIGHEST_PRECEDENCE)
 public class FireBaseTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String authenticationHeader = request.getHeader("Authorization");
-
+        System.out.println("Header is " +  authenticationHeader);
         //checks if token is there
         if (authenticationHeader == null || !authenticationHeader.startsWith("Bearer "))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Missing token!");
-
+        System.out.println("Passed Missing Token Check");
         FirebaseToken decodedToken = null;
         try {
             //Extracts token from header
             String token = authenticationHeader.substring(7, authenticationHeader.length());
             //verifies token to firebase server
             decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+            System.out.println("Token has been decoded" + decodedToken);
         }
         catch (FirebaseAuthException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Error! "+e.toString());
