@@ -268,9 +268,6 @@ public class MatchController {
                         userInvolvesMatchService.findMatchResultsByUserIDAndMatchID(match.getMatchID(), userID1);
                 if (matchResults == MatchResult.WIN.getResult()) {
                     userID1SeriesWinTally += 1;
-                } else if (matchResults == MatchResult.TIE.getResult()) {
-                    userID1SeriesWinTally += 1;
-                    userID2SeriesWinTally += 1;
                 } else {
                     userID2SeriesWinTally += 1;
                 }
