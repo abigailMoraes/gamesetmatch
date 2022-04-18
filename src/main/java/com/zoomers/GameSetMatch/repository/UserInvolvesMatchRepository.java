@@ -2,7 +2,6 @@ package com.zoomers.GameSetMatch.repository;
 
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.UsersMatchInfo;
 import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
-import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
