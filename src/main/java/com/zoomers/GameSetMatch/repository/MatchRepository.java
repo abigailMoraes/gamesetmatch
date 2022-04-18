@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 public interface MatchRepository extends JpaRepository<Match,Integer> {
 
