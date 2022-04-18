@@ -152,7 +152,7 @@ public class MatchController {
         int tournamentID = roundRepository.getTournamentIDByRoundID(oldRoundID);
         List<Match> matchesInTournament = matchRepository.getMatchesByTournamentID(tournamentID);
 
-        int found = 0;
+        boolean found = false;
         int newMID = 0;
         for (Match match : matchesInTournament) {
             int mid = match.getMatchID();
@@ -161,19 +161,19 @@ public class MatchController {
             int rid = match.getRoundID();
             if ((u1id == winnerID || u2id == winnerID) && (u1id != loserID && u2id != loserID) && mid > oldMatchID) {
                 newMID = mid;
-                found = 1;
+                found = true;
                 break;
             }
             if ((u1id == winnerID || u2id == winnerID) && (u1id == loserID || u2id == loserID) && mid > oldMatchID
             && rid > oldRoundID){
                 newMID = mid;
-                found = 1;
+                found = true;
                 break;
             }
         }
 
         UserMatchTournamentRepository.NumQuery nextWinnerID = null;
-        if (found == 1) {
+        if (found) {
             int finalNewMID = newMID;
             nextWinnerID = new UserMatchTournamentRepository.NumQuery() {
                 @Override
@@ -219,7 +219,7 @@ public class MatchController {
                 return null;
             }
         };
-        int found = 0;
+        boolean found = false;
         int newMID = 0;
         for (Match match : matchesInTournament) {
             int mid = match.getMatchID();
@@ -227,12 +227,12 @@ public class MatchController {
             int u2id = match.getUserID_2();
             if ((u1id == loserID || u2id == loserID) && (u1id != winnerID && u2id != winnerID) && mid > oldMatchID) {
                 newMID = mid;
-                found = 1;
+                found = true;
                 break;
             }
         }
         UserMatchTournamentRepository.NumQuery nextloserID = null;
-        if (found == 1) {
+        if (found) {
             int finalNewMID = newMID;
             nextloserID = new UserMatchTournamentRepository.NumQuery() {
                 @Override
