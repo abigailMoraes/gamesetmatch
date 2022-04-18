@@ -427,27 +427,23 @@ public class Scheduler {
         return returnedMatches;
     }
 
-    private Set<Match> scheduleNoLossMatches() throws ScheduleException {
+    private Set<Match> scheduleNoLossMatches() {
 
         List<Registrant> savedRegistrants = new ArrayList<>(REGISTRANTS);
         REGISTRANTS.removeIf(registrant -> registrant.getStatus() == PlayerStatus.ONE_LOSS);
 
-        Set<Match> returnedMatches = new HashSet<>();
-        returnedMatches.addAll(schedulePrimaryMatches());
-        returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
+        Set<Match> returnedMatches = scheduleSecondaryMatches(new HashSet<>());
 
         REGISTRANTS = savedRegistrants;
         return returnedMatches;
     }
 
-    private Set<Match> scheduleOneLossMatches() throws ScheduleException {
+    private Set<Match> scheduleOneLossMatches() {
 
         List<Registrant> savedRegistrants = new ArrayList<>(REGISTRANTS);
         REGISTRANTS.removeIf(registrant -> registrant.getStatus() == PlayerStatus.SAFE);
 
-        Set<Match> returnedMatches = new HashSet<>();
-        returnedMatches.addAll(schedulePrimaryMatches());
-        returnedMatches.addAll(scheduleSecondaryMatches(returnedMatches));
+        Set<Match> returnedMatches = scheduleSecondaryMatches(new HashSet<>());
 
         REGISTRANTS = savedRegistrants;
         return returnedMatches;
