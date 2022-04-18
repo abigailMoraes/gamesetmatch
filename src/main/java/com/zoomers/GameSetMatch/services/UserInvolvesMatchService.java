@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserInvolvesMatchService {
@@ -61,4 +62,7 @@ public class UserInvolvesMatchService {
         return userInvolvesMatchRepository.getPendingMatches(roundID, MatchResult.PENDING.getResult());
     }
 
+    public Integer findMatchResultsByUserIDAndMatchID(int matchID, int userID){
+        return userInvolvesMatchRepository.findMatchResultByMatchIDAndUserID(matchID, userID);
+    }
 }

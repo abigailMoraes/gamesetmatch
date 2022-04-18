@@ -7,6 +7,7 @@ import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingMatch;
 import com.zoomers.GameSetMatch.controller.Match.RequestBody.IncomingResults;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.UserMatchTournamentInfoResp;
+import com.zoomers.GameSetMatch.entity.EnumsForColumns.MatchResult;
 import com.zoomers.GameSetMatch.entity.Match;
 import com.zoomers.GameSetMatch.entity.UserMatchTournamentInfo;
 import com.zoomers.GameSetMatch.repository.MatchRepository;
@@ -127,53 +128,70 @@ public class MatchController {
         return  userMatchTournamentRepository.getBracketMatchInfoByTournamentID(tournamentID);
     }
 
-    @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner")
-    Optional<UserMatchTournamentRepository.NumQuery>
-    getNextWinnerMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.NumQuery winnerMatchID =
-                userMatchTournamentRepository.getNextWinnerMatchID(oldRoundID, winnerID.getWinner(), loserID.getLoser(),
-                        oldMatchID);
+
+
+    @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner/matchID")
+    Optional<UserMatchTournamentRepository.NumQuery> getNextMatchIDForWinner(@PathVariable int oldRoundID,
+                                                                          @PathVariable int oldMatchID) {
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
             public Integer getNext() {
                 return null;
             }
         };
-        if (Optional.ofNullable(winnerMatchID).isPresent()) {
-            return Optional.of(winnerMatchID);
-        } else {
-            return Optional.of(empty);
-        }
-
-    }
-
-    @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner/multiple")
-    Optional<UserMatchTournamentRepository.NumQuery>
-    getNextWinnerMatchIDForMultipleMatches(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.NumQuery winnerMatchID =
-                userMatchTournamentRepository.getNextWinnerMatchIDMultipleMatchesPerRound(oldRoundID,
-                        winnerID.getWinner(), loserID.getLoser(), oldMatchID);
-        UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
-            @Override
-            public Integer getNext() {
-                return null;
+        Optional<UserMatchTournamentRepository.NumQuery> winnerIDObj = getSeriesWinnerID(oldMatchID);
+        if(winnerIDObj.isPresent()){
+            if (winnerIDObj.get().getNext() == null){
+                return Optional.of(empty);
             }
-        };
-        if (Optional.ofNullable(winnerMatchID).isPresent()) {
-            return Optional.of(winnerMatchID);
+        }
+        int userID1 = matchRepository.getById(oldMatchID).getUserID_1();
+        int userID2 = matchRepository.getById(oldMatchID).getUserID_2();
+        int winnerID = winnerIDObj.get().getNext();
+        int loserID = winnerID == userID1 ? userID2 : userID1;
+        int tournamentID = roundRepository.getTournamentIDByRoundID(oldRoundID);
+        List<Match> matchesInTournament = matchRepository.getMatchesByTournamentID(tournamentID);
+
+        int found = 0;
+        int newMID = 0;
+        for (Match match : matchesInTournament) {
+            int mid = match.getMatchID();
+            int u1id = match.getUserID_1();
+            int u2id = match.getUserID_2();
+            int rid = match.getRoundID();
+            if ((u1id == winnerID || u2id == winnerID) && (u1id != loserID && u2id != loserID) && mid > oldMatchID) {
+                newMID = mid;
+                found = 1;
+                break;
+            }
+            if ((u1id == winnerID || u2id == winnerID) && (u1id == loserID || u2id == loserID) && mid > oldMatchID
+            && rid > oldRoundID){
+                newMID = mid;
+                found = 1;
+                break;
+            }
+        }
+
+        UserMatchTournamentRepository.NumQuery nextWinnerID = null;
+        if (found == 1) {
+            int finalNewMID = newMID;
+            nextWinnerID = new UserMatchTournamentRepository.NumQuery() {
+                @Override
+                public Integer getNext() {
+                    return finalNewMID;
+                }
+            };
+        }
+
+
+        if (Optional.ofNullable(nextWinnerID).isPresent()) {
+            return Optional.of(nextWinnerID);
         } else {
             return Optional.of(empty);
         }
 
     }
+
 
     @GetMapping("/round/{oldRoundID}/roundNumber")
     Optional<UserMatchTournamentRepository.RoundNumber> getRoundNumberByRoundID(@PathVariable int oldRoundID){
@@ -186,64 +204,92 @@ public class MatchController {
     }
 
 
-    @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/loser")
-    Optional<UserMatchTournamentRepository.NumQuery>
-    getNextLoserMatchID(@PathVariable int oldRoundID, @PathVariable int oldMatchID){
-        UserMatchTournamentRepository.LoserID loserID = userMatchTournamentRepository.getLoserUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.WinnerID winnerID = userMatchTournamentRepository.getWinnerUserID(oldMatchID,
-                oldRoundID);
-        UserMatchTournamentRepository.NumQuery loserMatchID =
-                userMatchTournamentRepository.getNextLoserMatchID(oldRoundID, winnerID.getWinner(),
-                        loserID.getLoser(), oldMatchID);
+    @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/loser/matchID")
+    Optional<UserMatchTournamentRepository.NumQuery> getNextMatchIDForLoser(@PathVariable int oldRoundID,
+                                                                             @PathVariable int oldMatchID) {
+        int userID1 = matchRepository.getById(oldMatchID).getUserID_1();
+        int userID2 = matchRepository.getById(oldMatchID).getUserID_2();
+        int winnerID = getSeriesWinnerID(oldMatchID).get().getNext();
+        int loserID = winnerID == userID1 ? userID2 : userID1;
+        int tournamentID = roundRepository.getTournamentIDByRoundID(oldRoundID);
+        List<Match> matchesInTournament = matchRepository.getMatchesByTournamentID(tournamentID);
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
             public Integer getNext() {
                 return null;
             }
         };
-        if (Optional.ofNullable(loserMatchID).isPresent()) {
-            return Optional.of(loserMatchID);
+        int found = 0;
+        int newMID = 0;
+        for (Match match : matchesInTournament) {
+            int mid = match.getMatchID();
+            int u1id = match.getUserID_1();
+            int u2id = match.getUserID_2();
+            if ((u1id == loserID || u2id == loserID) && (u1id != winnerID && u2id != winnerID) && mid > oldMatchID) {
+                newMID = mid;
+                found = 1;
+                break;
+            }
+        }
+        UserMatchTournamentRepository.NumQuery nextloserID = null;
+        if (found == 1) {
+            int finalNewMID = newMID;
+            nextloserID = new UserMatchTournamentRepository.NumQuery() {
+                @Override
+                public Integer getNext() {
+                    return finalNewMID;
+                }
+            };
+        }
+
+
+        if (Optional.ofNullable(nextloserID).isPresent()) {
+            return Optional.of(nextloserID);
         } else {
             return Optional.of(empty);
         }
+
     }
 
 
     @GetMapping("/match/{matchID}/series/winner")
     Optional<UserMatchTournamentRepository.NumQuery> getSeriesWinnerID(@PathVariable int matchID){
-        List<Integer> seriesWins = userMatchTournamentRepository.findUserWinsInSeries(matchID);
-        ArrayList<Integer> users = new ArrayList<>();
-        ArrayList<Integer> wins = new ArrayList<>();
-        for (int userID : seriesWins) {
-            if (users.contains(userID)) {
-                wins.set(users.indexOf(userID),wins.get(users.indexOf(userID)) + 1);
-            } else {
-                users.add(userID);
-                wins.add(users.indexOf(userID),1);
+        Match oldMatch = matchRepository.getById(matchID);
+        int userID1 = oldMatch.getUserID_1();
+        int userID2 = oldMatch.getUserID_2();
+        int roundID = oldMatch.getRoundID();
+        List<Match> roundMatches = matchRepository.getMatchesByRound(roundID);
+        int userID1SeriesWinTally = 0;
+        int userID2SeriesWinTally = 0;
+        for (Match match: roundMatches) {
+            if (match.getRoundID() == roundID && (match.getUserID_1() == userID1 && match.getUserID_2() == userID2 ||
+                    match.getUserID_1() == userID2 && match.getUserID_2() == userID1)) {
+                int matchResults =
+                        userInvolvesMatchService.findMatchResultsByUserIDAndMatchID(match.getMatchID(), userID1);
+                if (matchResults == MatchResult.WIN.getResult()) {
+                    userID1SeriesWinTally += 1;
+                } else if (matchResults == MatchResult.TIE.getResult()) {
+                    userID1SeriesWinTally += 1;
+                    userID2SeriesWinTally += 1;
+                } else {
+                    userID2SeriesWinTally += 1;
+                }
             }
         }
-    UserMatchTournamentRepository.NumQuery answer;
-        if (users.size() == 1){
+
+        UserMatchTournamentRepository.NumQuery answer;
+        if (userID1SeriesWinTally > userID2SeriesWinTally){
             answer = new UserMatchTournamentRepository.NumQuery() {
                 @Override
                 public Integer getNext() {
-                    return users.get(0);
+                    return userID1;
                 }
             };
-        }
-        else if (wins.get(0) > wins.get(1)){
+        }else if (userID2SeriesWinTally > userID1SeriesWinTally){
             answer = new UserMatchTournamentRepository.NumQuery() {
                 @Override
                 public Integer getNext() {
-                    return users.get(0);
-                }
-            };
-        }else if (wins.get(1) > wins.get(0)){
-            answer = new UserMatchTournamentRepository.NumQuery() {
-                @Override
-                public Integer getNext() {
-                    return users.get(1);
+                    return userID2;
                 }
             };
         }else {

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserInvolvesMatchRepository extends JpaRepository<UserInvolvesMatch, Integer> {
 
@@ -24,12 +25,10 @@ public interface UserInvolvesMatchRepository extends JpaRepository<UserInvolvesM
             nativeQuery = true)
     List<Integer> getPendingMatches(int roundID, int pendingStatus);
 
-    List<UserInvolvesMatch> getUserInvolvesMatchByUserID(int uID);
 
-    @Query(value = "SELECT User_involves_match.results FROM User_involves_match WHERE User_involves_match .matchID = :mID",
-    nativeQuery = true)
-    List<Integer> getMatchResultByMatchID(int mID);
-
-
-
+    @Query(value = "SELECT User_involves_match.results FROM User_involves_match WHERE User_involves_match.matchID " +
+            "= :mID \n" +
+            "AND User_involves_match.userID = :uID",
+            nativeQuery = true)
+    Integer findMatchResultByMatchIDAndUserID(int mID, int uID);
 }
