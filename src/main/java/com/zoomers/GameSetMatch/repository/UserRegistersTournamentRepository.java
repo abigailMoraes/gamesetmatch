@@ -19,7 +19,7 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
 
     @Query(value = "SELECT u.userID, u.name, u.email, r.skill_level FROM " +
             "User_registers_tournament r " +
-            "INNER JOIN User u on r.userID = u.userID " +
+            "INNER JOIN User u ON r.userID = u.userID " +
             "WHERE (r.tournamentID = :tournamentID)" +
             "ORDER BY u.name;",
             nativeQuery = true)
@@ -33,8 +33,8 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
     List<Integer> getPlayerStatusByTournamentID(int id, int t_id);
 
 
-    @Query(value = "SELECT count(*) as next From User Where userID in (select userID from User_registers_tournament \n"
-            + "where tournamentID = :tournamentID)",nativeQuery = true)
+    @Query(value = "SELECT count(*) AS next FROM User WHERE userID IN (SELECT userID FROM User_registers_tournament \n"
+            + "WHERE tournamentID = :tournamentID)",nativeQuery = true)
     UserMatchTournamentRepository.NumQuery getPlayersInTournament(Integer tournamentID);
 
 
@@ -64,7 +64,7 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
     @Transactional
     @Modifying
     @Query(value="UPDATE User_registers_tournament u SET u.player_status = :newStatus " +
-            "WHERE (u.userID = :currUserID and u.tournamentID = :currTournamentID)",
+            "WHERE (u.userID = :currUserID AND u.tournamentID = :currTournamentID)",
     nativeQuery = true)
     void updatePlayerStatusForATournament(int currUserID, int currTournamentID, int newStatus);
 }
