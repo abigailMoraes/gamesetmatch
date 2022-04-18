@@ -6,6 +6,9 @@ import com.google.firebase.auth.FirebaseToken;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.server.ResponseStatusException;
@@ -22,6 +25,7 @@ public class FireBaseTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        System.out.println("request: " + request.getRequestURI());
         String authenticationHeader = request.getHeader("Authorization");
         System.out.println("Header is " +  authenticationHeader);
         //checks if token is there
@@ -34,7 +38,12 @@ public class FireBaseTokenFilter extends OncePerRequestFilter {
             String token = authenticationHeader.substring(7, authenticationHeader.length());
             //verifies token to firebase server
             decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+            if(decodedToken != null){
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(decodedToken.getUid(), decodedToken, null);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
             System.out.println("Token has been decoded" + decodedToken);
+
         }
         catch (FirebaseAuthException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Error! "+e.toString());
@@ -48,3 +57,4 @@ public class FireBaseTokenFilter extends OncePerRequestFilter {
         chain.doFilter(request,response);
     }
 }
+

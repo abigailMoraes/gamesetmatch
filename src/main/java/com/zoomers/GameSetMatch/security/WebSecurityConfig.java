@@ -13,29 +13,31 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static final String[] AUTH_WHITELIST = {"/api/verifyIdToken"};
+    private static final String[] AUTH_WHITELIST = {"/api/verifyIdToken", "/version"};
 
-//    @Override
-//    public void configure(WebSecurity web) {
-//        web
-//            .ignoring()
-//            .antMatchers("/api/verifyIdToken");
-//    }
+    // need this, seem like antMatchers.permitAll is not needed
+    @Override
+    public void configure(WebSecurity web) {
+        web
+            .ignoring()
+            .antMatchers("/version");
+    }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors().and()
                 .csrf().disable()
-                .addFilterBefore(new FireBaseTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(STATELESS).and()
                 .authorizeRequests()
 //                .antMatchers(AUTH_WHITELIST).permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and().httpBasic();
 
+        http.addFilterBefore(new FireBaseTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         http.headers().frameOptions().disable();
     }
 }
