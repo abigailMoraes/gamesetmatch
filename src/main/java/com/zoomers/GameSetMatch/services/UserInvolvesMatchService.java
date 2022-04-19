@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserInvolvesMatchService {
@@ -51,7 +52,6 @@ public class UserInvolvesMatchService {
             MatchDetailsForCalendar matchDetailsForCalendar = new MatchDetailsForCalendar(m.getMatchID(),
                     m.getStartTime(), m.getEndTime(), m.getRoundID(), m.getMatchStatus(), m.getUserID_1(), m.getUserID_2());
             matchDetailsForCalendar.setParticipants(usersMatch);
-
             returnList.add(matchDetailsForCalendar);
 
         }
@@ -62,4 +62,7 @@ public class UserInvolvesMatchService {
         return userInvolvesMatchRepository.getPendingMatches(roundID, MatchResult.PENDING.getResult());
     }
 
+    public Integer findMatchResultsByUserIDAndMatchID(int matchID, int userID){
+        return userInvolvesMatchRepository.findMatchResultByMatchIDAndUserID(matchID, userID);
+    }
 }
