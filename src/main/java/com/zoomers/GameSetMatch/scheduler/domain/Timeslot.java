@@ -9,6 +9,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 
+import static com.zoomers.GameSetMatch.services.DateAndLocalDateService.timezoneOfData;
+
 public class Timeslot {
 
     private final float time;
@@ -20,6 +22,12 @@ public class Timeslot {
         this.time = time;
         this.id = convertToID(time, date);
         this.date = date;
+    }
+
+    public Timeslot(Timeslot timeslot) {
+        this.time = timeslot.time;
+        this.date = timeslot.date;
+        this.id = convertToID(this.time, this.date);
     }
 
     private int convertToID(float time, Date date) {
@@ -66,9 +74,14 @@ public class Timeslot {
         return this.date;
     }
 
+    public String getDateString() {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        return sdfDate.format(this.date);
+    }
+
     public LocalDateTime getLocalStartDateTime() {
 
-        LocalDate localDate = this.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate = this.date.toInstant().atZone(timezoneOfData).toLocalDate();
 
         int minutes = 30;
         if (this.time % 1 == 0) {
@@ -108,7 +121,6 @@ public class Timeslot {
 
     @Override
     public String toString() {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-        return sdfDate.format(this.date) + " " + convertTimeToString(time);
+        return this.date + " " + convertTimeToString(time);
     }
 }

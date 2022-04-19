@@ -16,7 +16,7 @@
  * @since 2022-03-21
  */
 
-package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
+package com.zoomers.GameSetMatch.scheduler.graphs;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Timeslot;
@@ -24,6 +24,7 @@ import com.zoomers.GameSetMatch.scheduler.matching.util.Tuple;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 public class PrimaryMatchGraph extends MatchGraph {
@@ -35,14 +36,15 @@ public class PrimaryMatchGraph extends MatchGraph {
 
     public PrimaryMatchGraph(BipartiteGraph bipartiteGraph) {
 
-        super(new LinkedHashSet<>(bipartiteGraph.getPlayers()),
+        super(new HashSet<>(bipartiteGraph.getPlayers()),
                 new LinkedHashSet<>(bipartiteGraph.getTimeslots()),
-                new LinkedHashSet<>()
+                new HashSet<>()
         );
 
         initializeTimeDegrees();
     }
 
+    @Override
     public void addMatch(Match m) {
 
         if (!matches.contains(m)) {

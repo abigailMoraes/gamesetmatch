@@ -7,7 +7,7 @@
  * @since 2022-03-21
  */
 
-package com.zoomers.GameSetMatch.scheduler.abstraction.graph;
+package com.zoomers.GameSetMatch.scheduler.graphs;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
@@ -31,6 +31,10 @@ public abstract class MatchGraph {
     public void removeMatch(Match m) {
 
         matches.remove(m);
+    }
+
+    public void addMatch(Match m) {
+        matches.add(m);
     }
 
     public void removeAll(Set<Match> matchesToRemove) {

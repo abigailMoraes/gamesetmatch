@@ -1,13 +1,12 @@
 package com.zoomers.GameSetMatch.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -16,17 +15,24 @@ import javax.persistence.*;
 @Entity
 
 public class UserMatchTournamentInfo {
-    private String results;
+    private Integer results;
     private String attendance;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer matchID;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    @Column(name="start_time")
+//    private String startTime;
     @Column(name="start_time")
-    private String startTime;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime startTime;
+
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    @Column(name="end_time")
+//    private String endTime;
+
     @Column(name="end_time")
-    private String endTime;
+    private LocalDateTime endTime;
+
     private String name;
     private String location;
     private String description;

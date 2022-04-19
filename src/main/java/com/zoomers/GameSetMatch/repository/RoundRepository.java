@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Repository
@@ -27,14 +28,21 @@ public interface RoundRepository extends JpaRepository<Round, Integer>{
     @Query(value = "SELECT MAX(roundID) FROM Round_Has WHERE tournamentID = :tournamentID", nativeQuery = true)
     int getLastTournamentRound(int tournamentID);
 
-    @Query (
+    @Query(
             value = "SELECT DISTINCT r.tournamentID \n" +
-                    "FROM Round_has r \n" +
+                    "FROM Round_Has r \n" +
                     "right join Tournament t\n" +
                     "ON r.tournamentID = t.tournamentID \n" +
-                    "WHERE t.status = 3 and r.end_date = STR_TO_DATE(:date, '%Y-%m-%d %T')",
+                    "WHERE t.status = :ongoingStatus and r.end_date = STR_TO_DATE(:date, '%Y-%m-%d %T')",
             nativeQuery = true
     )
-    List<Integer> findNextRoundTournamentId(String date);
+    LinkedHashSet<Integer> findNextRoundTournamentId(String date, int ongoingStatus);
+
+    @Query(value = "SELECT roundID " +
+            "FROM Round_Has " +
+            "WHERE tournamentID= :tournamentID AND " +
+            "roundNumber = :currentRound",
+            nativeQuery = true)
+    List<Integer> findIDByTournamentCurrentRound(int tournamentID, int currentRound);
 
 }

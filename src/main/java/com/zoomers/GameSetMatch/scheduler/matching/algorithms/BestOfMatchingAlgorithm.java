@@ -2,8 +2,8 @@ package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.BestOfMatchGraph;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.MatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graphs.BestOfMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graphs.MatchGraph;
 
 import java.util.*;
 
@@ -21,7 +21,7 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
     @Override
     public Set<Match> findMatches() {
 
-        Set<Match> seriesMatches = new LinkedHashSet<>();
+        Set<Match> seriesMatches = new HashSet<>();
 
         for (int i = 0; i < bestOfMatchGraph.getNumberOfGames() - 1; i++) {
 
@@ -32,6 +32,7 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
 
                 Match match = this.priorityQueue.poll();
                 seriesMatches.add(match);
+                setLastMatchDate(match);
                 visitMatches(match);
                 buildPriorityQueue();
             }
@@ -72,7 +73,6 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
     protected void visitMatches(Match match) {
 
         // System.out.println("  Adding " + match + " with score " + match.getMatchScore());
-        // MATCHES ARE BEING DUPLICATED
         this.matchesToSearch.remove(match);
 
         markMatch(match);
@@ -80,10 +80,6 @@ public class BestOfMatchingAlgorithm extends MatchingAlgorithm {
         Set<Match> matchesToRemove = new LinkedHashSet<>();
 
         for (Match m2 : this.matchesToSearch) {
-
-            if (m2.getPlayers().getFirst() == 19) {
-                boolean a = (match.shareTimeslot(m2) && match.shareDate(m2));
-            }
 
             if (match.sharePlayers(m2) || (match.shareTimeslot(m2) && match.shareDate(m2))) {
 

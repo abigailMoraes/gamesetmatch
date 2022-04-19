@@ -1,13 +1,14 @@
 package com.zoomers.GameSetMatch.scheduler.matching.algorithms;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Match;
-import com.zoomers.GameSetMatch.scheduler.abstraction.graph.SecondaryMatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graphs.MatchGraph;
+import com.zoomers.GameSetMatch.scheduler.graphs.SecondaryMatchGraph;
 
 import java.util.*;
 
 public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
 
-    public MaximumMatchScoreMatcher(SecondaryMatchGraph matchGraph) {
+    public MaximumMatchScoreMatcher(MatchGraph matchGraph) {
 
         super(matchGraph);
         buildPriorityQueue();
@@ -21,7 +22,7 @@ public class MaximumMatchScoreMatcher extends MatchingAlgorithm {
                 return m2.getMatchScore() - m1.getMatchScore();
             }
 
-            return (int)((m1.getTimeslot().getTime() - m2.getTimeslot().getTime()) * 2);
+            return m1.getTimeslot().getDate().before(m2.getTimeslot().getDate()) ? -1 : 1;
         }
         );
 

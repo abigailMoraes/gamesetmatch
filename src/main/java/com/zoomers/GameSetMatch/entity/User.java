@@ -40,4 +40,10 @@ public class User {
     public int hashCode() {
         return getClass().hashCode();
     }
+
+    @Override
+    public String toString() {
+        return String.format("{\"id\":%d,\"firebaseId\":\"%s\",\"email\":\"%s\",\"name\":\"%s\"," +
+                "\"isAdmin\":%d}", this.id, this.firebaseId, this.email, this.name, this.isAdmin);
+    }
 }

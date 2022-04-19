@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import javax.transaction.Transactional;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Repository
@@ -35,17 +36,42 @@ public interface TournamentRepository extends JpaRepository<Tournament, Integer>
             "WHERE tournamentID = :tournamentID", nativeQuery = true)
     void updateTournament(int tournamentID, int status, int roundNumber);
 
-    @Query( value = "SELECT t.tournamentID FROM Tournament t WHERE status = 1 OR (close_registration_date = current_date AND status = 0)",
+    @Query( value = "SELECT t.tournamentID FROM Tournament t WHERE status = :closedStatus OR (close_registration_date = current_date AND status = :openStatus)",
             nativeQuery = true
     )
-    List<Integer> CloseRegistrationDate();
+    LinkedHashSet<Integer> getTournamentsPastCloseRegistrationDate(int closedStatus, int openStatus);
 
     @Transactional
     @Modifying
-    @Query ( value = "UPDATE Tournament t SET t.status = :status WHERE t.tournamentID = :tournamentID",
+    @Query(value = "UPDATE Tournament t SET t.status = :status WHERE t.tournamentID = :tournamentID",
             nativeQuery = true
 
     )
-    void setTournamentStatus (int status, int tournamentID);
+    void setTournamentStatus(int status, int tournamentID);
 
+
+    @Query(value = "SELECT * FROM Tournament t " +
+            "INNER JOIN User_registers_tournament u ON u.tournamentID = t.tournamentID " +
+            "WHERE status < :status " +
+            "AND u.userID = :userID ",
+            nativeQuery = true)
+    List<Tournament> findRegisteredTournamentsForUser(int userID, int status);
+
+    @Query(value = "SELECT * FROM Tournament WHERE status = :status AND + \n"
+            + "EXISTS (SELECT * FROM User_registers_tournament WHERE User_registers_tournament.userID = :userID \n" +
+            " AND Tournament.tournamentID = User_registers_tournament.tournamentID)",
+            nativeQuery = true)
+    List<Tournament> findCompletedTournamentsForUser(int userID, int status);
+
+    @Query(value = "SELECT count(*) as next FROM Tournament WHERE status = :status AND + \n"
+            + "EXISTS (SELECT * FROM User_registers_tournament WHERE User_registers_tournament.userID = :userID \n" +
+            " AND Tournament.tournamentID = User_registers_tournament.tournamentID)",
+            nativeQuery = true)
+    UserMatchTournamentRepository.NumQuery getNumberOfCompletedTournamentsForUser(int userID, int status);
+
+    @Query(value = "SELECT count(*) as next FROM Tournament WHERE status = :status AND + \n"
+            + "EXISTS (SELECT * FROM User_registers_tournament WHERE User_registers_tournament.userID = :userID \n" +
+            " AND Tournament.tournamentID = User_registers_tournament.tournamentID AND player_status = :safeStatus)",
+            nativeQuery = true)
+    UserMatchTournamentRepository.NumQuery getNumberOfTournamentsWonByUser(int userID, int status, int safeStatus);
 }

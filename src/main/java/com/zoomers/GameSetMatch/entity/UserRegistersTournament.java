@@ -1,6 +1,7 @@
 package com.zoomers.GameSetMatch.entity;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
+import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 
 import javax.persistence.*;
 
@@ -25,10 +26,11 @@ import javax.persistence.*;
         resultSetMapping = "RegistrantMapping"
 )
 public class UserRegistersTournament {
-    public UserRegistersTournament(Integer tournamentID, Integer userID, Integer skillLevel) {
+    public UserRegistersTournament(Integer tournamentID, Integer userID, Integer skillLevel, PlayerStatus playerStatus) {
         this.tournamentID = tournamentID;
         this.userID = userID;
         this.skillLevel = skillLevel;
+        this.playerStatus = playerStatus;
     }
 
     public UserRegistersTournament() {
@@ -44,6 +46,10 @@ public class UserRegistersTournament {
 
     @Column(name = "skill_level")
     private Integer skillLevel;
+
+    @Enumerated(EnumType.ORDINAL)
+    @Column(name="player_status")
+    private PlayerStatus playerStatus;
 
     public Integer getTournamentID() {
         return tournamentID;
@@ -68,4 +74,6 @@ public class UserRegistersTournament {
     public void setSkillLevel(Integer skillLevel) {
         this.skillLevel = skillLevel;
     }
+
+    public PlayerStatus getPlayerStatus() { return playerStatus; }
 }
