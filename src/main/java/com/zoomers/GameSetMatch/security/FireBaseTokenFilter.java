@@ -21,12 +21,10 @@ public class FireBaseTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        System.out.println("request: " + request.getRequestURI());
         String authenticationHeader = request.getHeader("Authorization");
         //checks if token is there
         if (authenticationHeader == null || !authenticationHeader.startsWith("Bearer "))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Missing token!");
-        System.out.println("Passed Missing Token Check");
         FirebaseToken decodedToken = null;
         try {
             //Extracts token from header
@@ -37,7 +35,6 @@ public class FireBaseTokenFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(decodedToken.getUid(), decodedToken, null);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-            System.out.println("Token has been decoded" + decodedToken);
 
         }
         catch (FirebaseAuthException e) {
