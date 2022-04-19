@@ -2,11 +2,9 @@ package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.entity.Round;
 import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
 import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
-import com.zoomers.GameSetMatch.repository.RoundRepository;
-import com.zoomers.GameSetMatch.repository.TournamentRepository;
-import com.zoomers.GameSetMatch.repository.UserMatchTournamentRepository;
-import com.zoomers.GameSetMatch.repository.UserRegistersTournamentRepository;
+import com.zoomers.GameSetMatch.repository.*;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.enumerations.MatchBy;
 import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
@@ -44,6 +42,9 @@ public class TournamentService {
 
     @Autowired
     private UserInvolvesMatchService userInvolvesMatchService;
+
+    @Autowired
+    private UserInvolvesMatchRepository userInvolvesMatchRepository;
 
     @Autowired
     private SendEMailService sendEMailService;
@@ -156,7 +157,7 @@ public class TournamentService {
     }
 
     @Transactional
-    public int endCurrentRound(Integer tournamentID) throws MissingMatchResultsException, EntityNotFoundException {
+    public int endCurrentRound(Integer tournamentID) throws MissingMatchResultsException, EntityNotFoundException, ScheduleException {
         Tournament currentTournament = this.findTournamentByID(tournamentID).orElse(null);
         if (isNull(currentTournament)) {
             throw new EntityNotFoundException(String.format("Unable to find the tournament with id %d", currentTournament.getTournamentID()));
@@ -174,6 +175,17 @@ public class TournamentService {
         if (pendingMatches.size() > 0) {
             throw new MissingMatchResultsException("Match results need to be updated before ending the round.");
 
+        }
+
+        // update player statuses
+        List<UserRegistersTournament> remainingRegistrants = userRegistersTournamentRepository.getUserRegistersTournamentsByTournamentID(currentTournament.getTournamentID())
+                .stream().filter(r -> r.getPlayerStatus() != PlayerStatus.ELIMINATED).collect(Collectors.toList());
+
+        for (UserRegistersTournament r : remainingRegistrants) {
+            List<UserInvolvesMatch> playedInRound = userInvolvesMatchRepository.getUsersMatchesForRound(roundID.get(0), r.getUserID());
+            if (playedInRound.size() > 0) {
+                userInvolvesMatchService.updateToNewPlayerStatus(currentTournament, r.getUserID(), roundID.get(0), playedInRound);
+            }
         }
 
         if (canEndTournament(currentTournament)) {
@@ -263,7 +275,7 @@ public class TournamentService {
         return false;
     }
 
-    private boolean checkIfAllPlayersHavePlayed(List<Registrant> registrants) {
+    public boolean checkIfAllPlayersHavePlayed(List<Registrant> registrants) {
 
         for (Registrant r : registrants) {
             if (r.getPlayersToPlay().size() > 1) {

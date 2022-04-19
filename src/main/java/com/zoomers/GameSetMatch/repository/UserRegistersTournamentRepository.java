@@ -1,6 +1,5 @@
 package com.zoomers.GameSetMatch.repository;
 
-import com.zoomers.GameSetMatch.entity.User;
 import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
 import com.zoomers.GameSetMatch.entity.UserRegistersTournamentID;
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
@@ -32,10 +31,13 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
             "WHERE userID = :id AND tournamentID = :t_id", nativeQuery = true)
     List<Integer> getPlayerStatusByTournamentID(int id, int t_id);
 
-
     @Query(value = "SELECT count(*) AS next FROM User WHERE userID IN (SELECT userID FROM User_registers_tournament \n"
             + "WHERE tournamentID = :tournamentID)",nativeQuery = true)
     UserMatchTournamentRepository.NumQuery getPlayersInTournament(Integer tournamentID);
+
+    @Query(value = "SELECT * FROM User_registers_tournament " +
+            "WHERE userID = :id AND tournamentID = :t_id", nativeQuery = true)
+    List<UserRegistersTournament> getTournamentRegistrationForUser(int id, int t_id);
 
 
     //TODO: add skill level table that maps value to meaning e.g. skill 1 = beginner, 2 = intermediate...

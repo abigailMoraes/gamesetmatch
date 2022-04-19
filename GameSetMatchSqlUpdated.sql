@@ -99,11 +99,11 @@ DELIMITER $$
         CREATE TABLE Invitation_Code (invitation_code varchar(10) NOT NULL, is_valid bit(1) NOT NULL, created_on varchar(30) NOT NULL, UNIQUE KEY invitationCode (invitation_code));
 /*sample data for Invitation Code*/
         INSERT INTO Invitation_Code(invitation_code, is_valid, created_on) VALUES('0M2WTV2J84', 0, '2022-03-10 23:16:05');
-        INSERT INTO Invitation_Code(invitation_code, is_valid, created_on) VALUES('L3XAU31X3L', 1, '2022-03-10 23:28:15');
+        INSERT INTO Invitation_Code(invitation_code, is_valid, created_on) VALUES('L3XAU31X3L', 1, CURRENT_TIMESTAMP);
 
         SET SQL_SAFE_UPDATES = 0;
 /* ALL DELETE STATEMENTS */
 
-        DELETE FROM Match_Has;
-        ALTER TABLE Match_Has auto_increment=1;
-        DELETE FROM User;
+--         DELETE FROM Match_Has;
+--         ALTER TABLE Match_Has auto_increment=1;
+--         DELETE FROM User;

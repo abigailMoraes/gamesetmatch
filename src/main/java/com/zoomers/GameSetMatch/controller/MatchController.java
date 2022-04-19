@@ -132,7 +132,7 @@ public class MatchController {
 
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/winner/matchID")
     Optional<UserMatchTournamentRepository.NumQuery> getNextMatchIDForWinner(@PathVariable int oldRoundID,
-                                                                          @PathVariable int oldMatchID) {
+                                                                             @PathVariable int oldMatchID) {
         UserMatchTournamentRepository.NumQuery empty = new UserMatchTournamentRepository.NumQuery() {
             @Override
             public Integer getNext() {
@@ -140,8 +140,8 @@ public class MatchController {
             }
         };
         Optional<UserMatchTournamentRepository.NumQuery> winnerIDObj = getSeriesWinnerID(oldMatchID);
-        if(winnerIDObj.isPresent()){
-            if (winnerIDObj.get().getNext() == null){
+        if (winnerIDObj.isPresent()) {
+            if (winnerIDObj.get().getNext() == null) {
                 return Optional.of(empty);
             }
         }
@@ -165,7 +165,7 @@ public class MatchController {
                 break;
             }
             if ((u1id == winnerID || u2id == winnerID) && (u1id == loserID || u2id == loserID) && mid > oldMatchID
-            && rid > oldRoundID){
+                    && rid > oldRoundID) {
                 newMID = mid;
                 found = true;
                 break;
@@ -206,7 +206,7 @@ public class MatchController {
 
     @GetMapping("/round/{oldRoundID}/match/{oldMatchID}/next/loser/matchID")
     Optional<UserMatchTournamentRepository.NumQuery> getNextMatchIDForLoser(@PathVariable int oldRoundID,
-                                                                             @PathVariable int oldMatchID) {
+                                                                            @PathVariable int oldMatchID) {
         int userID1 = matchRepository.getById(oldMatchID).getUserID_1();
         int userID2 = matchRepository.getById(oldMatchID).getUserID_2();
         int winnerID = getSeriesWinnerID(oldMatchID).get().getNext();
@@ -289,7 +289,7 @@ public class MatchController {
                     return userID2;
                 }
             };
-        }else {
+        } else {
             answer = new UserMatchTournamentRepository.NumQuery() {
                 @Override
                 public Integer getNext() {
@@ -297,8 +297,8 @@ public class MatchController {
                 }
             };
         }
-    return Optional.of(answer);
-        }
+        return Optional.of(answer);
+    }
 
     @PutMapping("/match/userAttendance")
     public void updateAttendance(@RequestBody IncomingAttendance attendance) {
@@ -310,9 +310,10 @@ public class MatchController {
         try {
             userInvolvesMatchService.updateMatchResults(results.getMatchID(), results.getUserID(), results.getResults());
 
-        } catch (EntityNotFoundException e){
+        } catch (EntityNotFoundException e) {
             ApiException error = new ApiException(HttpStatus.NOT_FOUND, e.getMessage());
             return new ResponseEntity<Object>(error, error.getHttpStatus());
+
         }
         return ResponseEntity.ok("Update successful.");
     }

@@ -2,6 +2,8 @@ package com.zoomers.GameSetMatch.entity;
 
 import com.zoomers.GameSetMatch.scheduler.domain.Registrant;
 import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -25,6 +27,9 @@ import javax.persistence.*;
                 "FROM User_registers_tournament WHERE tournamentID = :tournamentID",
         resultSetMapping = "RegistrantMapping"
 )
+
+@Getter
+@Setter
 public class UserRegistersTournament {
     public UserRegistersTournament(Integer tournamentID, Integer userID, Integer skillLevel, PlayerStatus playerStatus) {
         this.tournamentID = tournamentID;
@@ -51,29 +56,4 @@ public class UserRegistersTournament {
     @Column(name="player_status")
     private PlayerStatus playerStatus;
 
-    public Integer getTournamentID() {
-        return tournamentID;
-    }
-
-    public void setTournamentID(Integer tournamentID) {
-        this.tournamentID = tournamentID;
-    }
-
-    public Integer getUserID() {
-        return userID;
-    }
-
-    public void setUserID(Integer userID) {
-        this.userID = userID;
-    }
-
-    public Integer getSkillLevel() {
-        return skillLevel;
-    }
-
-    public void setSkillLevel(Integer skillLevel) {
-        this.skillLevel = skillLevel;
-    }
-
-    public PlayerStatus getPlayerStatus() { return playerStatus; }
 }
