@@ -2,8 +2,11 @@ package com.zoomers.GameSetMatch.services;
 
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.MatchDetailsForCalendar;
 import com.zoomers.GameSetMatch.controller.Match.ResponseBody.UsersMatchInfo;
-import com.zoomers.GameSetMatch.entity.*;
 import com.zoomers.GameSetMatch.entity.EnumsForColumns.MatchResult;
+import com.zoomers.GameSetMatch.entity.Match;
+import com.zoomers.GameSetMatch.entity.Tournament;
+import com.zoomers.GameSetMatch.entity.UserInvolvesMatch;
+import com.zoomers.GameSetMatch.entity.UserRegistersTournament;
 import com.zoomers.GameSetMatch.repository.*;
 import com.zoomers.GameSetMatch.scheduler.enumerations.PlayerStatus;
 import com.zoomers.GameSetMatch.scheduler.enumerations.TournamentFormat;
@@ -32,7 +35,7 @@ public class UserInvolvesMatchService {
     UserRegistersTournamentRepository userRegistersTournamentRepository;
 
     @Transactional
-    public void updateMatchResults(int matchID, int userID, int result) throws EntityNotFoundException, ScheduleException {
+    public void updateMatchResults(int matchID, int userID, int result) throws EntityNotFoundException {
         // there is a match for each user, set the result to be the same in both i.e tie, player1 or player2 was the winner
         List<UserInvolvesMatch> matches = userInvolvesMatchRepository.getUserInvolvesMatchByMatchID(matchID);
 
@@ -129,7 +132,6 @@ public class UserInvolvesMatchService {
             MatchDetailsForCalendar matchDetailsForCalendar = new MatchDetailsForCalendar(m.getMatchID(),
                     m.getStartTime(), m.getEndTime(), m.getRoundID(), m.getMatchStatus(), m.getUserID_1(), m.getUserID_2());
             matchDetailsForCalendar.setParticipants(usersMatch);
-
             returnList.add(matchDetailsForCalendar);
 
         }
@@ -140,4 +142,7 @@ public class UserInvolvesMatchService {
         return userInvolvesMatchRepository.getPendingMatches(roundID, MatchResult.PENDING.getResult());
     }
 
+    public Integer findMatchResultsByUserIDAndMatchID(int matchID, int userID){
+        return userInvolvesMatchRepository.findMatchResultByMatchIDAndUserID(matchID, userID);
+    }
 }

@@ -18,7 +18,7 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
 
     @Query(value = "SELECT u.userID, u.name, u.email, r.skill_level FROM " +
             "User_registers_tournament r " +
-            "INNER JOIN User u on r.userID = u.userID " +
+            "INNER JOIN User u ON r.userID = u.userID " +
             "WHERE (r.tournamentID = :tournamentID)" +
             "ORDER BY u.name;",
             nativeQuery = true)
@@ -31,9 +31,14 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
             "WHERE userID = :id AND tournamentID = :t_id", nativeQuery = true)
     List<Integer> getPlayerStatusByTournamentID(int id, int t_id);
 
+    @Query(value = "SELECT count(*) AS next FROM User WHERE userID IN (SELECT userID FROM User_registers_tournament \n"
+            + "WHERE tournamentID = :tournamentID)",nativeQuery = true)
+    UserMatchTournamentRepository.NumQuery getPlayersInTournament(Integer tournamentID);
+
     @Query(value = "SELECT * FROM User_registers_tournament " +
             "WHERE userID = :id AND tournamentID = :t_id", nativeQuery = true)
     List<UserRegistersTournament> getTournamentRegistrationForUser(int id, int t_id);
+
 
     //TODO: add skill level table that maps value to meaning e.g. skill 1 = beginner, 2 = intermediate...
     interface IRegistrant {
@@ -57,4 +62,11 @@ public interface UserRegistersTournamentRepository extends JpaRepository<UserReg
             "WHERE (r.tournamentID = :tournamentID)",
             nativeQuery = true)
     Integer getNumberOfRegistrantsForATournament(Integer tournamentID);
+
+    @Transactional
+    @Modifying
+    @Query(value="UPDATE User_registers_tournament u SET u.player_status = :newStatus " +
+            "WHERE (u.userID = :currUserID AND u.tournamentID = :currTournamentID)",
+    nativeQuery = true)
+    void updatePlayerStatusForATournament(int currUserID, int currTournamentID, int newStatus);
 }

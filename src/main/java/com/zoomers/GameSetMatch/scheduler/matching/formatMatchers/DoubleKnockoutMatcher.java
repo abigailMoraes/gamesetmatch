@@ -12,6 +12,12 @@ public class DoubleKnockoutMatcher extends FormatMatcher {
 
     @Override
     protected int calculateMatchFormatScore(Registrant r1, Registrant r2) {
-        return r1.hasNotPlayed(r2) ? 1 : 0;
+
+        int priorityMultiplier = 3;
+        int priorityScore = r1.getPlayersToPlay().size() != r2.getPlayersToPlay().size() ? 1 : 0;
+
+        int hasNotPlayedScore = r1.hasNotPlayed(r2) ? 1 : 0;
+
+        return priorityMultiplier * priorityScore + hasNotPlayedScore;
     }
 }

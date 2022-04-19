@@ -47,4 +47,5 @@ public interface MatchRepository extends JpaRepository<Match,Integer> {
     "Match_Has.roundID = r.roundID", nativeQuery = true)
     List<Match> getMatchesByTournamentID(int tournamentID);
 
+
 }
