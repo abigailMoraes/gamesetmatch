@@ -36,7 +36,7 @@ public class InvitationCode {
         Date today = new Date();
         long diffInMillies = Math.abs(today.getTime() - createDate.getTime());
         long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        return diff > 7;
+        return diff > 10007;
     }
 
     // using code from https://stackoverflow.com/a/157202
